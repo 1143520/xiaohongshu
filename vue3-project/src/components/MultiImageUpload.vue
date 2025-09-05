@@ -1,5 +1,20 @@
 <template>
   <div class="multi-image-upload">
+    <!-- 上传方式选择器 -->
+    <div class="upload-method-selector">
+      <label class="method-label">上传方式：</label>
+      <select v-model="selectedUploadMethod" class="method-select">
+        <option value="server">
+          {{ API_CONFIG.upload.uploadMethods.server.name }} -
+          {{ API_CONFIG.upload.uploadMethods.server.description }}
+        </option>
+        <option value="external">
+          {{ API_CONFIG.upload.uploadMethods.external.name }} -
+          {{ API_CONFIG.upload.uploadMethods.external.description }}
+        </option>
+      </select>
+    </div>
+
     <div class="upload-grid" @dragover.prevent @drop.prevent="handleDrop">
       <div
         v-for="(imageItem, index) in imageList"
@@ -89,6 +104,7 @@ import { ref, watch, nextTick } from "vue";
 import SvgIcon from "@/components/SvgIcon.vue";
 import MessageToast from "@/components/MessageToast.vue";
 import { imageUploadApi } from "@/api/index.js";
+import { API_CONFIG } from "@/config/api.js";
 
 const props = defineProps({
   modelValue: {
@@ -112,6 +128,7 @@ const imageList = ref([]);
 const error = ref("");
 const isDragOver = ref(false);
 const isUploading = ref(false);
+const selectedUploadMethod = ref(API_CONFIG.upload.defaultMethod);
 
 // 消息提示相关
 const showToast = ref(false);
@@ -467,25 +484,24 @@ const uploadAllImages = async () => {
       files.map((f) => f.name)
     );
 
-    const result = await imageUploadApi.uploadImages(files);
+    const result = await imageUploadApi.uploadWithMethod(
+      files,
+      selectedUploadMethod.value
+    );
     console.log("上传API返回结果:", result);
 
-    if (
-      result.success &&
-      result.data &&
-      result.data.uploaded &&
-      result.data.uploaded.length > 0
-    ) {
+    if (Array.isArray(result) && result.length > 0) {
       // 更新上传成功的图片状态
       let uploadIndex = 0;
       for (let i = 0; i < imageList.value.length; i++) {
         const item = imageList.value[i];
         if (!item.uploaded && item.file) {
-          if (uploadIndex < result.data.uploaded.length) {
-            const uploadedData = result.data.uploaded[uploadIndex];
-            item.uploaded = true;
-            item.url = uploadedData.url;
-
+          if (uploadIndex < result.length) {
+            const uploadResult = result[uploadIndex];
+            if (uploadResult.success) {
+              item.uploaded = true;
+              item.url = uploadResult.data.url;
+            }
             uploadIndex++;
           }
         }
@@ -627,6 +643,47 @@ defineExpose({
 <style scoped>
 .multi-image-upload {
   width: 100%;
+}
+
+/* 上传方式选择器样式 */
+.upload-method-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--bg-color-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color-primary);
+}
+
+.method-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color-primary);
+  white-space: nowrap;
+}
+
+.method-select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color-primary);
+  border-radius: 6px;
+  background: var(--bg-color-primary);
+  color: var(--text-color-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.method-select:hover {
+  border-color: var(--primary-color);
+}
+
+.method-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 95, 95, 0.1);
 }
 
 .upload-grid {
