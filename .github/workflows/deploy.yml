@@ -72,33 +72,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # 部署到服务器（可选）
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            # 停止现有容器
-            docker-compose -f /path/to/your/docker-compose.yml down
-
-            # 拉取最新镜像
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:main
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:main
-
-            # 启动新容器
-            docker-compose -f /path/to/your/docker-compose.yml up -d
-
-            # 清理旧镜像
-            docker image prune -f
+      - name: Output image tags
+        run: |
+          echo "Frontend image: ${{ steps.meta-frontend.outputs.tags }}"
+          echo "Backend image: ${{ steps.meta-backend.outputs.tags }}"
+          echo "构建完成！可以在服务器上使用以下命令部署："
+          echo "git clone ${{ github.server_url }}/${{ github.repository }}.git"
+          echo "cd $(basename ${{ github.repository }})"
+          echo "cp env.production.example .env"
+          echo "# 编辑 .env 文件设置 GITHUB_REPOSITORY=${{ github.repository }}"
+          echo "./deploy.sh"

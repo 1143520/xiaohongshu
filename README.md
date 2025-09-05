@@ -83,27 +83,35 @@ API_BASE_URL=https://your-domain.com
 - **构建步骤**:
   1. 构建前端和后端 Docker 镜像
   2. 推送镜像到 GitHub Container Registry
-  3. 自动部署到服务器（可选）
+  3. 提供部署提示信息
 
-### 自动部署到服务器
+### 服务器部署
 
-如需启用自动部署，需在 GitHub 仓库设置中添加以下 Secrets：
+GitHub Actions 构建完成后，在服务器上执行：
 
+```bash
+# 克隆项目
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
+
+# 配置环境变量
+cp env.production.example .env
+# 编辑 .env 文件
+
+# 一键部署
+./deploy.sh
 ```
-HOST=your-server-ip
-USERNAME=your-ssh-username
-SSH_KEY=your-private-ssh-key
-PORT=22
-```
+
+详细步骤请查看 [服务器部署指南](./SERVER_DEPLOY.md)
 
 ## 📋 部署检查清单
 
 - [ ] Fork 项目到你的 GitHub 账号
 - [ ] 启用 GitHub Actions 和 Container Registry
-- [ ] 配置 `.env` 文件
-- [ ] 确保服务器已安装 Docker 和 Docker Compose
-- [ ] 配置域名和 SSL 证书（可选）
-- [ ] 设置 GitHub Secrets（自动部署）
+- [ ] 推送代码触发构建
+- [ ] 在服务器上安装 Docker 和 Docker Compose
+- [ ] 克隆项目到服务器并配置 `.env` 文件
+- [ ] 执行部署脚本
 
 ## 🛠️ 开发环境
 
@@ -125,7 +133,8 @@ npm run dev
 
 | 文档                                   | 说明                    |
 | -------------------------------------- | ----------------------- |
-| [部署指南](./doc/DEPLOYMENT.md)        | 详细部署配置说明        |
+| [服务器部署指南](./SERVER_DEPLOY.md)   | 服务器部署详细步骤      |
+| [完整部署指南](./DEPLOY.md)            | Docker 部署完整说明     |
 | [项目结构](./doc/PROJECT_STRUCTURE.md) | 项目目录结构架构说明    |
 | [数据库设计](./doc/DATABASE_DESIGN.md) | 数据库表结构设计文档    |
 | [API 接口文档](./doc/API_DOCS.md)      | 后端 API 接口说明和示例 |
