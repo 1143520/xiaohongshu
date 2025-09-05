@@ -1,16 +1,18 @@
 # 小红书图文社区 API 接口文档
 
 ## 项目信息
+
 - **项目名称**: 小红书图文社区
 - **版本**: v1.0.1
-- **基础URL**: `http://localhost:3001`
+- **基础 URL**: `http://localhost:3001`
 - **数据库**: xiaoshiliu (MySQL)
 - **更新时间**: 2025-09-03
 
 ## 通用说明
 
 ### 响应格式
-所有API接口统一返回JSON格式，结构如下：
+
+所有 API 接口统一返回 JSON 格式，结构如下：
 
 ```json
 {
@@ -21,6 +23,7 @@
 ```
 
 ### 状态码说明
+
 - `200`: 请求成功
 - `400`: 请求参数错误
 - `401`: 未授权，需要登录
@@ -29,40 +32,47 @@
 - `500`: 服务器内部错误
 
 ### 认证说明
-需要认证的接口需要在请求头中携带JWT token：
+
+需要认证的接口需要在请求头中携带 JWT token：
+
 ```
 Authorization: Bearer <your_jwt_token>
 ```
 
 ### 分页参数
+
 支持分页的接口通用参数：
-- `page`: 页码，默认为1
-- `limit`: 每页数量，默认为20
+
+- `page`: 页码，默认为 1
+- `limit`: 每页数量，默认为 20
 
 ---
 
 ## 认证相关接口
 
 ### 1. 用户注册
+
 **接口地址**: `POST /api/auth/register`
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| user_id | string | 是 | 用户ID（唯一） |
+| user_id | string | 是 | 用户 ID（唯一） |
 | nickname | string | 是 | 昵称 |
-| password | string | 是 | 密码（6-20位） |
-| avatar | string | 否 | 头像URL |
+| password | string | 是 | 密码（6-20 位） |
+| avatar | string | 否 | 头像 URL |
 | bio | string | 否 | 个人简介 |
-| location | string | 否 | 所在地（如不提供，系统将自动根据IP获取属地） |
+| location | string | 否 | 所在地（如不提供，系统将自动根据 IP 获取属地） |
 
 **功能说明**:
-- 系统会自动通过第三方API获取用户属地信息
-- 如果用户手动提供了location参数，则优先使用用户提供的值
-- 对于本地环境，location将显示为"本地"
-- 系统不会存储用户的IP地址，仅获取属地信息用于显示
+
+- 系统会自动通过第三方 API 获取用户属地信息
+- 如果用户手动提供了 location 参数，则优先使用用户提供的值
+- 对于本地环境，location 将显示为"本地"
+- 系统不会存储用户的 IP 地址，仅获取属地信息用于显示
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -86,6 +96,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 2. 用户登录
+
 **接口地址**: `POST /api/auth/login`
 
 **请求参数**:
@@ -95,6 +106,7 @@ Authorization: Bearer <your_jwt_token>
 | password | string | 是 | 密码 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -121,6 +133,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 3. 刷新令牌
+
 **接口地址**: `POST /api/auth/refresh`
 
 **请求参数**:
@@ -129,6 +142,7 @@ Authorization: Bearer <your_jwt_token>
 | refresh_token | string | 是 | 刷新令牌 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -142,10 +156,12 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 4. 退出登录
+
 **接口地址**: `POST /api/auth/logout`
 **需要认证**: 是
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -154,10 +170,12 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 5. 获取当前用户信息
+
 **接口地址**: `GET /api/auth/me`
 **需要认证**: 是
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -183,15 +201,17 @@ Authorization: Bearer <your_jwt_token>
 ## 用户相关接口
 
 ### 1. 获取用户列表
+
 **接口地址**: `GET /api/users`
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -222,14 +242,16 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 2. 获取用户详情
+
 **接口地址**: `GET /api/users/:id`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 用户ID |
+| id | int | 是 | 用户 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -250,29 +272,32 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 3. 获取用户收藏列表
+
 **接口地址**: `GET /api/users/:id/collections`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 用户ID |
+| id | int | 是 | 用户 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 ### 4. 关注用户
+
 **接口地址**: `POST /api/users/:id/follow`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 被关注用户ID |
+| id | int | 是 | 被关注用户 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -281,15 +306,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 5. 取消关注用户
+
 **接口地址**: `DELETE /api/users/:id/follow`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 被关注用户ID |
+| id | int | 是 | 被关注用户 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -298,20 +325,22 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 6. 获取关注列表
+
 **接口地址**: `GET /api/users/:id/following`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 用户ID |
+| id | int | 是 | 用户 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -340,20 +369,22 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 7. 获取粉丝列表
+
 **接口地址**: `GET /api/users/:id/followers`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 用户ID |
+| id | int | 是 | 用户 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -382,16 +413,18 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 8. 搜索用户
+
 **接口地址**: `GET /api/users/search`
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | keyword | string | 是 | 搜索关键词（支持昵称和小红书号搜索） |
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -426,14 +459,16 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 9. 获取用户个性标签
+
 **接口地址**: `GET /api/users/:id/personality-tags`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 用户ID |
+| id | int | 是 | 用户 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -456,20 +491,22 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 10. 获取用户发布的帖子
+
 **接口地址**: `GET /api/users/:id/posts`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 用户ID |
+| id | int | 是 | 用户 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -509,20 +546,22 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 11. 获取用户点赞的帖子
+
 **接口地址**: `GET /api/users/:id/likes`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 用户ID |
+| id | int | 是 | 用户 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -563,15 +602,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 12. 获取关注状态
+
 **接口地址**: `GET /api/users/:id/follow-status`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 目标用户ID |
+| id | int | 是 | 目标用户 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -585,20 +626,22 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 13. 获取互关列表
+
 **接口地址**: `GET /api/users/:id/mutual-follows`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 用户ID |
+| id | int | 是 | 用户 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -627,14 +670,16 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 14. 获取用户统计信息
+
 **接口地址**: `GET /api/users/:id/stats`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 用户ID |
+| id | int | 是 | 用户 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -652,23 +697,25 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 15. 更新用户信息
+
 **接口地址**: `PUT /api/users/:id`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 用户ID |
+| id | int | 是 | 用户 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | nickname | string | 否 | 昵称 |
-| avatar | string | 否 | 头像URL |
+| avatar | string | 否 | 头像 URL |
 | bio | string | 否 | 个人简介 |
 | location | string | 否 | 所在地 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -690,16 +737,18 @@ Authorization: Bearer <your_jwt_token>
 ## 笔记相关接口
 
 ### 1. 获取笔记列表
+
 **接口地址**: `GET /api/posts`
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | category | string | 否 | 分类筛选 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -742,16 +791,18 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 2. 获取笔记详情
+
 **接口地址**: `GET /api/posts/:id`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 笔记ID |
+| id | int | 是 | 笔记 ID |
 
 **说明**: 访问笔记详情会自动增加浏览量
 
 ### 3. 创建笔记
+
 **接口地址**: `POST /api/posts`
 **需要认证**: 是
 
@@ -761,10 +812,11 @@ Authorization: Bearer <your_jwt_token>
 | title | string | 是 | 笔记标题 |
 | content | string | 是 | 笔记内容 |
 | category | string | 否 | 分类 |
-| images | array | 否 | 图片URL数组 |
-| tags | array | 否 | 标签ID数组 |
+| images | array | 否 | 图片 URL 数组 |
+| tags | array | 否 | 标签 ID 数组 |
 
 **请求示例**:
+
 ```json
 {
   "title": "分享一个美好的下午",
@@ -779,29 +831,32 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 4. 获取笔记评论
+
 **接口地址**: `GET /api/posts/:id/comments`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 笔记ID |
+| id | int | 是 | 笔记 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 ### 5. 收藏笔记
+
 **接口地址**: `POST /api/posts/:id/collect`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 笔记ID |
+| id | int | 是 | 笔记 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -810,17 +865,19 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 6. 搜索笔记
+
 **接口地址**: `GET /api/posts/search`
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | keyword | string | 是 | 搜索关键词（支持标题和内容搜索） |
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | category | string | 否 | 分类筛选 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -860,13 +917,14 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 7. 更新笔记
+
 **接口地址**: `PUT /api/posts/:id`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 笔记ID |
+| id | int | 是 | 笔记 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
@@ -874,23 +932,23 @@ Authorization: Bearer <your_jwt_token>
 | title | string | 否 | 笔记标题 |
 | content | string | 否 | 笔记内容 |
 | category | string | 否 | 分类 |
-| images | array | 否 | 图片URL数组 |
-| tags | array | 否 | 标签ID数组 |
+| images | array | 否 | 图片 URL 数组 |
+| tags | array | 否 | 标签 ID 数组 |
 
 **请求示例**:
+
 ```json
 {
   "title": "更新后的标题",
   "content": "更新后的内容",
   "category": "生活",
-  "images": [
-    "https://example.com/new_image1.jpg"
-  ],
+  "images": ["https://example.com/new_image1.jpg"],
   "tags": [1, 3, 5]
 }
 ```
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -906,15 +964,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 8. 删除笔记
+
 **接口地址**: `DELETE /api/posts/:id`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 笔记ID |
+| id | int | 是 | 笔记 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -923,15 +983,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 9. 取消收藏笔记
+
 **接口地址**: `DELETE /api/posts/:id/collect`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 笔记ID |
+| id | int | 是 | 笔记 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -940,17 +1002,19 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 10. 获取草稿列表
+
 **接口地址**: `GET /api/posts/drafts`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | keyword | string | 否 | 搜索关键词 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -979,6 +1043,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 11. 保存草稿
+
 **接口地址**: `POST /api/posts/drafts`
 **需要认证**: 是
 
@@ -988,10 +1053,11 @@ Authorization: Bearer <your_jwt_token>
 | title | string | 否 | 草稿标题 |
 | content | string | 否 | 草稿内容 |
 | category | string | 否 | 分类 |
-| images | array | 否 | 图片URL数组 |
+| images | array | 否 | 图片 URL 数组 |
 | tags | array | 否 | 标签数组 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1009,13 +1075,14 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 12. 更新草稿
+
 **接口地址**: `PUT /api/posts/drafts/:id`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 草稿ID |
+| id | int | 是 | 草稿 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
@@ -1023,10 +1090,11 @@ Authorization: Bearer <your_jwt_token>
 | title | string | 否 | 草稿标题 |
 | content | string | 否 | 草稿内容 |
 | category | string | 否 | 分类 |
-| images | array | 否 | 图片URL数组 |
+| images | array | 否 | 图片 URL 数组 |
 | tags | array | 否 | 标签数组 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1041,15 +1109,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 13. 删除草稿
+
 **接口地址**: `DELETE /api/posts/drafts/:id`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 草稿ID |
+| id | int | 是 | 草稿 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1058,15 +1128,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 14. 发布草稿
+
 **接口地址**: `POST /api/posts/drafts/:id/publish`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 草稿ID |
+| id | int | 是 | 草稿 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1080,16 +1152,19 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ---
+
 ### 4. 删除评论
+
 **接口地址**: `DELETE /api/comments/:id`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 评论ID |
+| id | int | 是 | 评论 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1098,36 +1173,40 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ---
+
 ### 4. 获取笔记评论
+
 **接口地址**: `GET /api/posts/:id/comments`
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 笔记ID |
+| id | int | 是 | 笔记 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 ---
 
 ## 评论相关接口
 
 ### 1. 获取评论列表
+
 **接口地址**: `GET /api/comments`
 **需要认证**: 否（可选）
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| post_id | int | 是 | 笔记ID |
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| post_id | int | 是 | 笔记 ID |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1176,10 +1255,12 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 **说明**:
-- `content` 字段可能包含HTML格式的@用户标签
-- 前端需要正确渲染HTML内容以显示@用户链接
+
+- `content` 字段可能包含 HTML 格式的@用户标签
+- 前端需要正确渲染 HTML 内容以显示@用户链接
 - @用户链接包含 `href`、`data-user-id`、`class` 等属性用于前端处理
-```
+
+````
 
 ### 2. 创建评论
 **接口地址**: `POST /api/comments`
@@ -1205,9 +1286,10 @@ Authorization: Bearer <your_jwt_token>
   "content": "这是一条普通评论",
   "parent_id": null
 }
-```
+````
 
 **包含@用户的请求示例**:
+
 ```json
 {
   "post_id": 1,
@@ -1217,6 +1299,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1233,28 +1316,31 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 **@功能处理说明**:
+
 - 当评论包含@用户标签时，系统会自动：
-  1. 解析HTML中的`data-user-id`属性获取被@用户的ID
+  1. 解析 HTML 中的`data-user-id`属性获取被@用户的 ID
   2. 验证被@用户是否存在
-  3. 向被@用户发送mention类型的通知
+  3. 向被@用户发送 mention 类型的通知
   4. 不会向自己发送@通知
 
 ### 3. 获取评论回复
+
 **接口地址**: `GET /api/comments/:id/replies`
 **需要认证**: 否（可选）
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 评论ID |
+| id | int | 是 | 评论 ID |
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认10 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 10 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1284,15 +1370,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 4. 删除评论
+
 **接口地址**: `DELETE /api/comments/:id`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 评论ID |
+| id | int | 是 | 评论 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1305,16 +1393,18 @@ Authorization: Bearer <your_jwt_token>
 ## 通知相关接口
 
 ### 1. 获取评论通知
+
 **接口地址**: `GET /api/notifications/comments`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1345,16 +1435,18 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 2. 获取点赞通知
+
 **接口地址**: `GET /api/notifications/likes`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1385,16 +1477,18 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 3. 获取关注通知
+
 **接口地址**: `GET /api/notifications/follows`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1422,15 +1516,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 4. 标记通知为已读
+
 **接口地址**: `PUT /api/notifications/:id/read`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 通知ID |
+| id | int | 是 | 通知 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1439,16 +1535,18 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 4. 获取收藏通知
+
 **接口地址**: `GET /api/notifications/collections`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1479,16 +1577,18 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 5. 获取所有通知
+
 **接口地址**: `GET /api/notifications`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1519,15 +1619,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 6. 标记通知为已读
+
 **接口地址**: `PUT /api/notifications/:id/read`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 通知ID |
+| id | int | 是 | 通知 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1536,10 +1638,12 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 7. 标记所有通知为已读
+
 **接口地址**: `PUT /api/notifications/read-all`
 **需要认证**: 是
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1548,15 +1652,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 8. 删除通知
+
 **接口地址**: `DELETE /api/notifications/:id`
 **需要认证**: 是
 
 **路径参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| id | int | 是 | 通知ID |
+| id | int | 是 | 通知 ID |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1565,10 +1671,12 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 9. 获取未读通知数量
+
 **接口地址**: `GET /api/notifications/unread-count`
 **需要认证**: 是
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1584,16 +1692,19 @@ Authorization: Bearer <your_jwt_token>
 ## 文件上传接口
 
 ### 1. 单文件上传
+
 **接口地址**: `POST /api/upload/single`
 **需要认证**: 是
 
 **请求参数**:
+
 - 使用 `multipart/form-data` 格式
 - 文件字段名: `file`
 - 支持格式: jpg, jpeg, png, webp
-- 文件大小限制: 5MB
+- 文件大小限制: 50MB
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1607,17 +1718,20 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 2. 多文件上传
+
 **接口地址**: `POST /api/upload/multiple`
 **需要认证**: 是
 
 **请求参数**:
+
 - 使用 `multipart/form-data` 格式
 - 文件字段名: `files`
-- 最多支持9个文件
+- 最多支持 9 个文件
 - 支持格式: jpg, jpeg, png, webp
-- 单文件大小限制: 5MB
+- 单文件大小限制: 50MB
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1637,16 +1751,18 @@ Authorization: Bearer <your_jwt_token>
 }
 ```
 
-### 3. Base64图片上传
+### 3. Base64 图片上传
+
 **接口地址**: `POST /api/upload/base64`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| images | array | 是 | Base64编码的图片数组 |
+| images | array | 是 | Base64 编码的图片数组 |
 
 **请求示例**:
+
 ```json
 {
   "images": [
@@ -1657,6 +1773,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1672,6 +1789,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 4. 删除文件
+
 **接口地址**: `DELETE /api/upload/:filename`
 **需要认证**: 是
 
@@ -1681,6 +1799,7 @@ Authorization: Bearer <your_jwt_token>
 | filename | string | 是 | 文件名 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1693,6 +1812,7 @@ Authorization: Bearer <your_jwt_token>
 ## 互动相关接口
 
 ### 1. 点赞/取消点赞
+
 **接口地址**: `POST /api/likes`
 **需要认证**: 是
 
@@ -1700,13 +1820,15 @@ Authorization: Bearer <your_jwt_token>
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | target_type | int | 是 | 目标类型（1:笔记, 2:评论） |
-| target_id | int | 是 | 目标ID |
+| target_id | int | 是 | 目标 ID |
 
 **功能说明**:
+
 - 如果用户未点赞，则执行点赞操作
 - 如果用户已点赞，则执行取消点赞操作
 
 **请求示例**:
+
 ```json
 {
   "target_type": 1,
@@ -1715,6 +1837,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1726,6 +1849,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 1.1 取消点赞（备用接口）
+
 **接口地址**: `DELETE /api/likes`
 **需要认证**: 是
 
@@ -1733,9 +1857,10 @@ Authorization: Bearer <your_jwt_token>
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | target_type | int | 是 | 目标类型（1:笔记, 2:评论） |
-| target_id | int | 是 | 目标ID |
+| target_id | int | 是 | 目标 ID |
 
 **请求示例**:
+
 ```json
 {
   "target_type": 1,
@@ -1744,6 +1869,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1752,15 +1878,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 2. 收藏/取消收藏
+
 **接口地址**: `POST /api/collections`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| post_id | int | 是 | 笔记ID |
+| post_id | int | 是 | 笔记 ID |
 
 **请求示例**:
+
 ```json
 {
   "post_id": 1
@@ -1768,6 +1896,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1783,9 +1912,11 @@ Authorization: Bearer <your_jwt_token>
 ## 标签相关接口
 
 ### 1. 获取标签列表
+
 **接口地址**: `GET /api/tags`
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1804,15 +1935,17 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### 2. 获取热门标签
+
 **接口地址**: `GET /api/tags/hot`
 
-**说明**: 返回最多10个热门标签
+**说明**: 返回最多 10 个热门标签
 
 ---
 
 ## 搜索相关接口
 
 ### 1. 通用搜索
+
 **接口地址**: `GET /api/search`
 **需要认证**: 否（可选）
 
@@ -1822,10 +1955,11 @@ Authorization: Bearer <your_jwt_token>
 | keyword | string | 否 | 搜索关键词 |
 | tag | string | 否 | 标签搜索 |
 | type | string | 否 | 搜索类型：all（默认）、posts、users |
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1882,9 +2016,11 @@ Authorization: Bearer <your_jwt_token>
 ## 统计相关接口
 
 ### 1. 获取统计数据
+
 **接口地址**: `GET /api/stats`
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -1904,15 +2040,15 @@ Authorization: Bearer <your_jwt_token>
 
 ## 错误码说明
 
-| 错误码 | 说明 |
-|--------|------|
-| 400 | 请求参数错误 |
-| 404 | 资源不存在 |
-| 500 | 服务器内部错误 |
+| 错误码 | 说明           |
+| ------ | -------------- |
+| 400    | 请求参数错误   |
+| 404    | 资源不存在     |
+| 500    | 服务器内部错误 |
 
 ## 使用示例
 
-### 使用curl测试接口
+### 使用 curl 测试接口
 
 ```bash
 # 用户注册
@@ -1987,72 +2123,72 @@ curl -X GET "http://localhost:3001/api/notifications/comments" \
 curl -X GET "http://localhost:3001/api/search?keyword=生活"
 ```
 
-### 使用JavaScript测试接口
+### 使用 JavaScript 测试接口
 
 ```javascript
 // 设置基础URL和token
-const API_BASE = 'http://localhost:3001';
-let authToken = localStorage.getItem('auth_token');
+const API_BASE = "http://localhost:3001";
+let authToken = localStorage.getItem("auth_token");
 
 // 通用请求函数
 async function apiRequest(url, options = {}) {
   const config = {
     headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
+      "Content-Type": "application/json",
+      ...options.headers,
     },
-    ...options
+    ...options,
   };
-  
+
   if (authToken && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${authToken}`;
   }
-  
+
   const response = await fetch(`${API_BASE}${url}`, config);
   return response.json();
 }
 
 // 用户注册
 async function register() {
-  const result = await apiRequest('/api/auth/register', {
-    method: 'POST',
+  const result = await apiRequest("/api/auth/register", {
+    method: "POST",
     body: JSON.stringify({
-      user_id: 'test_user',
-      nickname: '测试用户',
-      password: '123456',
-      email: 'test@example.com'
-    })
+      user_id: "test_user",
+      nickname: "测试用户",
+      password: "123456",
+      email: "test@example.com",
+    }),
   });
-  
+
   if (result.code === 200) {
     authToken = result.data.tokens.access_token;
-    localStorage.setItem('auth_token', authToken);
+    localStorage.setItem("auth_token", authToken);
   }
-  
+
   return result;
 }
 
 // 用户登录
 async function login() {
-  const result = await apiRequest('/api/auth/login', {
-    method: 'POST',
+  const result = await apiRequest("/api/auth/login", {
+    method: "POST",
     body: JSON.stringify({
-      user_id: 'test_user',
-      password: '123456'
-    })
+      user_id: "test_user",
+      password: "123456",
+    }),
   });
-  
+
   if (result.code === 200) {
     authToken = result.data.tokens.access_token;
-    localStorage.setItem('auth_token', authToken);
+    localStorage.setItem("auth_token", authToken);
   }
-  
+
   return result;
 }
 
 // 获取当前用户信息
 async function getCurrentUser() {
-  return await apiRequest('/api/auth/me');
+  return await apiRequest("/api/auth/me");
 }
 
 // 获取笔记列表
@@ -2062,50 +2198,50 @@ async function getPosts(page = 1, limit = 10) {
 
 // 创建笔记
 async function createPost(postData) {
-  return await apiRequest('/api/posts', {
-    method: 'POST',
-    body: JSON.stringify(postData)
+  return await apiRequest("/api/posts", {
+    method: "POST",
+    body: JSON.stringify(postData),
   });
 }
 
 // 点赞笔记
 async function likePost(postId) {
   return await apiRequest(`/api/posts/${postId}/like`, {
-    method: 'POST'
+    method: "POST",
   });
 }
 
 // 收藏笔记
 async function collectPost(postId) {
   return await apiRequest(`/api/posts/${postId}/collect`, {
-    method: 'POST'
+    method: "POST",
   });
 }
 
 // 关注用户
 async function followUser(userId) {
   return await apiRequest(`/api/users/${userId}/follow`, {
-    method: 'POST'
+    method: "POST",
   });
 }
 
 // 上传文件
 async function uploadFile(file) {
   const formData = new FormData();
-  formData.append('file', file);
-  
-  return await apiRequest('/api/upload/single', {
-    method: 'POST',
+  formData.append("file", file);
+
+  return await apiRequest("/api/upload/single", {
+    method: "POST",
     headers: {
       // 不设置Content-Type，让浏览器自动设置multipart/form-data
-      Authorization: `Bearer ${authToken}`
+      Authorization: `Bearer ${authToken}`,
     },
-    body: formData
+    body: formData,
   });
 }
 
 // 获取通知
-async function getNotifications(type = 'comments', page = 1) {
+async function getNotifications(type = "comments", page = 1) {
   return await apiRequest(`/api/notifications/${type}?page=${page}`);
 }
 
@@ -2114,28 +2250,27 @@ async function example() {
   try {
     // 登录
     const loginResult = await login();
-    console.log('登录结果:', loginResult);
-    
+    console.log("登录结果:", loginResult);
+
     // 获取笔记列表
     const posts = await getPosts();
-    console.log('笔记列表:', posts);
-    
+    console.log("笔记列表:", posts);
+
     // 创建笔记
     const newPost = await createPost({
-      title: '测试笔记',
-      content: '这是测试内容',
-      category: '测试'
+      title: "测试笔记",
+      content: "这是测试内容",
+      category: "测试",
     });
-    console.log('创建笔记结果:', newPost);
-    
+    console.log("创建笔记结果:", newPost);
+
     // 点赞笔记
     if (posts.data.posts.length > 0) {
       const likeResult = await likePost(posts.data.posts[0].id);
-      console.log('点赞结果:', likeResult);
+      console.log("点赞结果:", likeResult);
     }
-    
   } catch (error) {
-    console.error('API调用错误:', error);
+    console.error("API调用错误:", error);
   }
 }
 ```
@@ -2144,27 +2279,30 @@ async function example() {
 
 ## 注意事项
 
-1. **认证要求**: 需要认证的接口必须在请求头中携带有效的JWT token
-2. **Token管理**: 访问令牌有效期为1小时，刷新令牌有效期为7天
-3. **请求格式**: 所有POST/PUT请求需要设置`Content-Type: application/json`（文件上传除外）
-4. **文件上传**: 文件上传接口使用`multipart/form-data`格式，支持jpg、jpeg、png、gif、webp格式，单文件最大5MB
+1. **认证要求**: 需要认证的接口必须在请求头中携带有效的 JWT token
+2. **Token 管理**: 访问令牌有效期为 1 小时，刷新令牌有效期为 7 天
+3. **请求格式**: 所有 POST/PUT 请求需要设置`Content-Type: application/json`（文件上传除外）
+4. **文件上传**: 文件上传接口使用`multipart/form-data`格式，支持 jpg、jpeg、png、gif、webp 格式，单文件最大 50MB
 5. **状态切换**: 点赞、收藏、关注等操作支持切换状态（已点赞则取消点赞）
 6. **自动更新**: 访问笔记详情会自动增加浏览量，创建评论会自动更新笔记的评论数
 7. **关系更新**: 关注操作会自动更新用户的关注数和粉丝数
 8. **搜索功能**: 搜索功能支持标题和内容的模糊匹配
 9. **通知系统**: 评论、点赞、关注等操作会自动生成通知
-10. **数据验证**: 用户注册时会验证用户ID唯一性和密码强度（6-20位）
+10. **数据验证**: 用户注册时会验证用户 ID 唯一性和密码强度（6-20 位）
 
 ---
 
 ## 管理员相关接口
 
 ### 认证说明
-管理员接口使用JWT认证方式：
-- 管理员需要先通过登录接口获取JWT token
+
+管理员接口使用 JWT 认证方式：
+
+- 管理员需要先通过登录接口获取 JWT token
 - 在后续请求中在请求头中携带 `Authorization: Bearer <token>`
 
 ### 1. 管理员登录
+
 **接口地址**: `POST /api/auth/admin/login`
 
 **请求参数**:
@@ -2174,6 +2312,7 @@ async function example() {
 | password | string | 是 | 管理员密码 |
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -2193,10 +2332,12 @@ async function example() {
 ```
 
 ### 2. 获取当前管理员信息
+
 **接口地址**: `GET /api/auth/admin/me`
 **需要认证**: 是（JWT）
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -2211,99 +2352,111 @@ async function example() {
 ### 3. 用户管理
 
 #### 3.1 获取用户列表
+
 **接口地址**: `GET /api/admin/users`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
-| user_id | string | 否 | 用户ID搜索 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
+| user_id | string | 否 | 用户 ID 搜索 |
 | nickname | string | 否 | 昵称搜索 |
 | status | int | 否 | 状态筛选（1=活跃，0=禁用） |
 | sortBy | string | 否 | 排序字段（id, fans_count, like_count, created_at） |
 | sortOrder | string | 否 | 排序方向（ASC, DESC） |
 
 #### 3.2 创建用户
+
 **接口地址**: `POST /api/admin/users`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| user_id | string | 是 | 用户ID |
+| user_id | string | 是 | 用户 ID |
 | nickname | string | 是 | 昵称 |
 | password | string | 是 | 密码 |
-| avatar | string | 否 | 头像URL |
+| avatar | string | 否 | 头像 URL |
 | bio | string | 否 | 个人简介 |
 | location | string | 否 | 所在地 |
 
 #### 3.3 更新用户
+
 **接口地址**: `PUT /api/admin/users/:id`
 **需要认证**: 是
 
 #### 3.4 删除用户
+
 **接口地址**: `DELETE /api/admin/users/:id`
 **需要认证**: 是
 
 #### 3.5 批量删除用户
+
 **接口地址**: `DELETE /api/admin/users`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| ids | array | 是 | 用户ID数组 |
+| ids | array | 是 | 用户 ID 数组 |
 
 ### 4. 笔记管理
 
 #### 4.1 获取笔记列表
+
 **接口地址**: `GET /api/admin/posts`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | title | string | 否 | 标题搜索 |
 | category | string | 否 | 分类筛选 |
 | sortBy | string | 否 | 排序字段（id, view_count, like_count, collect_count, comment_count, created_at） |
 | sortOrder | string | 否 | 排序方向（ASC, DESC） |
 
 #### 4.2 创建笔记
+
 **接口地址**: `POST /api/admin/posts`
 **需要认证**: 是
 
 #### 4.3 更新笔记
+
 **接口地址**: `PUT /api/admin/posts/:id`
 **需要认证**: 是
 
 #### 4.4 删除笔记
+
 **接口地址**: `DELETE /api/admin/posts/:id`
 **需要认证**: 是
 
 #### 4.5 批量删除笔记
+
 **接口地址**: `DELETE /api/admin/posts`
 **需要认证**: 是
 
 ### 5. 评论管理
 
 #### 5.1 获取评论列表
+
 **接口地址**: `GET /api/admin/comments`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | content | string | 否 | 内容搜索 |
 | sortBy | string | 否 | 排序字段（id, like_count, created_at） |
 | sortOrder | string | 否 | 排序方向（ASC, DESC） |
 
 #### 5.2 创建评论
+
 **接口地址**: `POST /api/admin/comments`
 **需要认证**: 是
 
@@ -2311,11 +2464,12 @@ async function example() {
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | content | string | 是 | 评论内容 |
-| user_id | int | 是 | 评论者ID |
-| post_id | int | 是 | 笔记ID |
-| parent_id | int | 否 | 父评论ID（回复评论时使用） |
+| user_id | int | 是 | 评论者 ID |
+| post_id | int | 是 | 笔记 ID |
+| parent_id | int | 否 | 父评论 ID（回复评论时使用） |
 
 #### 5.3 更新评论
+
 **接口地址**: `PUT /api/admin/comments/:id`
 **需要认证**: 是
 
@@ -2325,38 +2479,43 @@ async function example() {
 | content | string | 否 | 评论内容 |
 
 #### 5.4 删除评论
+
 **接口地址**: `DELETE /api/admin/comments/:id`
 **需要认证**: 是
 
 #### 5.5 批量删除评论
+
 **接口地址**: `DELETE /api/admin/comments`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| ids | array | 是 | 评论ID数组 |
+| ids | array | 是 | 评论 ID 数组 |
 
 #### 5.6 获取单个评论详情
+
 **接口地址**: `GET /api/admin/comments/:id`
 **需要认证**: 是
 
 ### 6. 标签管理
 
 #### 6.1 获取标签列表
+
 **接口地址**: `GET /api/admin/tags`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | name | string | 否 | 标签名搜索 |
 | sortBy | string | 否 | 排序字段（id, use_count, created_at） |
 | sortOrder | string | 否 | 排序方向（ASC, DESC） |
 
 #### 6.2 创建标签
+
 **接口地址**: `POST /api/admin/tags`
 **需要认证**: 是
 
@@ -2367,6 +2526,7 @@ async function example() {
 | description | string | 否 | 标签描述 |
 
 #### 6.3 更新标签
+
 **接口地址**: `PUT /api/admin/tags/:id`
 **需要认证**: 是
 
@@ -2377,49 +2537,55 @@ async function example() {
 | description | string | 否 | 标签描述 |
 
 #### 6.4 删除标签
+
 **接口地址**: `DELETE /api/admin/tags/:id`
 **需要认证**: 是
 
 #### 6.5 批量删除标签
+
 **接口地址**: `DELETE /api/admin/tags`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| ids | array | 是 | 标签ID数组 |
+| ids | array | 是 | 标签 ID 数组 |
 
 #### 6.6 获取单个标签详情
+
 **接口地址**: `GET /api/admin/tags/:id`
 **需要认证**: 是
 
 ### 7. 点赞管理
 
 #### 7.1 获取点赞列表
+
 **接口地址**: `GET /api/admin/likes`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | target_type | int | 否 | 目标类型（1=笔记，2=评论） |
 | sortBy | string | 否 | 排序字段（id, user_id, created_at） |
 | sortOrder | string | 否 | 排序方向（ASC, DESC） |
 
 #### 7.2 创建点赞
+
 **接口地址**: `POST /api/admin/likes`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| user_id | int | 是 | 用户ID |
-| target_id | int | 是 | 目标ID（笔记ID或评论ID） |
+| user_id | int | 是 | 用户 ID |
+| target_id | int | 是 | 目标 ID（笔记 ID 或评论 ID） |
 | target_type | int | 是 | 目标类型（1=笔记，2=评论） |
 
 #### 7.3 更新点赞
+
 **接口地址**: `PUT /api/admin/likes/:id`
 **需要认证**: 是
 
@@ -2429,146 +2595,169 @@ async function example() {
 | target_type | int | 否 | 目标类型（1=笔记，2=评论） |
 
 #### 7.4 删除点赞
+
 **接口地址**: `DELETE /api/admin/likes/:id`
 **需要认证**: 是
 
 #### 7.5 批量删除点赞
+
 **接口地址**: `DELETE /api/admin/likes`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| ids | array | 是 | 点赞ID数组 |
+| ids | array | 是 | 点赞 ID 数组 |
 
 #### 7.6 获取单个点赞详情
+
 **接口地址**: `GET /api/admin/likes/:id`
 **需要认证**: 是
 
 ### 8. 收藏管理
 
 #### 8.1 获取收藏列表
+
 **接口地址**: `GET /api/admin/collections`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | sortBy | string | 否 | 排序字段（id, user_id, created_at） |
 | sortOrder | string | 否 | 排序方向（ASC, DESC） |
 
 #### 8.2 创建收藏
+
 **接口地址**: `POST /api/admin/collections`
 **需要认证**: 是
 
 #### 8.3 删除收藏
+
 **接口地址**: `DELETE /api/admin/collections/:id`
 **需要认证**: 是
 
 #### 8.4 批量删除收藏
+
 **接口地址**: `DELETE /api/admin/collections`
 **需要认证**: 是
 
 ### 9. 关注管理
 
 #### 9.1 获取关注列表
+
 **接口地址**: `GET /api/admin/follows`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | sortBy | string | 否 | 排序字段（id, follower_id, following_id, created_at） |
 | sortOrder | string | 否 | 排序方向（ASC, DESC） |
 
 #### 9.2 创建关注关系
+
 **接口地址**: `POST /api/admin/follows`
 **需要认证**: 是
 
 #### 9.3 删除关注关系
+
 **接口地址**: `DELETE /api/admin/follows/:id`
 **需要认证**: 是
 
 #### 9.4 批量删除关注关系
+
 **接口地址**: `DELETE /api/admin/follows`
 **需要认证**: 是
 
 ### 10. 通知管理
 
 #### 10.1 获取通知列表
+
 **接口地址**: `GET /api/admin/notifications`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | type | string | 否 | 通知类型筛选 |
 | is_read | int | 否 | 已读状态（0=未读，1=已读） |
 | sortBy | string | 否 | 排序字段（id, created_at） |
 | sortOrder | string | 否 | 排序方向（ASC, DESC） |
 
 #### 10.2 创建通知
+
 **接口地址**: `POST /api/admin/notifications`
 **需要认证**: 是
 
 #### 10.3 更新通知
+
 **接口地址**: `PUT /api/admin/notifications/:id`
 **需要认证**: 是
 
 #### 10.4 删除通知
+
 **接口地址**: `DELETE /api/admin/notifications/:id`
 **需要认证**: 是
 
 #### 10.5 批量删除通知
+
 **接口地址**: `DELETE /api/admin/notifications`
 **需要认证**: 是
 
 ### 11. 会话管理
 
 #### 11.1 获取会话列表
+
 **接口地址**: `GET /api/admin/sessions`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | is_active | int | 否 | 活跃状态（0=非活跃，1=活跃） |
 | sortBy | string | 否 | 排序字段（id, is_active, expires_at, created_at） |
 | sortOrder | string | 否 | 排序方向（ASC, DESC） |
 
 #### 11.2 创建会话
+
 **接口地址**: `POST /api/admin/sessions`
 **需要认证**: 是
 
 #### 11.3 更新会话
+
 **接口地址**: `PUT /api/admin/sessions/:id`
 **需要认证**: 是
 
 #### 11.4 删除会话
+
 **接口地址**: `DELETE /api/admin/sessions/:id`
 **需要认证**: 是
 
 #### 11.5 批量删除会话
+
 **接口地址**: `DELETE /api/admin/sessions`
 **需要认证**: 是
 
 ### 12. 管理员管理
 
 #### 12.1 测试接口
+
 **接口地址**: `GET /api/admin/test-users`
 **需要认证**: 是
 
 **说明**: 临时测试接口，用于检查用户数据
 
 **响应示例**:
+
 ```json
 {
   "code": 200,
@@ -2583,19 +2772,21 @@ async function example() {
 ```
 
 #### 12.2 获取管理员列表
+
 **接口地址**: `GET /api/admin/admins` 或 `GET /api/auth/admin/admins`
 **需要认证**: 是
 
 **请求参数**:
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| page | int | 否 | 页码，默认1 |
-| limit | int | 否 | 每页数量，默认20 |
+| page | int | 否 | 页码，默认 1 |
+| limit | int | 否 | 每页数量，默认 20 |
 | username | string | 否 | 用户名搜索 |
 | sortBy | string | 否 | 排序字段（username, created_at） |
 | sortOrder | string | 否 | 排序方向（ASC, DESC） |
 
 #### 12.2 创建管理员
+
 **接口地址**: `POST /api/admin/admins` 或 `POST /api/auth/admin/admins`
 **需要认证**: 是
 
@@ -2606,22 +2797,27 @@ async function example() {
 | password | string | 是 | 管理员密码 |
 
 #### 12.3 更新管理员
+
 **接口地址**: `PUT /api/admin/admins/:id` 或 `PUT /api/auth/admin/admins/:id`
 **需要认证**: 是
 
 #### 12.4 删除管理员
+
 **接口地址**: `DELETE /api/admin/admins/:id` 或 `DELETE /api/auth/admin/admins/:id`
 **需要认证**: 是
 
 #### 12.5 批量删除管理员
+
 **接口地址**: `DELETE /api/admin/admins` 或 `DELETE /api/auth/admin/admins`
 **需要认证**: 是
 
 #### 12.6 修改管理员密码
+
 **接口地址**: `PUT /api/auth/admin/admins/:id/password`
 **需要认证**: 是（JWT）
 
 #### 12.7 修改管理员状态
+
 **接口地址**: `PUT /api/auth/admin/admins/:id/status`
 **需要认证**: 是（JWT）
 

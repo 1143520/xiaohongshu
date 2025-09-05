@@ -1,7 +1,18 @@
 <template>
   <div class="avatar-upload">
-    <div class="upload-area" @click="triggerFileInput" @dragover.prevent @drop.prevent="handleDrop">
-      <input ref="fileInput" type="file" accept="image/*" @change="handleFileSelect" style="display: none" />
+    <div
+      class="upload-area"
+      @click="triggerFileInput"
+      @dragover.prevent
+      @drop.prevent="handleDrop"
+    >
+      <input
+        ref="fileInput"
+        type="file"
+        accept="image/*"
+        @change="handleFileSelect"
+        style="display: none"
+      />
 
       <div v-if="!imageUrl && !uploading" class="upload-placeholder">
         <SvgIcon name="publish" width="40" height="40" />
@@ -19,19 +30,23 @@
       </div>
     </div>
 
-
-
-
     <div v-if="error" class="error-message">
       {{ error }}
     </div>
 
+    <MessageToast
+      v-if="showToast"
+      :message="toastMessage"
+      :type="toastType"
+      @close="handleToastClose"
+    />
 
-    <MessageToast v-if="showToast" :message="toastMessage" :type="toastType" @close="handleToastClose" />
-
-
-    <div v-if="showCropModal" class="crop-modal-overlay" v-click-outside.mousedown="closeCropModal"
-      v-escape-key="closeCropModal">
+    <div
+      v-if="showCropModal"
+      class="crop-modal-overlay"
+      v-click-outside.mousedown="closeCropModal"
+      v-escape-key="closeCropModal"
+    >
       <div class="crop-modal" @mousedown.stop>
         <div class="crop-header">
           <h3>裁剪头像</h3>
@@ -41,13 +56,22 @@
         </div>
         <div class="crop-body">
           <div class="crop-container">
-            <img ref="cropImage" :src="cropImageSrc" alt="裁剪图片" style="max-width: 100%; max-height: 400px;" />
+            <img
+              ref="cropImage"
+              :src="cropImageSrc"
+              alt="裁剪图片"
+              style="max-width: 100%; max-height: 400px"
+            />
           </div>
         </div>
         <div class="crop-footer">
           <button @click="closeCropModal" class="cancel-btn">取消</button>
-          <button @click="confirmCrop" class="confirm-btn" :disabled="uploading">
-            {{ uploading ? '上传中...' : '确认裁剪' }}
+          <button
+            @click="confirmCrop"
+            class="confirm-btn"
+            :disabled="uploading"
+          >
+            {{ uploading ? "上传中..." : "确认裁剪" }}
           </button>
         </div>
       </div>
@@ -56,61 +80,65 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
-import Cropper from 'cropperjs'
-import 'cropperjs/src/css/cropper.css'
-import SvgIcon from '@/components/SvgIcon.vue'
-import MessageToast from '@/components/MessageToast.vue'
-import { imageUploadApi } from '@/api/index.js'
+import { ref, watch, nextTick } from "vue";
+import Cropper from "cropperjs";
+import "cropperjs/src/css/cropper.css";
+import SvgIcon from "@/components/SvgIcon.vue";
+import MessageToast from "@/components/MessageToast.vue";
+import { imageUploadApi } from "@/api/index.js";
 
 const props = defineProps({
   modelValue: {
     type: String,
-    default: ''
+    default: "",
   },
   placeholder: {
     type: String,
-    default: '上传头像'
-  }
-})
+    default: "上传头像",
+  },
+});
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"]);
 
-const fileInput = ref(null)
-const cropImage = ref(null)
-const imageUrl = ref(props.modelValue)
-const uploading = ref(false)
-const error = ref('')
-const showCropModal = ref(false)
-const cropImageSrc = ref('')
-let cropper = null
+const fileInput = ref(null);
+const cropImage = ref(null);
+const imageUrl = ref(props.modelValue);
+const uploading = ref(false);
+const error = ref("");
+const showCropModal = ref(false);
+const cropImageSrc = ref("");
+let cropper = null;
 
 // 消息提示相关
-const showToast = ref(false)
-const toastMessage = ref('')
-const toastType = ref('success')
+const showToast = ref(false);
+const toastMessage = ref("");
+const toastType = ref("success");
 
-watch(() => props.modelValue, (newValue) => {
-  if (newValue !== imageUrl.value) {
-    imageUrl.value = newValue
-  }
-}, { immediate: true })
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue !== imageUrl.value) {
+      imageUrl.value = newValue;
+    }
+  },
+  { immediate: true }
+);
 
 watch(imageUrl, (newValue) => {
   if (newValue !== props.modelValue) {
-    emit('update:modelValue', newValue)
+    emit("update:modelValue", newValue);
   }
-})
+});
 
 // 监听裁剪模态框显示状态，初始化cropper
 watch(showCropModal, async (newValue) => {
   if (newValue) {
-    await nextTick()
+    await nextTick();
     if (cropImage.value) {
       cropper = new Cropper(cropImage.value, {
         aspectRatio: 1, // 正方形裁剪
         viewMode: 1,
-        dragMode: 'move',
+        dragMode: "move",
         autoCropArea: 0.8,
         restore: false,
         guides: false,
@@ -119,79 +147,79 @@ watch(showCropModal, async (newValue) => {
         cropBoxMovable: true,
         cropBoxResizable: true,
         toggleDragModeOnDblclick: false,
-      })
+      });
     }
   } else {
     if (cropper) {
-      cropper.destroy()
-      cropper = null
+      cropper.destroy();
+      cropper = null;
     }
   }
-})
+});
 
 const triggerFileInput = () => {
-  fileInput.value?.click()
-}
+  fileInput.value?.click();
+};
 
 const handleFileSelect = (event) => {
-  const file = event.target.files[0]
+  const file = event.target.files[0];
   if (file) {
-    showCropDialog(file)
+    showCropDialog(file);
   }
-}
+};
 
 const handleDrop = (event) => {
-  const files = event.dataTransfer.files
+  const files = event.dataTransfer.files;
   if (files.length > 0) {
-    showCropDialog(files[0])
+    showCropDialog(files[0]);
   }
-}
+};
 
 const showCropDialog = async (file) => {
   // 使用新API验证文件
-  const validation = imageUploadApi.validateImageFile(file)
+  const validation = imageUploadApi.validateImageFile(file);
   if (!validation.valid) {
     // 检查是否是文件大小超限
     if (file.size > 5 * 1024 * 1024) {
-      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1)
-      const errorMsg = `图片大小为 ${fileSizeMB}MB，超过 5MB 限制，请选择更小的图片`
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      const errorMsg = `图片大小为 ${fileSizeMB}MB，超过 50MB 限制，请选择更小的图片`;
 
       // 显示Toast提示
-      showMessage(errorMsg, 'error')
+      showMessage(errorMsg, "error");
     } else {
-      showMessage(validation.error, 'error')
+      showMessage(validation.error, "error");
     }
 
-    error.value = validation.error
-    return
+    error.value = validation.error;
+    return;
   }
 
-  error.value = ''
+  error.value = "";
 
   try {
     // 使用新API生成预览
-    const previewUrl = await imageUploadApi.createImagePreview(file)
-    cropImageSrc.value = previewUrl
-    showCropModal.value = true
+    const previewUrl = await imageUploadApi.createImagePreview(file);
+    cropImageSrc.value = previewUrl;
+    showCropModal.value = true;
   } catch (err) {
-    console.error('生成预览失败:', err)
-    error.value = '文件读取失败，请重试'
+    console.error("生成预览失败:", err);
+    error.value = "文件读取失败，请重试";
   }
-}
+};
 
 const closeCropModal = () => {
-  showCropModal.value = false
-  cropImageSrc.value = ''
+  showCropModal.value = false;
+  cropImageSrc.value = "";
   if (fileInput.value) {
-    fileInput.value.value = ''
+    fileInput.value.value = "";
   }
-}
+};
 
 const confirmCrop = async () => {
-  if (!cropper) return
+  if (!cropper) return;
 
-  uploading.value = true
-  error.value = ''
+  uploading.value = true;
+  error.value = "";
 
   try {
     // 获取裁剪后的canvas
@@ -199,87 +227,87 @@ const confirmCrop = async () => {
       width: 300,
       height: 300,
       imageSmoothingEnabled: true,
-      imageSmoothingQuality: 'high',
-    })
+      imageSmoothingQuality: "high",
+    });
 
     // 将canvas转换为blob
-    canvas.toBlob((blob) => {
-      uploadCroppedImage(blob)
-    }, 'image/png', 0.9)
+    canvas.toBlob(
+      (blob) => {
+        uploadCroppedImage(blob);
+      },
+      "image/png",
+      0.9
+    );
   } catch (err) {
-    console.error('裁剪失败:', err)
-    error.value = '裁剪失败，请重试'
-    uploading.value = false
+    console.error("裁剪失败:", err);
+    error.value = "裁剪失败，请重试";
+    uploading.value = false;
   }
-}
+};
 
 const validateFile = (file) => {
-  const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-  const maxSize = 5 * 1024 * 1024
+  const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  const maxSize = 5 * 1024 * 1024;
 
   if (!validTypes.includes(file.type)) {
-    error.value = '请选择有效的图片格式 (JPEG, PNG, GIF, WebP)'
-    return false
+    error.value = "请选择有效的图片格式 (JPEG, PNG, GIF, WebP)";
+    return false;
   }
 
   if (file.size > maxSize) {
-    error.value = '图片大小不能超过 5MB'
-    return false
+    error.value = "图片大小不能超过 5MB";
+    return false;
   }
 
-  return true
-}
+  return true;
+};
 
 const generatePreview = () => {
-  if (!cropper) return
+  if (!cropper) return;
 
   const canvas = cropper.getCroppedCanvas({
     width: 200,
     height: 200,
     imageSmoothingEnabled: true,
-    imageSmoothingQuality: 'high'
-  })
+    imageSmoothingQuality: "high",
+  });
 
-  return canvas.toDataURL('image/jpeg', 0.8)
-}
+  return canvas.toDataURL("image/jpeg", 0.8);
+};
 
 const uploadCroppedImage = async (blob) => {
   try {
     const result = await imageUploadApi.uploadCroppedImage(blob, {
-      filename: 'avatar.png'
-    })
+      filename: "avatar.png",
+    });
 
     if (result.success) {
-      imageUrl.value = result.data.url
-      error.value = ''
-      showCropModal.value = false
-      cropImageSrc.value = ''
+      imageUrl.value = result.data.url;
+      error.value = "";
+      showCropModal.value = false;
+      cropImageSrc.value = "";
     } else {
-      error.value = result.message
+      error.value = result.message;
     }
   } catch (err) {
-    console.error('上传失败:', err)
-    error.value = '上传失败，请重试'
+    console.error("上传失败:", err);
+    error.value = "上传失败，请重试";
   } finally {
-    uploading.value = false
+    uploading.value = false;
   }
-}
-
-
+};
 
 // 显示消息提示
-const showMessage = (message, type = 'success') => {
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
-}
+const showMessage = (message, type = "success") => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+};
 
 // 关闭消息提示
 const handleToastClose = () => {
-  showToast.value = false
-}
-
-
+  showToast.value = false;
+};
 </script>
 
 <style scoped>
@@ -312,8 +340,6 @@ const handleToastClose = () => {
 .upload-placeholder {
   color: var(--text-color-secondary);
 }
-
-
 
 .upload-hint {
   font-size: 12px;
@@ -354,8 +380,6 @@ const handleToastClose = () => {
   object-fit: cover;
   border-radius: 4px;
 }
-
-
 
 .error-message {
   color: var(--primary-color);
@@ -422,10 +446,6 @@ const handleToastClose = () => {
   width: 16px;
   height: 16px;
 }
-
-
-
-
 
 .crop-body {
   padding: 20px;

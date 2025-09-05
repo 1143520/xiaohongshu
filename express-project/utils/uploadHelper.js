@@ -84,11 +84,11 @@ async function uploadBase64ToImageHost(base64Data) {
     const imageType = matches[1];
     const imageBuffer = Buffer.from(matches[2], 'base64');
 
-    // 检查文件大小（5MB限制）
-    if (imageBuffer.length > 5 * 1024 * 1024) {
+    // 检查文件大小（50MB限制）
+    if (imageBuffer.length > 50 * 1024 * 1024) {
       return {
         success: false,
-        message: '图片大小超过5MB限制'
+        message: '图片大小超过50MB限制'
       };
     }
 
