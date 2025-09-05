@@ -15,7 +15,7 @@ export function parseMentions(text) {
   const mentionRegex = /\[@([^:]+):([^\]]+)\]/g
 
   return text.replace(mentionRegex, (match, nickname, userId) => {
-    // 生成用户主页链接，使用小红书号作为路由参数
+    // 生成用户主页链接，使用大红薯号作为路由参数
     return `<a href="/user/${userId}" class="mention-link" data-user-id="${userId}" contenteditable="false">@${nickname}</a>`
   })
 }

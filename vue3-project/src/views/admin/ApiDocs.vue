@@ -1,7 +1,7 @@
 <template>
   <div class="api-docs">
     <div class="docs-header">
-      <h2>小红书图文社区 API 接口文档</h2>
+      <h2>大红薯图文社区 API 接口文档</h2>
       <div class="docs-info">
         <span class="version">版本: v1.0.1</span>
         <span class="base-url">基础URL: http://localhost:3001/</span>
@@ -213,7 +213,7 @@ const apiGroups = ref([
             name: "user_id",
             type: "string",
             required: true,
-            description: "小红书号（3-15位，字母数字下划线）",
+            description: "大红薯号（3-15位，字母数字下划线）",
           },
           {
             name: "nickname",
@@ -277,7 +277,7 @@ const apiGroups = ref([
             name: "user_id",
             type: "string",
             required: true,
-            description: "小红书号",
+            description: "大红薯号",
           },
           {
             name: "password",
@@ -364,7 +364,7 @@ const apiGroups = ref([
         method: "GET",
         path: "/api/users/search",
         title: "搜索用户",
-        description: "根据关键词搜索用户（昵称或小红书号）",
+        description: "根据关键词搜索用户（昵称或大红薯号）",
         expanded: false,
         params: [
           {
@@ -391,14 +391,14 @@ const apiGroups = ref([
         method: "GET",
         path: "/api/users/:id",
         title: "获取用户详情",
-        description: "根据小红书号获取用户详细信息",
+        description: "根据大红薯号获取用户详细信息",
         expanded: false,
         params: [
           {
             name: "id",
             type: "string",
             required: true,
-            description: "小红书号",
+            description: "大红薯号",
           },
         ],
       },
@@ -413,7 +413,7 @@ const apiGroups = ref([
             name: "id",
             type: "string",
             required: true,
-            description: "小红书号",
+            description: "大红薯号",
           },
           {
             name: "page",
@@ -440,7 +440,7 @@ const apiGroups = ref([
             name: "id",
             type: "string",
             required: true,
-            description: "小红书号",
+            description: "大红薯号",
           },
           {
             name: "page",
@@ -467,7 +467,7 @@ const apiGroups = ref([
             name: "id",
             type: "string",
             required: true,
-            description: "小红书号",
+            description: "大红薯号",
           },
           {
             name: "page",
@@ -495,7 +495,7 @@ const apiGroups = ref([
             name: "id",
             type: "string",
             required: true,
-            description: "被关注用户的小红书号",
+            description: "被关注用户的大红薯号",
           },
         ],
       },
@@ -511,7 +511,7 @@ const apiGroups = ref([
             name: "id",
             type: "string",
             required: true,
-            description: "被取消关注用户的小红书号",
+            description: "被取消关注用户的大红薯号",
           },
         ],
       },
@@ -527,7 +527,7 @@ const apiGroups = ref([
             name: "id",
             type: "string",
             required: true,
-            description: "目标用户的小红书号",
+            description: "目标用户的大红薯号",
           },
         ],
       },
@@ -542,7 +542,7 @@ const apiGroups = ref([
             name: "id",
             type: "string",
             required: true,
-            description: "小红书号",
+            description: "大红薯号",
           },
           {
             name: "page",
@@ -569,7 +569,7 @@ const apiGroups = ref([
             name: "id",
             type: "string",
             required: true,
-            description: "小红书号",
+            description: "大红薯号",
           },
           {
             name: "page",
@@ -596,7 +596,7 @@ const apiGroups = ref([
             name: "id",
             type: "string",
             required: true,
-            description: "小红书号",
+            description: "大红薯号",
           },
           {
             name: "page",
@@ -623,7 +623,7 @@ const apiGroups = ref([
             name: "id",
             type: "string",
             required: true,
-            description: "小红书号",
+            description: "大红薯号",
           },
         ],
       },
@@ -1652,7 +1652,7 @@ const apiGroups = ref([
             name: "user_id",
             type: "string",
             required: true,
-            description: "小红书号",
+            description: "大红薯号",
           },
           {
             name: "nickname",

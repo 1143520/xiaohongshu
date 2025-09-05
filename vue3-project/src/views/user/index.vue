@@ -306,7 +306,7 @@ function handleCollect(data) {
         <div class="user-basic">
           <div class="user-nickname">{{ userStore.userInfo?.nickname || '用户' }}</div>
           <div class="user-content">
-            <div class="user-id text-ellipsis">小红书号：{{ userStore.userInfo?.user_id || '' }}</div>
+            <div class="user-id text-ellipsis">大红薯号：{{ userStore.userInfo?.user_id || '' }}</div>
             <div class="user-IP text-ellipsis">IP属地：{{ userStore.userInfo?.location || '未知' }}</div>
           </div>
         </div>

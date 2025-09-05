@@ -1,5 +1,5 @@
 /**
- * 小红书校园图文社区 - Vue3前端应用
+ * 大红薯校园图文社区 - Vue3前端应用
  * 
  * @author ZTMYO
  * @github https://github.com/ZTMYO

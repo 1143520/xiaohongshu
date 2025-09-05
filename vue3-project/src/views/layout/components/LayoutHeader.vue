@@ -187,7 +187,7 @@ onUnmounted(() => {
         <img
           v-if="isLargeScreen"
           :src="logoUrl"
-          alt="小红书"
+          alt="大红薯"
           @click="router.push('/')"
         />
         <div
@@ -258,7 +258,7 @@ onUnmounted(() => {
       </template>
 
       <template v-else>
-        <img :src="logoUrl" alt="小红书" @click="router.push('/')" />
+        <img :src="logoUrl" alt="大红薯" @click="router.push('/')" />
         <div class="header-right">
           <div @click="openSearch" class="circle-btn">
             <SvgIcon name="search" class="btn-icon" height="20" width="20" />

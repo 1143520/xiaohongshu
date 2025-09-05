@@ -8,7 +8,7 @@
         <div class="sidebar-header">
           <div class="logo">
             <img :src="logoUrl" alt="" style="height: 40px;">
-            <h2 class="logo-text">小红书管理后台</h2>
+            <h2 class="logo-text">大红薯管理后台</h2>
           </div>
         </div>
         <nav class="sidebar-nav">
