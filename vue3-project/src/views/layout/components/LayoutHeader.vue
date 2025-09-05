@@ -13,7 +13,7 @@ const route = useRoute();
 const searchHistoryStore = useSearchHistoryStore();
 
 // 静态资源URL
-const logoUrl = new URL("@/assets/imgs/小红书.png", import.meta.url).href;
+const logoUrl = new URL("@/assets/imgs/小石榴.png", import.meta.url).href;
 
 const isLargeScreen = ref(window.innerWidth > 695);
 const showSidebar = ref(window.innerWidth > 960);
