@@ -180,7 +180,7 @@ const showCropDialog = async (file) => {
   const validation = imageUploadApi.validateImageFile(file);
   if (!validation.valid) {
     // 检查是否是文件大小超限
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 50 * 1024 * 1024) {
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
       const errorMsg = `图片大小为 ${fileSizeMB}MB，超过 50MB 限制，请选择更小的图片`;
 

@@ -210,7 +210,7 @@ export async function uploadCroppedImage(blob, options = {}) {
 
 export function validateImageFile(file, options = {}) {
   const {
-    maxSize = 5 * 1024 * 1024,
+    maxSize = 50 * 1024 * 1024,
     allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
   } = options
 
