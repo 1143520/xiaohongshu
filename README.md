@@ -1,14 +1,14 @@
-# 小红书图文社区
+# 大红薯图文社区
 
 <p align="center">
   <img alt="logo" src="./doc/imgs/小石榴.png" width="100"/>
 </p>
-<h1 align="center" style="margin: 20px 0 30px; font-weight: bold;">小红书</h1>
+<h1 align="center" style="margin: 20px 0 30px; font-weight: bold;">大红薯</h1>
 <p align="center">
-  <b>基于 Express + Vue 前后端分离仿小红书项目</b>
+  <b>基于 Express + Vue 前后端分离仿大红薯项目</b>
 </p>
 <p align="center">
-  <i>一个高仿小红书的图文社区项目，支持图文发布、社交互动等核心功能，旨在提供从前端到后端的完整实践范本</i>
+  <i>一个高仿大红薯的图文社区项目，支持图文发布、社交互动等核心功能，旨在提供从前端到后端的完整实践范本</i>
 </p>
 
 ## 🚀 快速部署

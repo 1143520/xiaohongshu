@@ -1,10 +1,25 @@
 <template>
-  <div :class="[pageMode ? 'detail-card-page' : 'detail-card-overlay', { 'animating': isAnimating && !pageMode }]"
-    v-click-outside.mousedown="!pageMode ? closeModal : undefined" v-escape-key="!pageMode ? closeModal : undefined">
-    <div class="detail-card" @click.stop :style="pageMode ? {} : { width: cardWidth + 'px', ...animationStyle }"
-      :class="{ 'scale-in': isAnimating && !pageMode, 'page-mode': pageMode }">
-      <button v-if="!pageMode" class="close-btn" @click="closeModal" @mouseenter="showTooltip = true"
-        @mouseleave="showTooltip = false">
+  <div
+    :class="[
+      pageMode ? 'detail-card-page' : 'detail-card-overlay',
+      { animating: isAnimating && !pageMode },
+    ]"
+    v-click-outside.mousedown="!pageMode ? closeModal : undefined"
+    v-escape-key="!pageMode ? closeModal : undefined"
+  >
+    <div
+      class="detail-card"
+      @click.stop
+      :style="pageMode ? {} : { width: cardWidth + 'px', ...animationStyle }"
+      :class="{ 'scale-in': isAnimating && !pageMode, 'page-mode': pageMode }"
+    >
+      <button
+        v-if="!pageMode"
+        class="close-btn"
+        @click="closeModal"
+        @mouseenter="showTooltip = true"
+        @mouseleave="showTooltip = false"
+      >
         <SvgIcon name="close" />
         <div v-if="showTooltip" class="tooltip">
           关闭 <span class="key-hint">Esc</span>
@@ -12,26 +27,51 @@
       </button>
 
       <div class="detail-content">
-        <div class="image-section" :style="{ width: imageSectionWidth + 'px' }" @mouseenter="showImageControls = true"
-          @mouseleave="showImageControls = false">
+        <div
+          class="image-section"
+          :style="{ width: imageSectionWidth + 'px' }"
+          @mouseenter="showImageControls = true"
+          @mouseleave="showImageControls = false"
+        >
           <div class="image-container">
-            <div class="image-slider" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
-              <img v-for="(image, index) in imageList" :key="index" :src="image" :alt="props.item.title || '图片'"
-                @load="handleImageLoad($event, index)" :style="{ objectFit: 'contain' }"
-                class="slider-image image-zoomable" @click="openImageViewer" />
+            <div
+              class="image-slider"
+              :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }"
+            >
+              <img
+                v-for="(image, index) in imageList"
+                :key="index"
+                :src="image"
+                :alt="props.item.title || '图片'"
+                @load="handleImageLoad($event, index)"
+                :style="{ objectFit: 'contain' }"
+                class="slider-image image-zoomable"
+                @click="openImageViewer"
+              />
             </div>
-            <div v-if="hasMultipleImages" class="image-controls" :class="{ 'visible': showImageControls }">
+            <div
+              v-if="hasMultipleImages"
+              class="image-controls"
+              :class="{ visible: showImageControls }"
+            >
               <div class="nav-btn-container prev-btn-container" @click.stop>
-                <button class="nav-btn prev-btn" @click="prevImage" :disabled="currentImageIndex === 0"
-                  v-show="currentImageIndex > 0">
+                <button
+                  class="nav-btn prev-btn"
+                  @click="prevImage"
+                  :disabled="currentImageIndex === 0"
+                  v-show="currentImageIndex > 0"
+                >
                   <SvgIcon name="left" width="20" height="20" />
                 </button>
               </div>
 
               <div class="nav-btn-container next-btn-container" @click.stop>
-                <button class="nav-btn next-btn" @click="nextImage"
+                <button
+                  class="nav-btn next-btn"
+                  @click="nextImage"
                   :disabled="currentImageIndex === imageList.length - 1"
-                  v-show="currentImageIndex < imageList.length - 1">
+                  v-show="currentImageIndex < imageList.length - 1"
+                >
                   <SvgIcon name="right" width="20" height="20" />
                 </button>
               </div>
@@ -43,32 +83,70 @@
           </div>
         </div>
 
-        <div class="content-section" :style="windowWidth > 768 ? { width: contentSectionWidth + 'px' } : {}">
+        <div
+          class="content-section"
+          :style="
+            windowWidth > 768 ? { width: contentSectionWidth + 'px' } : {}
+          "
+        >
           <div class="author-wrapper">
             <div class="author-info">
-              <img :src="authorData.avatar" :alt="authorData.name" class="author-avatar "
-                @click="onUserClick(authorData.id)" />
-              <span class="author-name" @click="onUserClick(authorData.id)">{{ authorData.name }}</span>
+              <img
+                :src="authorData.avatar"
+                :alt="authorData.name"
+                class="author-avatar"
+                @click="onUserClick(authorData.id)"
+              />
+              <span class="author-name" @click="onUserClick(authorData.id)">{{
+                authorData.name
+              }}</span>
             </div>
-            <FollowButton v-if="!isCurrentUserPost" :is-following="authorData.isFollowing" :user-id="authorData.id"
-              @follow="handleFollow" @unfollow="handleUnfollow" />
+            <FollowButton
+              v-if="!isCurrentUserPost"
+              :is-following="authorData.isFollowing"
+              :user-id="authorData.id"
+              @follow="handleFollow"
+              @unfollow="handleUnfollow"
+            />
           </div>
 
           <div class="scrollable-content">
-            <div v-if="imageList && imageList.length > 0" class="mobile-image-container">
-              <div class="mobile-image-slider" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }"
-                @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd">
-                <img v-for="(image, index) in imageList" :key="index" :src="image" :alt="`图片 ${index + 1}`"
-                  class="mobile-slider-image" @click="openImageViewer" />
+            <div
+              v-if="imageList && imageList.length > 0"
+              class="mobile-image-container"
+            >
+              <div
+                class="mobile-image-slider"
+                :style="{
+                  transform: `translateX(-${currentImageIndex * 100}%)`,
+                }"
+                @touchstart="handleTouchStart"
+                @touchmove="handleTouchMove"
+                @touchend="handleTouchEnd"
+              >
+                <img
+                  v-for="(image, index) in imageList"
+                  :key="index"
+                  :src="image"
+                  :alt="`图片 ${index + 1}`"
+                  class="mobile-slider-image"
+                  @click="openImageViewer"
+                />
               </div>
 
-
               <div v-if="hasMultipleImages" class="mobile-image-controls">
-                <button class="mobile-nav-btn mobile-prev-btn" @click="prevImage" :disabled="currentImageIndex === 0">
+                <button
+                  class="mobile-nav-btn mobile-prev-btn"
+                  @click="prevImage"
+                  :disabled="currentImageIndex === 0"
+                >
                   <SvgIcon name="left" width="20" height="20" />
                 </button>
-                <button class="mobile-nav-btn mobile-next-btn" @click="nextImage"
-                  :disabled="currentImageIndex === imageList.length - 1">
+                <button
+                  class="mobile-nav-btn mobile-next-btn"
+                  @click="nextImage"
+                  :disabled="currentImageIndex === imageList.length - 1"
+                >
                   <SvgIcon name="right" width="20" height="20" />
                 </button>
                 <div class="mobile-image-counter">
@@ -78,8 +156,13 @@
             </div>
             <div v-if="imageList.length > 1" class="mobile-dots-indicator">
               <div class="mobile-dots">
-                <span v-for="(image, index) in imageList" :key="index" class="mobile-dot"
-                  :class="{ active: index === currentImageIndex }" @click="goToImage(index)"></span>
+                <span
+                  v-for="(image, index) in imageList"
+                  :key="index"
+                  class="mobile-dot"
+                  :class="{ active: index === currentImageIndex }"
+                  @click="goToImage(index)"
+                ></span>
               </div>
             </div>
             <div class="note-content">
@@ -88,8 +171,13 @@
                 <MentionText :text="noteData.content" />
               </p>
               <div class="note-tags">
-                <span v-for="tag in noteData.tags" :key="tag" class="tag clickable-tag" @click="handleTagClick(tag)">#{{
-                  tag }}</span>
+                <span
+                  v-for="tag in noteData.tags"
+                  :key="tag"
+                  class="tag clickable-tag"
+                  @click="handleTagClick(tag)"
+                  >#{{ tag }}</span
+                >
               </div>
               <div class="note-meta">
                 <span class="time">{{ noteData.time }}</span>
@@ -101,7 +189,9 @@
 
             <div class="comments-section">
               <div class="comments-header">
-                <span class="comments-title">共 {{ commentTotal || commentCount }} 条评论</span>
+                <span class="comments-title"
+                  >共 {{ commentTotal || commentCount }} 条评论</span
+                >
               </div>
 
               <div v-if="loadingComments" class="comments-loading">
@@ -113,85 +203,168 @@
                 <div v-if="enhancedComments.length === 0" class="no-comments">
                   <span>暂无评论，快来抢沙发吧~</span>
                 </div>
-                <div v-for="comment in enhancedComments" :key="comment.id" class="comment-item">
-                  <img :src="comment.avatar" :alt="comment.username" class="comment-avatar clickable-avatar"
-                    @click="onUserClick(comment.user_id)" />
+                <div
+                  v-for="comment in enhancedComments"
+                  :key="comment.id"
+                  class="comment-item"
+                >
+                  <img
+                    :src="comment.avatar"
+                    :alt="comment.username"
+                    class="comment-avatar clickable-avatar"
+                    @click="onUserClick(comment.user_id)"
+                  />
                   <div class="comment-content">
                     <div class="comment-header">
                       <div class="comment-user-info">
-                        <span class="comment-username" @click="onUserClick(comment.user_id)">
+                        <span
+                          class="comment-username"
+                          @click="onUserClick(comment.user_id)"
+                        >
                           <span v-if="isCurrentUserComment(comment)">我</span>
                           <span v-else>{{ comment.username }}</span>
                         </span>
                       </div>
-                      <button v-if="isCurrentUserComment(comment)" class="comment-delete-btn"
-                        @click="handleDeleteComment(comment)">
+                      <button
+                        v-if="isCurrentUserComment(comment)"
+                        class="comment-delete-btn"
+                        @click="handleDeleteComment(comment)"
+                      >
                         删除
                       </button>
                     </div>
                     <p class="comment-text">
                       <MentionText :text="comment.content" />
                     </p>
-                    <span class="comment-time">{{ comment.time }} {{ comment.location }}</span>
+                    <span class="comment-time"
+                      >{{ comment.time }} {{ comment.location }}</span
+                    >
                     <div class="comment-actions">
                       <div class="comment-like-container">
-                        <LikeButton :is-liked="comment.isLiked" size="small"
-                          @click="(willBeLiked) => toggleCommentLike(comment, willBeLiked)" />
+                        <LikeButton
+                          :is-liked="comment.isLiked"
+                          size="small"
+                          @click="
+                            (willBeLiked) =>
+                              toggleCommentLike(comment, willBeLiked)
+                          "
+                        />
                         <span class="like-count">{{ comment.likeCount }}</span>
                       </div>
                       <div class="comment-replay-container">
-                        <SvgIcon name="chat" width="16" height="16" class="comment-replay-icon"
-                          @click="handleReplyComment(comment)" />
-                        <button class="comment-reply" @click="handleReplyComment(comment)">回复</button>
+                        <SvgIcon
+                          name="chat"
+                          width="16"
+                          height="16"
+                          class="comment-replay-icon"
+                          @click="handleReplyComment(comment)"
+                        />
+                        <button
+                          class="comment-reply"
+                          @click="handleReplyComment(comment)"
+                        >
+                          回复
+                        </button>
                       </div>
                     </div>
 
-                    <div v-if="comment.replies && comment.replies.length > 0" class="replies-list">
-                      <div v-for="reply in getDisplayedReplies(comment.replies, comment.id)" :key="reply.id"
-                        class="reply-item">
-                        <img :src="reply.avatar" :alt="reply.username" class="reply-avatar "
-                          @click="onUserClick(reply.user_id)" />
+                    <div
+                      v-if="comment.replies && comment.replies.length > 0"
+                      class="replies-list"
+                    >
+                      <div
+                        v-for="reply in getDisplayedReplies(
+                          comment.replies,
+                          comment.id
+                        )"
+                        :key="reply.id"
+                        class="reply-item"
+                      >
+                        <img
+                          :src="reply.avatar"
+                          :alt="reply.username"
+                          class="reply-avatar"
+                          @click="onUserClick(reply.user_id)"
+                        />
                         <div class="reply-content">
                           <div class="reply-header">
                             <div class="reply-user-info">
-                              <span class="reply-username" @click="onUserClick(reply.user_id)">
-                                <span v-if="isCurrentUserComment(reply)">我</span>
+                              <span
+                                class="reply-username"
+                                @click="onUserClick(reply.user_id)"
+                              >
+                                <span v-if="isCurrentUserComment(reply)"
+                                  >我</span
+                                >
                                 <span v-else>{{ reply.username }}</span>
                               </span>
                             </div>
-                            <button v-if="isCurrentUserComment(reply)" class="comment-delete-btn"
-                              @click="handleDeleteReply(reply, comment.id)">
+                            <button
+                              v-if="isCurrentUserComment(reply)"
+                              class="comment-delete-btn"
+                              @click="handleDeleteReply(reply, comment.id)"
+                            >
                               删除
                             </button>
                           </div>
                           <p class="reply-text">
-                            回复 <span class="reply-to">{{ reply.replyTo }}</span>：
+                            回复
+                            <span class="reply-to">{{ reply.replyTo }}</span
+                            >：
                             <MentionText :text="reply.content" />
                           </p>
-                          <span class="reply-time">{{ reply.time }} {{ reply.location }}</span>
+                          <span class="reply-time"
+                            >{{ reply.time }} {{ reply.location }}</span
+                          >
                           <div class="reply-actions">
                             <div class="reply-like-container">
-                              <LikeButton :is-liked="reply.isLiked" size="small"
-                                @click="(willBeLiked) => toggleCommentLike(reply, willBeLiked)" />
-                              <span class="like-count">{{ reply.likeCount }}</span>
+                              <LikeButton
+                                :is-liked="reply.isLiked"
+                                size="small"
+                                @click="
+                                  (willBeLiked) =>
+                                    toggleCommentLike(reply, willBeLiked)
+                                "
+                              />
+                              <span class="like-count">{{
+                                reply.likeCount
+                              }}</span>
                             </div>
                             <div class="reply-replay-container">
-                              <SvgIcon name="chat" width="16" height="16" class="reply-replay-icon"
-                                @click="handleReplyComment(reply, reply.id)" />
-                              <button class="reply-reply" @click="handleReplyComment(reply, reply.id)">回复</button>
+                              <SvgIcon
+                                name="chat"
+                                width="16"
+                                height="16"
+                                class="reply-replay-icon"
+                                @click="handleReplyComment(reply, reply.id)"
+                              />
+                              <button
+                                class="reply-reply"
+                                @click="handleReplyComment(reply, reply.id)"
+                              >
+                                回复
+                              </button>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <div v-if="comment.replies.length > 2" class="replies-toggle">
-                        <button class="toggle-replies-btn" @click="toggleRepliesExpanded(comment.id)">
+                      <div
+                        v-if="comment.replies.length > 2"
+                        class="replies-toggle"
+                      >
+                        <button
+                          class="toggle-replies-btn"
+                          @click="toggleRepliesExpanded(comment.id)"
+                        >
                           <template v-if="!isRepliesExpanded(comment.id)">
-                            展开 {{ getHiddenRepliesCount(comment.replies, comment.id) }} 条回复
+                            展开
+                            {{
+                              getHiddenRepliesCount(comment.replies, comment.id)
+                            }}
+                            条回复
                           </template>
-                          <template v-else>
-                            收起回复
-                          </template>
+                          <template v-else> 收起回复 </template>
                         </button>
                       </div>
                     </div>
@@ -201,61 +374,112 @@
             </div>
           </div>
           <div class="footer-actions">
-            <div class="input-container" :class="{ 'expanded': isInputFocused }">
+            <div class="input-container" :class="{ expanded: isInputFocused }">
               <div class="input-row">
                 <div class="input-wrapper">
                   <div v-if="replyingTo" class="reply-status">
                     <div class="reply-status-content">
                       <div class="reply-first-line">
-                        回复 <span class="reply-username">{{ replyingTo.username }}</span>
+                        回复
+                        <span class="reply-username">{{
+                          replyingTo.username
+                        }}</span>
                       </div>
                       <div class="reply-second-line">
                         <MentionText :text="replyingTo.content" />
                       </div>
                     </div>
                   </div>
-                  <ContentEditableInput ref="focusedInput" v-model="commentInput" :input-class="'comment-input'"
-                    :placeholder="replyingTo ? `回复 ${replyingTo.username}：` : '说点什么...'" :enable-mention="true"
-                    :mention-users="mentionUsers" @focus="handleInputFocus" @keydown="handleInputKeydown"
-                    @mention="handleMentionInput" />
+                  <ContentEditableInput
+                    ref="focusedInput"
+                    v-model="commentInput"
+                    :input-class="'comment-input'"
+                    :placeholder="
+                      replyingTo
+                        ? `回复 ${replyingTo.username}：`
+                        : '说点什么...'
+                    "
+                    :enable-mention="true"
+                    :mention-users="mentionUsers"
+                    @focus="handleInputFocus"
+                    @keydown="handleInputKeydown"
+                    @mention="handleMentionInput"
+                  />
                 </div>
-
 
                 <div class="action-buttons">
                   <div class="action-btn" :class="{ active: isLiked }">
-                    <LikeButton :is-liked="isLiked" size="large" @click="(willBeLiked) => toggleLike(willBeLiked)" />
+                    <LikeButton
+                      :is-liked="isLiked"
+                      size="large"
+                      @click="(willBeLiked) => toggleLike(willBeLiked)"
+                    />
                     <span>{{ likeCount }}</span>
                   </div>
-                  <button class="action-btn collect-btn" :class="{ active: isCollected }" @click="toggleCollect">
+                  <button
+                    class="action-btn collect-btn"
+                    :class="{ active: isCollected }"
+                    @click="toggleCollect"
+                  >
                     <SvgIcon :name="isCollected ? 'collected' : 'collect'" />
                     <span>{{ collectCount }}</span>
                   </button>
-                  <button class="action-btn comment-btn" @click="handleCommentButtonClick">
+                  <button
+                    class="action-btn comment-btn"
+                    @click="handleCommentButtonClick"
+                  >
                     <SvgIcon name="chat" />
                     <span>{{ commentTotal || commentCount }}</span>
                   </button>
-                  <button class="action-btn share-btn" @click="handleShare" @mouseleave="handleShareMouseLeave">
+                  <button
+                    class="action-btn share-btn"
+                    @click="handleShare"
+                    @mouseleave="handleShareMouseLeave"
+                  >
                     <SvgIcon :name="isShared ? 'tick' : 'share'" />
                   </button>
                 </div>
               </div>
 
-
               <div class="focused-actions-section">
                 <div class="emoji-section">
                   <button class="mention-btn" @click="toggleMentionPanel">
-                    <SvgIcon name="mention" class="mention-icon" width="24" height="24" />
+                    <SvgIcon
+                      name="mention"
+                      class="mention-icon"
+                      width="24"
+                      height="24"
+                    />
                   </button>
                   <button class="emoji-btn" @click="toggleEmojiPanel">
-                    <SvgIcon name="emoji" class="emoji-icon" width="24" height="24" />
+                    <SvgIcon
+                      name="emoji"
+                      class="emoji-icon"
+                      width="24"
+                      height="24"
+                    />
                   </button>
                 </div>
                 <div class="send-cancel-buttons">
-                  <button class="send-btn" @click="handleSendComment"
-                    :disabled="!commentInput || !commentInput.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim() || isSendingComment">
-                    {{ replyingTo ? '回复' : '发送' }}
+                  <button
+                    class="send-btn"
+                    @click="handleSendComment"
+                    :disabled="
+                      !commentInput ||
+                      !commentInput
+                        .replace(/<[^>]*>/g, '')
+                        .replace(/&nbsp;/g, ' ')
+                        .trim() ||
+                      isSendingComment
+                    "
+                  >
+                    {{ replyingTo ? "回复" : "发送" }}
                   </button>
-                  <button class="cancel-btn" @click="handleCancelInput" :disabled="isSendingComment">
+                  <button
+                    class="cancel-btn"
+                    @click="handleCancelInput"
+                    :disabled="isSendingComment"
+                  >
                     取消
                   </button>
                 </div>
@@ -266,51 +490,81 @@
       </div>
     </div>
 
+    <MessageToast
+      v-if="showToast"
+      :message="toastMessage"
+      :type="toastType"
+      @close="handleToastClose"
+    />
 
-    <MessageToast v-if="showToast" :message="toastMessage" :type="toastType" @close="handleToastClose" />
-
-
-
-    <div v-if="showEmojiPanel" class="emoji-panel-overlay" v-click-outside="closeEmojiPanel">
+    <div
+      v-if="showEmojiPanel"
+      class="emoji-panel-overlay"
+      v-click-outside="closeEmojiPanel"
+    >
       <div class="emoji-panel" @click.stop>
         <EmojiPicker @select="handleEmojiSelect" />
       </div>
     </div>
 
-    <MentionModal :visible="showMentionPanel" @close="closeMentionPanel" @select="handleMentionSelect" />
-
+    <MentionModal
+      :visible="showMentionPanel"
+      @close="closeMentionPanel"
+      @select="handleMentionSelect"
+    />
 
     <Transition name="image-viewer" appear>
-      <div v-if="showImageViewer" class="image-viewer-overlay" @click="closeImageViewer">
-        <div class="image-viewer-container" @click.stop="onViewerContainerClick">
-
+      <div
+        v-if="showImageViewer"
+        class="image-viewer-overlay"
+        @click="closeImageViewer"
+      >
+        <div
+          class="image-viewer-container"
+          @click.stop="onViewerContainerClick"
+        >
           <button class="image-viewer-close" @click="closeImageViewer">
             <SvgIcon name="close" width="24" height="24" />
           </button>
-
 
           <div v-if="imageList.length > 1" class="image-viewer-counter">
             {{ currentImageIndex + 1 }}/{{ imageList.length }}
           </div>
 
-
           <div class="image-viewer-content">
-            <div class="image-viewer-slider" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }"
-              @touchstart="handleViewerTouchStart" @touchmove="handleViewerTouchMove" @touchend="handleViewerTouchEnd">
-              <img v-for="(image, index) in imageList" :key="index" :src="image" :alt="props.item.title || '图片'"
-                class="viewer-image" />
+            <div
+              class="image-viewer-slider"
+              :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }"
+              @touchstart="handleViewerTouchStart"
+              @touchmove="handleViewerTouchMove"
+              @touchend="handleViewerTouchEnd"
+            >
+              <img
+                v-for="(image, index) in imageList"
+                :key="index"
+                :src="image"
+                :alt="props.item.title || '图片'"
+                class="viewer-image"
+              />
             </div>
           </div>
 
-
           <div v-if="imageList.length > 1" class="image-viewer-nav">
-            <button class="viewer-nav-btn viewer-prev-btn" @click="prevImageInViewer"
-              :disabled="currentImageIndex === 0" v-show="currentImageIndex > 0">
+            <button
+              class="viewer-nav-btn viewer-prev-btn"
+              @click="prevImageInViewer"
+              :disabled="currentImageIndex === 0"
+              v-show="currentImageIndex > 0"
+            >
               <SvgIcon name="left" width="24" height="24" />
             </button>
 
-            <button class="viewer-nav-btn viewer-next-btn" @click="nextImageInViewer"
-              :disabled="currentImageIndex === imageList.length - 1" v-show="currentImageIndex < imageList.length - 1">
+            <button
+              class="viewer-nav-btn viewer-next-btn"
+              @click="nextImageInViewer"
+              :disabled="currentImageIndex === imageList.length - 1"
+              v-show="currentImageIndex < imageList.length - 1"
+            >
               <SvgIcon name="right" width="24" height="24" />
             </button>
           </div>
@@ -321,1102 +575,1204 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import SvgIcon from './SvgIcon.vue'
-import FollowButton from './FollowButton.vue'
-import LikeButton from './LikeButton.vue'
-import MessageToast from './MessageToast.vue'
-import EmojiPicker from '@/components/EmojiPicker.vue'
-import MentionModal from '@/components/mention/MentionModal.vue'
-import MentionText from './mention/MentionText.vue'
-import ContentEditableInput from './ContentEditableInput.vue'
-import { useThemeStore } from '@/stores/theme'
-import { useUserStore } from '@/stores/user'
-import { useLikeStore } from '@/stores/like.js'
-import { useCollectStore } from '@/stores/collect.js'
-import { useFollowStore } from '@/stores/follow.js'
-import { useAuthStore } from '@/stores/auth'
-import { useCommentStore } from '@/stores/comment'
-import { useCommentLikeStore } from '@/stores/commentLike'
-import { commentApi, postApi } from '@/api/index.js'
-import { getPostDetail } from '@/api/posts.js'
-import { useScrollLock } from '@/composables/useScrollLock'
-import { formatTime } from '@/utils/timeFormat'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
+import { useRouter } from "vue-router";
+import SvgIcon from "./SvgIcon.vue";
+import FollowButton from "./FollowButton.vue";
+import LikeButton from "./LikeButton.vue";
+import MessageToast from "./MessageToast.vue";
+import EmojiPicker from "@/components/EmojiPicker.vue";
+import MentionModal from "@/components/mention/MentionModal.vue";
+import MentionText from "./mention/MentionText.vue";
+import ContentEditableInput from "./ContentEditableInput.vue";
+import { useThemeStore } from "@/stores/theme";
+import { useUserStore } from "@/stores/user";
+import { useLikeStore } from "@/stores/like.js";
+import { useCollectStore } from "@/stores/collect.js";
+import { useFollowStore } from "@/stores/follow.js";
+import { useAuthStore } from "@/stores/auth";
+import { useCommentStore } from "@/stores/comment";
+import { useCommentLikeStore } from "@/stores/commentLike";
+import { commentApi, postApi } from "@/api/index.js";
+import { getPostDetail } from "@/api/posts.js";
+import { useScrollLock } from "@/composables/useScrollLock";
+import { formatTime } from "@/utils/timeFormat";
 
-const router = useRouter()
+const router = useRouter();
 
 const props = defineProps({
   disableAutoFetch: {
     type: Boolean,
-    default: false
+    default: false,
   },
   item: {
     type: Object,
-    required: true
+    required: true,
   },
   clickPosition: {
     type: Object,
-    default: () => ({ x: 0, y: 0 })
+    default: () => ({ x: 0, y: 0 }),
   },
   pageMode: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const emit = defineEmits(['close', 'follow', 'unfollow', 'like', 'collect'])
+const emit = defineEmits(["close", "follow", "unfollow", "like", "collect"]);
 
-const themeStore = useThemeStore()
-const userStore = useUserStore()
-const likeStore = useLikeStore()
-const collectStore = useCollectStore()
-const followStore = useFollowStore()
-const commentStore = useCommentStore()
-const commentLikeStore = useCommentLikeStore()
-const authStore = useAuthStore()
+const themeStore = useThemeStore();
+const userStore = useUserStore();
+const likeStore = useLikeStore();
+const collectStore = useCollectStore();
+const followStore = useFollowStore();
+const commentStore = useCommentStore();
+const commentLikeStore = useCommentLikeStore();
+const authStore = useAuthStore();
 
-const { lock, unlock } = useScrollLock()
-const { lock: lockImageViewer, unlock: unlockImageViewer } = useScrollLock()
+const { lock, unlock } = useScrollLock();
+const { lock: lockImageViewer, unlock: unlockImageViewer } = useScrollLock();
 
-const commentInput = ref('')
-const isLiked = computed(() => likeStore.getPostLikeState(props.item.id)?.liked || false)
-const likeCount = computed(() => likeStore.getPostLikeState(props.item.id)?.likeCount || props.item.likeCount || props.item.like_count || 0)
-const isCollected = computed(() => collectStore.getPostCollectState(props.item.id)?.collected || false)
-const collectCount = computed(() => collectStore.getPostCollectState(props.item.id)?.collectCount || props.item.collectCount || props.item.collect_count || 0)
-const commentCount = ref(props.item.commentCount || props.item.comment_count || 0)
-const showTooltip = ref(false)
-const imageSectionWidth = ref(400)
-const isInputFocused = ref(false)
+const commentInput = ref("");
+const isLiked = computed(
+  () => likeStore.getPostLikeState(props.item.id)?.liked || false
+);
+const likeCount = computed(
+  () =>
+    likeStore.getPostLikeState(props.item.id)?.likeCount ||
+    props.item.likeCount ||
+    props.item.like_count ||
+    0
+);
+const isCollected = computed(
+  () => collectStore.getPostCollectState(props.item.id)?.collected || false
+);
+const collectCount = computed(
+  () =>
+    collectStore.getPostCollectState(props.item.id)?.collectCount ||
+    props.item.collectCount ||
+    props.item.collect_count ||
+    0
+);
+const commentCount = ref(
+  props.item.commentCount || props.item.comment_count || 0
+);
+const showTooltip = ref(false);
+const imageSectionWidth = ref(400);
+const isInputFocused = ref(false);
 
-const currentImageIndex = ref(0)
-const showImageControls = ref(false)
-const showImageViewer = ref(false) // 图片查看器状态
+const currentImageIndex = ref(0);
+const showImageControls = ref(false);
+const showImageViewer = ref(false); // 图片查看器状态
 
 // 用于mention功能的用户数据（实际使用中应该从 API 获取）
-const mentionUsers = ref([])
-const focusedInput = ref(null)
-const isAnimating = ref(true)
-const isSendingComment = ref(false)
-const showToast = ref(false)
-const toastMessage = ref('')
-const toastType = ref('success')
-const isShared = ref(false)
+const mentionUsers = ref([]);
+const focusedInput = ref(null);
+const isAnimating = ref(true);
+const isSendingComment = ref(false);
+const showToast = ref(false);
+const toastMessage = ref("");
+const toastType = ref("success");
+const isShared = ref(false);
 
-const replyingTo = ref(null)
-const expandedReplies = ref(new Set())
+const replyingTo = ref(null);
+const expandedReplies = ref(new Set());
 
-const showEmojiPanel = ref(false)
-const showMentionPanel = ref(false)
+const showEmojiPanel = ref(false);
+const showMentionPanel = ref(false);
 
 const contentSectionWidth = computed(() => {
   if (windowWidth.value <= 768) {
-    return windowWidth.value
+    return windowWidth.value;
   }
 
-  const maxTotalWidth = windowWidth.value * 0.95
-  const minContentWidth = 350
-  const maxContentWidth = 400
+  const maxTotalWidth = windowWidth.value * 0.95;
+  const minContentWidth = 350;
+  const maxContentWidth = 400;
 
-  const remainingWidth = maxTotalWidth - imageSectionWidth.value
+  const remainingWidth = maxTotalWidth - imageSectionWidth.value;
 
-  return Math.max(minContentWidth, Math.min(maxContentWidth, remainingWidth))
-})
+  return Math.max(minContentWidth, Math.min(maxContentWidth, remainingWidth));
+});
 
 const cardWidth = computed(() => {
-  return imageSectionWidth.value + contentSectionWidth.value
-})
+  return imageSectionWidth.value + contentSectionWidth.value;
+});
 
 const animationStyle = computed(() => {
-  if (!isAnimating.value) return {}
+  if (!isAnimating.value) return {};
 
-  const { x, y } = props.clickPosition
-  const centerX = window.innerWidth / 2
-  const centerY = window.innerHeight / 2
-  const translateX = (x - centerX) * 0.3
-  const translateY = (y - centerY) * 0.3
+  const { x, y } = props.clickPosition;
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+  const translateX = (x - centerX) * 0.3;
+  const translateY = (y - centerY) * 0.3;
 
   return {
-    '--start-x': `${translateX}px`,
-    '--start-y': `${translateY}px`
-  }
-})
+    "--start-x": `${translateX}px`,
+    "--start-y": `${translateY}px`,
+  };
+});
 
 const authorData = computed(() => {
   // 使用小红书号进行用户跳转
-  const userId = props.item.author_account || props.item.user_id || props.item.originalData?.userId
-  const followState = followStore.getUserFollowState(userId)
+  const userId =
+    props.item.author_account ||
+    props.item.user_id ||
+    props.item.originalData?.userId;
+  const followState = followStore.getUserFollowState(userId);
 
   return {
     id: userId,
-    name: props.item.nickname || props.item.author || '匿名用户',
-    avatar: props.item.user_avatar || props.item.avatar || new URL('@/assets/imgs/未加载.png', import.meta.url).href,
-    isFollowing: followState.followed
-  }
-})
+    name: props.item.nickname || props.item.author || "匿名用户",
+    avatar:
+      props.item.user_avatar ||
+      props.item.avatar ||
+      new URL("@/assets/imgs/未加载.png", import.meta.url).href,
+    isFollowing: followState.followed,
+  };
+});
 
 // 判断当前用户是否为笔记作者
 const isCurrentUserPost = computed(() => {
   if (!userStore.isLoggedIn || !userStore.userInfo) {
-    return false
+    return false;
   }
 
-  const currentUserId = userStore.userInfo.id // 当前用户的自增ID
-  const authorId = props.item.author_auto_id // 笔记作者的自增ID
+  const currentUserId = userStore.userInfo.id; // 当前用户的自增ID
+  const authorId = props.item.author_auto_id; // 笔记作者的自增ID
 
-  return currentUserId === authorId
-})
+  return currentUserId === authorId;
+});
 
 const noteData = computed(() => {
   const data = {
-    title: props.item.title || '无标题',
-    content: props.item.originalData?.content || props.item.content || '暂无内容',
-    tags: props.item.originalData?.tags ?
-      (Array.isArray(props.item.originalData.tags) ?
-        props.item.originalData.tags.map(tag => typeof tag === 'object' ? tag.name : tag) :
-        []) :
-      (props.item.tags ?
-        (Array.isArray(props.item.tags) ?
-          props.item.tags.map(tag => typeof tag === 'object' ? tag.name : tag) :
-          []) :
-        []),
-    time: formatTime(props.item.originalData?.createdAt || props.item.created_at || props.item.time),
-    location: props.item.location || ''
-  }
-  return data
-})
+    title: props.item.title || "无标题",
+    content:
+      props.item.originalData?.content || props.item.content || "暂无内容",
+    tags: props.item.originalData?.tags
+      ? Array.isArray(props.item.originalData.tags)
+        ? props.item.originalData.tags.map((tag) =>
+            typeof tag === "object" ? tag.name : tag
+          )
+        : []
+      : props.item.tags
+      ? Array.isArray(props.item.tags)
+        ? props.item.tags.map((tag) =>
+            typeof tag === "object" ? tag.name : tag
+          )
+        : []
+      : [],
+    time: formatTime(
+      props.item.originalData?.createdAt ||
+        props.item.created_at ||
+        props.item.time
+    ),
+    location: props.item.location || "",
+  };
+  return data;
+});
 
 const imageList = computed(() => {
-  if (props.item.originalData?.images && Array.isArray(props.item.originalData.images) && props.item.originalData.images.length > 0) {
-    return props.item.originalData.images
+  if (
+    props.item.originalData?.images &&
+    Array.isArray(props.item.originalData.images) &&
+    props.item.originalData.images.length > 0
+  ) {
+    return props.item.originalData.images;
   }
-  if (props.item.images && Array.isArray(props.item.images) && props.item.images.length > 0) {
-    return props.item.images
+  if (
+    props.item.images &&
+    Array.isArray(props.item.images) &&
+    props.item.images.length > 0
+  ) {
+    return props.item.images;
   }
   if (props.item.image) {
-    return [props.item.image]
+    return [props.item.image];
   }
-  return [new URL('@/assets/imgs/未加载.png', import.meta.url).href]
-})
+  return [new URL("@/assets/imgs/未加载.png", import.meta.url).href];
+});
 
-const hasMultipleImages = computed(() => imageList.value.length > 1)
+const hasMultipleImages = computed(() => imageList.value.length > 1);
 
-
-
-const comments = computed(() => commentStore.getComments(props.item.id).comments || [])
-const loadingComments = computed(() => commentStore.getComments(props.item.id).loading || false)
-const commentTotal = computed(() => commentStore.getComments(props.item.id).total || 0)
+const comments = computed(
+  () => commentStore.getComments(props.item.id).comments || []
+);
+const loadingComments = computed(
+  () => commentStore.getComments(props.item.id).loading || false
+);
+const commentTotal = computed(
+  () => commentStore.getComments(props.item.id).total || 0
+);
 
 const enhancedComments = computed(() => {
-  return comments.value.map(comment => {
-    const commentLikeState = commentLikeStore.getCommentLikeState(comment.id)
-    const enhancedReplies = comment.replies ? comment.replies.map(reply => {
-      const replyLikeState = commentLikeStore.getCommentLikeState(reply.id)
-      return {
-        ...reply,
-        isLiked: replyLikeState.liked,
-        likeCount: replyLikeState.likeCount
-      }
-    }) : []
+  return comments.value.map((comment) => {
+    const commentLikeState = commentLikeStore.getCommentLikeState(comment.id);
+    const enhancedReplies = comment.replies
+      ? comment.replies.map((reply) => {
+          const replyLikeState = commentLikeStore.getCommentLikeState(reply.id);
+          return {
+            ...reply,
+            isLiked: replyLikeState.liked,
+            likeCount: replyLikeState.likeCount,
+          };
+        })
+      : [];
 
     return {
       ...comment,
       isLiked: commentLikeState.liked,
       likeCount: commentLikeState.likeCount,
-      replies: enhancedReplies
-    }
-  })
-})
+      replies: enhancedReplies,
+    };
+  });
+});
 
 watch(commentTotal, (newTotal) => {
-  commentCount.value = newTotal
+  commentCount.value = newTotal;
 
   if (props.item.commentCount !== newTotal) {
-    props.item.commentCount = newTotal
+    props.item.commentCount = newTotal;
   }
-})
+});
 
-watch(() => props.item.id, () => {
-  currentImageIndex.value = 0
-})
+watch(
+  () => props.item.id,
+  () => {
+    currentImageIndex.value = 0;
+  }
+);
 
 const fetchComments = async () => {
   try {
-    const result = await commentStore.fetchComments(props.item.id)
-    await nextTick()
-    const latestComments = comments.value
+    const result = await commentStore.fetchComments(props.item.id);
+    await nextTick();
+    const latestComments = comments.value;
     if (latestComments && latestComments.length > 0) {
       // 无论是否登录都初始化评论点赞状态，未登录用户只显示点赞数量，不显示点赞状态
-      commentLikeStore.initCommentsLikeStates(latestComments)
+      commentLikeStore.initCommentsLikeStates(latestComments);
     }
   } catch (error) {
-    console.error(`获取笔记[${props.item.id}]评论失败:`, error)
-    if (error.message && !error.message.includes('401') && !error.message.includes('未授权')) {
-      showMessage('获取评论失败，请稍后重试', 'error')
+    console.error(`获取笔记[${props.item.id}]评论失败:`, error);
+    if (
+      error.message &&
+      !error.message.includes("401") &&
+      !error.message.includes("未授权")
+    ) {
+      showMessage("获取评论失败，请稍后重试", "error");
     }
   }
-}
+};
 
 const isCurrentUserComment = (comment) => {
   if (!userStore.isLoggedIn) {
-    return false
+    return false;
   }
 
-  let currentUser = userStore.userInfo
+  let currentUser = userStore.userInfo;
   if (!currentUser) {
-    const savedUserInfo = localStorage.getItem('userInfo')
+    const savedUserInfo = localStorage.getItem("userInfo");
     if (savedUserInfo) {
       try {
-        currentUser = JSON.parse(savedUserInfo)
+        currentUser = JSON.parse(savedUserInfo);
       } catch (error) {
-        console.error('解析用户信息失败:', error)
-        return false
+        console.error("解析用户信息失败:", error);
+        return false;
       }
     } else {
-      return false
+      return false;
     }
   }
 
-  const commentUserId = comment.user_auto_id
-  return commentUserId === currentUser.id
-}
+  const commentUserId = comment.user_auto_id;
+  return commentUserId === currentUser.id;
+};
 
 const handleDeleteComment = async (comment) => {
   if (!isCurrentUserComment(comment)) {
-    showMessage('只能删除自己发布的评论', 'error')
-    return
+    showMessage("只能删除自己发布的评论", "error");
+    return;
   }
 
   try {
     // 先调用后端API删除评论
-    const response = await commentApi.deleteComment(comment.id)
+    const response = await commentApi.deleteComment(comment.id);
 
     // 只有后端删除成功后，才更新前端状态
-    const currentComments = commentStore.getComments(props.item.id)
+    const currentComments = commentStore.getComments(props.item.id);
     if (currentComments && currentComments.comments) {
-      const updatedComments = currentComments.comments.filter(c => c.id !== comment.id)
+      const updatedComments = currentComments.comments.filter(
+        (c) => c.id !== comment.id
+      );
 
       // 使用后端返回的删除数量来更新总数
-      const deletedCount = response.data?.deletedCount || 1
+      const deletedCount = response.data?.deletedCount || 1;
       commentStore.updateComments(props.item.id, {
         comments: updatedComments,
-        total: currentComments.total - deletedCount
-      })
+        total: currentComments.total - deletedCount,
+      });
     }
 
-    showMessage('评论已删除', 'success')
+    showMessage("评论已删除", "success");
   } catch (error) {
-    console.error('删除评论失败:', error)
-    showMessage('删除评论失败，请重试', 'error')
+    console.error("删除评论失败:", error);
+    showMessage("删除评论失败，请重试", "error");
   }
-}
+};
 
 const handleDeleteReply = async (reply, commentId) => {
   if (!isCurrentUserComment(reply)) {
-    showMessage('只能删除自己发布的回复', 'error')
-    return
+    showMessage("只能删除自己发布的回复", "error");
+    return;
   }
 
   try {
     // 先调用后端API删除回复
-    const response = await commentApi.deleteComment(reply.id)
+    const response = await commentApi.deleteComment(reply.id);
 
     // 只有后端删除成功后，才更新前端状态
-    const currentComments = commentStore.getComments(props.item.id)
+    const currentComments = commentStore.getComments(props.item.id);
     if (currentComments && currentComments.comments) {
-      const targetComment = currentComments.comments.find(c => c.id === commentId)
+      const targetComment = currentComments.comments.find(
+        (c) => c.id === commentId
+      );
       if (targetComment) {
-        targetComment.replies = targetComment.replies.filter(r => r.id !== reply.id)
+        targetComment.replies = targetComment.replies.filter(
+          (r) => r.id !== reply.id
+        );
 
         // 使用后端返回的删除数量来更新总数
-        const deletedCount = response.data?.deletedCount || 1
+        const deletedCount = response.data?.deletedCount || 1;
         commentStore.updateComments(props.item.id, {
           comments: currentComments.comments,
-          total: currentComments.total - deletedCount
-        })
+          total: currentComments.total - deletedCount,
+        });
 
-        showMessage('回复已删除', 'success')
+        showMessage("回复已删除", "success");
       } else {
-        showMessage('找不到对应评论，请刷新页面', 'error')
+        showMessage("找不到对应评论，请刷新页面", "error");
       }
     }
   } catch (error) {
-    console.error('删除回复失败:', error)
-    showMessage('删除回复失败，请重试', 'error')
+    console.error("删除回复失败:", error);
+    showMessage("删除回复失败，请重试", "error");
   }
-}
+};
 
 const closeModal = () => {
-  unlock()
-  emit('close')
-}
-
-
+  unlock();
+  emit("close");
+};
 
 const handleFollow = (userId) => {
   // FollowButton组件已经处理了关注逻辑和状态更新，这里只需要触发事件
-  emit('follow', userId)
-}
+  emit("follow", userId);
+};
 
 const handleUnfollow = (userId) => {
   // FollowButton组件已经处理了取消关注逻辑和状态更新，这里只需要触发事件
-  emit('unfollow', userId)
-}
+  emit("unfollow", userId);
+};
 
 const toggleLike = async (willBeLiked) => {
   // 检查用户是否已登录
   if (!userStore.isLoggedIn) {
-    authStore.openLoginModal()
-    return
+    authStore.openLoginModal();
+    return;
   }
 
   try {
     // 获取当前状态
-    const currentState = likeStore.getPostLikeState(props.item.id)
-    const currentLiked = currentState.liked
-    const currentLikeCount = currentState.likeCount
+    const currentState = likeStore.getPostLikeState(props.item.id);
+    const currentLiked = currentState.liked;
+    const currentLikeCount = currentState.likeCount;
 
     // 使用全局store的点赞方法，传递当前状态
-    await likeStore.togglePostLike(props.item.id, currentLiked, currentLikeCount)
+    await likeStore.togglePostLike(
+      props.item.id,
+      currentLiked,
+      currentLikeCount
+    );
 
     // 触发点赞事件，传递笔记ID和新的点赞状态
-    emit('like', {
+    emit("like", {
       postId: props.item.id,
-      liked: !currentLiked
-    })
+      liked: !currentLiked,
+    });
   } catch (error) {
-    console.error('点赞操作失败:', error)
-    showMessage('操作失败，请重试', 'error')
+    console.error("点赞操作失败:", error);
+    showMessage("操作失败，请重试", "error");
   }
-}
+};
 
 // 评论点赞处理
 const toggleCommentLike = async (comment, willBeLiked) => {
   // 检查用户是否已登录
   if (!userStore.isLoggedIn) {
-    authStore.openLoginModal()
-    return
+    authStore.openLoginModal();
+    return;
   }
 
   try {
     // 获取当前状态
-    const currentState = commentLikeStore.getCommentLikeState(comment.id)
-    const currentLiked = currentState.liked
-    const currentLikeCount = currentState.likeCount
+    const currentState = commentLikeStore.getCommentLikeState(comment.id);
+    const currentLiked = currentState.liked;
+    const currentLikeCount = currentState.likeCount;
 
     // 使用全局store的评论点赞方法
-    const result = await commentLikeStore.toggleCommentLike(comment.id, currentLiked, currentLikeCount)
+    const result = await commentLikeStore.toggleCommentLike(
+      comment.id,
+      currentLiked,
+      currentLikeCount
+    );
 
     if (result.success) {
-      showMessage(result.liked ? '点赞成功' : '取消点赞成功', 'success')
+      showMessage(result.liked ? "点赞成功" : "取消点赞成功", "success");
     } else {
-      console.error(`评论${comment.id}点赞操作失败:`, result.error)
-      showMessage('操作失败，请重试', 'error')
+      console.error(`评论${comment.id}点赞操作失败:`, result.error);
+      showMessage("操作失败，请重试", "error");
     }
   } catch (error) {
-    console.error('评论点赞操作失败:', error)
-    showMessage('操作失败，请重试', 'error')
+    console.error("评论点赞操作失败:", error);
+    showMessage("操作失败，请重试", "error");
   }
-}
+};
 
 const toggleCollect = async () => {
   // 检查用户是否已登录
   if (!userStore.isLoggedIn) {
-    authStore.openLoginModal()
-    return
+    authStore.openLoginModal();
+    return;
   }
 
   try {
-    const postId = props.item.id
+    const postId = props.item.id;
 
     // 从收藏状态管理器获取当前状态
-    const currentState = collectStore.getPostCollectState(postId)
+    const currentState = collectStore.getPostCollectState(postId);
 
     // 使用收藏状态管理
     const result = await collectStore.togglePostCollect(
       postId,
       currentState.collected,
       currentState.collectCount
-    )
+    );
 
     if (result.success) {
-      showMessage(result.collected ? '收藏成功' : '取消收藏成功', 'success')
+      showMessage(result.collected ? "收藏成功" : "取消收藏成功", "success");
 
       // 触发收藏事件，传递笔记ID和新的收藏状态
-      emit('collect', {
+      emit("collect", {
         postId: postId,
-        collected: result.collected
-      })
+        collected: result.collected,
+      });
     } else {
-      console.error('收藏操作失败:', result.error)
-      showMessage('操作失败，请重试', 'error')
+      console.error("收藏操作失败:", result.error);
+      showMessage("操作失败，请重试", "error");
     }
   } catch (error) {
-    console.error('收藏操作失败:', error)
-    showMessage('操作失败，请重试', 'error')
+    console.error("收藏操作失败:", error);
+    showMessage("操作失败，请重试", "error");
   }
-}
+};
 
 const handleShare = async () => {
   try {
-    const shareUrl = `【${props.item.title}-${props.item.author}| 小红书 - 你的校园图文部落】${window.location.origin}/post?id=${props.item.id}`
+    const shareUrl = `【${props.item.title}-${props.item.author}| 大红薯 - 你的校园图文部落】${window.location.origin}/post?id=${props.item.id}`;
 
     // 检查是否支持现代剪贴板API
     if (navigator.clipboard && navigator.clipboard.writeText) {
       // 使用现代剪贴板API
-      await navigator.clipboard.writeText(shareUrl)
+      await navigator.clipboard.writeText(shareUrl);
     } else {
       // 降级方案：使用传统的document.execCommand
-      const textArea = document.createElement('textarea')
-      textArea.value = shareUrl
-      textArea.style.position = 'fixed'
-      textArea.style.left = '-999999px'
-      textArea.style.top = '-999999px'
-      document.body.appendChild(textArea)
-      textArea.focus()
-      textArea.select()
-      document.execCommand('copy')
-      document.body.removeChild(textArea)
+      const textArea = document.createElement("textarea");
+      textArea.value = shareUrl;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
     }
 
     // 显示成功提示
-    showMessage('复制成功，快去分享给好友吧', 'success')
+    showMessage("复制成功，快去分享给好友吧", "success");
 
     // 切换图标为tick
-    isShared.value = true
+    isShared.value = true;
   } catch (error) {
-    console.error('复制失败:', error)
-    showMessage('复制失败，请重试', 'error')
+    console.error("复制失败:", error);
+    showMessage("复制失败，请重试", "error");
   }
-}
+};
 
 const handleShareMouseLeave = () => {
   // 鼠标移开后恢复share图标
-  isShared.value = false
-}
+  isShared.value = false;
+};
 
 // 处理标签点击
 const handleTagClick = (tag) => {
   // 构建搜索页面URL
-  const searchUrl = `${window.location.origin}/search_result?tag=${encodeURIComponent(tag)}`
+  const searchUrl = `${
+    window.location.origin
+  }/search_result?tag=${encodeURIComponent(tag)}`;
 
   // 在新标签页打开搜索页面
-  window.open(searchUrl, '_blank')
-}
+  window.open(searchUrl, "_blank");
+};
 
 // 显示消息提示
-const showMessage = (message, type = 'success') => {
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
-}
+const showMessage = (message, type = "success") => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+};
 
 // 关闭消息提示
 const handleToastClose = () => {
-  showToast.value = false
-}
+  showToast.value = false;
+};
 
 // 输入框聚焦处理
 const handleInputFocus = () => {
-  isInputFocused.value = true
-}
+  isInputFocused.value = true;
+};
 
 // 评论按钮点击处理
 const handleCommentButtonClick = () => {
   // 聚焦到输入框
   if (focusedInput.value) {
-    focusedInput.value.focus()
+    focusedInput.value.focus();
   }
-}
+};
 
 // 艾特面板切换
 const toggleMentionPanel = () => {
   // 如果要打开面板，先插入@符号
-  if (!showMentionPanel.value && focusedInput.value && focusedInput.value.insertAtSymbol) {
-    focusedInput.value.insertAtSymbol()
+  if (
+    !showMentionPanel.value &&
+    focusedInput.value &&
+    focusedInput.value.insertAtSymbol
+  ) {
+    focusedInput.value.insertAtSymbol();
   }
-  showMentionPanel.value = !showMentionPanel.value
-}
+  showMentionPanel.value = !showMentionPanel.value;
+};
 
 const closeMentionPanel = () => {
-  showMentionPanel.value = false
-}
+  showMentionPanel.value = false;
+};
 
 // 输入框键盘事件处理
 const handleInputKeydown = (event) => {
-  if (event.key === 'Enter' && !event.shiftKey) {
+  if (event.key === "Enter" && !event.shiftKey) {
     // 回车键发送评论（不包括Shift+Enter）
-    event.preventDefault()
-    handleSendComment()
-  } else if (event.key === 'Escape') {
+    event.preventDefault();
+    handleSendComment();
+  } else if (event.key === "Escape") {
     // ESC键取消输入
-    event.preventDefault()
-    handleCancelInput()
-  } else if (event.key === 'Backspace' || event.key === 'Delete') {
+    event.preventDefault();
+    handleCancelInput();
+  } else if (event.key === "Backspace" || event.key === "Delete") {
     // 处理删除mention标签的逻辑
-    const selection = window.getSelection()
+    const selection = window.getSelection();
     if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0)
+      const range = selection.getRangeAt(0);
 
-      if (event.key === 'Backspace') {
+      if (event.key === "Backspace") {
         // Backspace: 优先处理正常的文本删除
-        if (range.startContainer.nodeType === Node.TEXT_NODE && range.startOffset > 0) {
+        if (
+          range.startContainer.nodeType === Node.TEXT_NODE &&
+          range.startOffset > 0
+        ) {
           // 如果光标在文本节点中且不在开头，允许正常删除文本
-          return
+          return;
         }
 
         // 只有当光标紧邻mention标签且没有其他文本可删除时，才删除mention
-        const prevNode = range.startContainer.previousSibling
-        if (prevNode && prevNode.classList && prevNode.classList.contains('mention-link')) {
+        const prevNode = range.startContainer.previousSibling;
+        if (
+          prevNode &&
+          prevNode.classList &&
+          prevNode.classList.contains("mention-link")
+        ) {
           // 检查是否有选中的文本，如果有则优先删除选中的文本
           if (range.startOffset !== range.endOffset) {
-            return // 让浏览器处理选中文本的删除
+            return; // 让浏览器处理选中文本的删除
           }
-          event.preventDefault()
-          prevNode.remove()
-          commentInput.value = event.target.innerHTML
-          return
+          event.preventDefault();
+          prevNode.remove();
+          commentInput.value = event.target.innerHTML;
+          return;
         }
 
         // 如果光标在文本节点开头，检查前面的兄弟节点
-        if (range.startContainer.nodeType === Node.TEXT_NODE && range.startOffset === 0) {
-          const textNode = range.startContainer
-          const prevSibling = textNode.previousSibling
-          if (prevSibling && prevSibling.classList && prevSibling.classList.contains('mention-link')) {
-            event.preventDefault()
-            prevSibling.remove()
-            commentInput.value = event.target.innerHTML
-            return
+        if (
+          range.startContainer.nodeType === Node.TEXT_NODE &&
+          range.startOffset === 0
+        ) {
+          const textNode = range.startContainer;
+          const prevSibling = textNode.previousSibling;
+          if (
+            prevSibling &&
+            prevSibling.classList &&
+            prevSibling.classList.contains("mention-link")
+          ) {
+            event.preventDefault();
+            prevSibling.remove();
+            commentInput.value = event.target.innerHTML;
+            return;
           }
         }
-      } else if (event.key === 'Delete') {
+      } else if (event.key === "Delete") {
         // Delete: 检查光标后面是否有mention标签
-        const nextNode = range.endContainer.nextSibling
-        if (nextNode && nextNode.classList && nextNode.classList.contains('mention-link')) {
-          event.preventDefault()
-          nextNode.remove()
-          commentInput.value = event.target.innerHTML
-          return
+        const nextNode = range.endContainer.nextSibling;
+        if (
+          nextNode &&
+          nextNode.classList &&
+          nextNode.classList.contains("mention-link")
+        ) {
+          event.preventDefault();
+          nextNode.remove();
+          commentInput.value = event.target.innerHTML;
+          return;
         }
 
         // 如果光标在文本节点末尾，检查后面的兄弟节点
-        if (range.endContainer.nodeType === Node.TEXT_NODE &&
-          range.endOffset === range.endContainer.textContent.length) {
-          const textNode = range.endContainer
-          const nextSibling = textNode.nextSibling
-          if (nextSibling && nextSibling.classList && nextSibling.classList.contains('mention-link')) {
-            event.preventDefault()
-            nextSibling.remove()
-            commentInput.value = event.target.innerHTML
-            return
+        if (
+          range.endContainer.nodeType === Node.TEXT_NODE &&
+          range.endOffset === range.endContainer.textContent.length
+        ) {
+          const textNode = range.endContainer;
+          const nextSibling = textNode.nextSibling;
+          if (
+            nextSibling &&
+            nextSibling.classList &&
+            nextSibling.classList.contains("mention-link")
+          ) {
+            event.preventDefault();
+            nextSibling.remove();
+            commentInput.value = event.target.innerHTML;
+            return;
           }
         }
       }
     }
   }
-}
+};
 // 开始回复评论
 const handleReplyComment = (target, parentId = null) => {
   // 如果是回复评论，parentId为null，target就是comment对象
   // 如果是回复回复，parentId是被回复的回复ID，target是reply对象
   replyingTo.value = {
     ...target,
-    commentId: parentId || target.id // parentId就是要设置为parent_id的值
-  }
+    commentId: parentId || target.id, // parentId就是要设置为parent_id的值
+  };
 
   // 聚焦到底部输入框
-  isInputFocused.value = true
+  isInputFocused.value = true;
   nextTick(() => {
     if (focusedInput.value) {
-      focusedInput.value.focus()
+      focusedInput.value.focus();
     }
-  })
-}
+  });
+};
 
 // 处理用户点击事件
 const onUserClick = (userId) => {
   if (userId) {
-    const userUrl = `${window.location.origin}/user/${userId}`
-    window.open(userUrl, '_blank')
+    const userUrl = `${window.location.origin}/user/${userId}`;
+    window.open(userUrl, "_blank");
   }
-}
-
+};
 
 const toggleRepliesExpanded = (commentId) => {
   if (expandedReplies.value.has(commentId)) {
-    expandedReplies.value.delete(commentId)
+    expandedReplies.value.delete(commentId);
   } else {
-    expandedReplies.value.add(commentId)
+    expandedReplies.value.add(commentId);
   }
-}
+};
 
 const isRepliesExpanded = (commentId) => {
-  return expandedReplies.value.has(commentId)
-}
+  return expandedReplies.value.has(commentId);
+};
 
 const getDisplayedReplies = (replies, commentId) => {
-  if (!replies || replies.length === 0) return []
-  if (replies.length <= 2) return replies
-  return isRepliesExpanded(commentId) ? replies : replies.slice(0, 2)
-}
+  if (!replies || replies.length === 0) return [];
+  if (replies.length <= 2) return replies;
+  return isRepliesExpanded(commentId) ? replies : replies.slice(0, 2);
+};
 
 const getHiddenRepliesCount = (replies, commentId) => {
-  if (!replies || replies.length <= 2) return 0
-  return isRepliesExpanded(commentId) ? 0 : replies.length - 2
-}
+  if (!replies || replies.length <= 2) return 0;
+  return isRepliesExpanded(commentId) ? 0 : replies.length - 2;
+};
 
 const handleImageLoad = (event, index) => {
   // 只有第一张图片需要计算容器宽度
   if (index === 0) {
-    const img = event.target
-    const aspectRatio = img.naturalWidth / img.naturalHeight
+    const img = event.target;
+    const aspectRatio = img.naturalWidth / img.naturalHeight;
 
-    const minWidth = 300
-    const maxWidth = props.pageMode ? 500 : 750
+    const minWidth = 300;
+    const maxWidth = props.pageMode ? 500 : 750;
 
-    const containerHeight = Math.min(window.innerHeight * 0.9, 1020)
+    const containerHeight = Math.min(window.innerHeight * 0.9, 1020);
 
-    const idealWidth = containerHeight * aspectRatio
+    const idealWidth = containerHeight * aspectRatio;
 
-    let optimalWidth = Math.max(minWidth, Math.min(maxWidth, idealWidth))
+    let optimalWidth = Math.max(minWidth, Math.min(maxWidth, idealWidth));
 
     if (aspectRatio <= 0.6) {
-      optimalWidth = Math.min(optimalWidth, 500)
+      optimalWidth = Math.min(optimalWidth, 500);
     } else if (aspectRatio <= 0.8) {
-      optimalWidth = Math.min(optimalWidth, 600)
+      optimalWidth = Math.min(optimalWidth, 600);
     } else if (aspectRatio >= 2.0) {
-      optimalWidth = Math.max(optimalWidth, 600)
+      optimalWidth = Math.max(optimalWidth, 600);
     } else if (aspectRatio >= 1.5) {
-      optimalWidth = Math.max(optimalWidth, 550)
+      optimalWidth = Math.max(optimalWidth, 550);
     }
 
-    imageSectionWidth.value = optimalWidth
+    imageSectionWidth.value = optimalWidth;
   }
 
   // 当前图片加载完成后，自动预加载下一张图片
   if (index === currentImageIndex.value && imageList.value.length > 1) {
-    const nextIndex = index + 1
+    const nextIndex = index + 1;
     if (nextIndex < imageList.value.length && imageList.value[nextIndex]) {
-      preloadImage(imageList.value[nextIndex])
+      preloadImage(imageList.value[nextIndex]);
     }
   }
-}
+};
 
 const prevImage = () => {
   if (currentImageIndex.value > 0) {
-    currentImageIndex.value--
+    currentImageIndex.value--;
   }
-}
+};
 
 const nextImage = () => {
   if (currentImageIndex.value < imageList.value.length - 1) {
-    currentImageIndex.value++
+    currentImageIndex.value++;
   }
-}
+};
 
 // 图片查看器相关方法
 const openImageViewer = () => {
-  showImageViewer.value = true
+  showImageViewer.value = true;
   // 防止背景滚动
-  lockImageViewer()
+  lockImageViewer();
   // 添加键盘事件监听
-  document.addEventListener('keydown', handleViewerKeydown)
-}
+  document.addEventListener("keydown", handleViewerKeydown);
+};
 
 const closeImageViewer = () => {
-  showImageViewer.value = false
+  showImageViewer.value = false;
   // 恢复滚动
-  unlockImageViewer()
+  unlockImageViewer();
   // 移除键盘事件监听
-  document.removeEventListener('keydown', handleViewerKeydown)
-}
+  document.removeEventListener("keydown", handleViewerKeydown);
+};
 
 // 图片查看器键盘事件处理
 const handleViewerKeydown = (event) => {
-  if (!showImageViewer.value) return
+  if (!showImageViewer.value) return;
 
   switch (event.key) {
-    case 'Escape':
-      event.preventDefault()
-      closeImageViewer()
-      break
-    case 'ArrowLeft':
-      event.preventDefault()
-      prevImageInViewer()
-      break
-    case 'ArrowRight':
-      event.preventDefault()
-      nextImageInViewer()
-      break
+    case "Escape":
+      event.preventDefault();
+      closeImageViewer();
+      break;
+    case "ArrowLeft":
+      event.preventDefault();
+      prevImageInViewer();
+      break;
+    case "ArrowRight":
+      event.preventDefault();
+      nextImageInViewer();
+      break;
   }
-}
+};
 
 const prevImageInViewer = () => {
   if (currentImageIndex.value > 0) {
-    currentImageIndex.value--
+    currentImageIndex.value--;
   }
-}
+};
 
 const nextImageInViewer = () => {
   if (currentImageIndex.value < imageList.value.length - 1) {
-    currentImageIndex.value++
+    currentImageIndex.value++;
   }
-}
+};
 
-const preloadedImages = new Set()
+const preloadedImages = new Set();
 
 const preloadImage = (imageUrl) => {
   if (!imageUrl || preloadedImages.has(imageUrl)) {
-    return
+    return;
   }
 
-  const img = new Image()
+  const img = new Image();
   img.onload = () => {
-    preloadedImages.add(imageUrl)
-
-  }
+    preloadedImages.add(imageUrl);
+  };
   img.onerror = () => {
-    console.warn(`预加载图片失败`)
-  }
-  img.src = imageUrl
-}
-
-
-
+    console.warn(`预加载图片失败`);
+  };
+  img.src = imageUrl;
+};
 
 const toggleEmojiPanel = () => {
-  showEmojiPanel.value = !showEmojiPanel.value
+  showEmojiPanel.value = !showEmojiPanel.value;
 
   // 如果打开表情面板且输入框没有聚焦，先聚焦
   if (showEmojiPanel.value && !isInputFocused.value && focusedInput.value) {
     nextTick(() => {
-      focusedInput.value.focus()
-    })
+      focusedInput.value.focus();
+    });
   }
-}
+};
 
 const closeEmojiPanel = () => {
-  showEmojiPanel.value = false
-}
-
+  showEmojiPanel.value = false;
+};
 
 const handleEmojiSelect = (emoji) => {
-  const emojiChar = emoji.i
+  const emojiChar = emoji.i;
 
   // 确保输入框聚焦
   if (!isInputFocused.value && focusedInput.value) {
-    focusedInput.value.focus()
+    focusedInput.value.focus();
   }
 
   // 插入表情
   nextTick(() => {
     if (focusedInput.value && focusedInput.value.insertEmoji) {
-      focusedInput.value.insertEmoji(emojiChar)
+      focusedInput.value.insertEmoji(emojiChar);
     } else {
-      commentInput.value += emojiChar
+      commentInput.value += emojiChar;
     }
-  })
+  });
 
-  closeEmojiPanel()
-}
+  closeEmojiPanel();
+};
 
 const handleMentionSelect = (friend) => {
   // 调用ContentEditableInput组件的selectMentionUser方法
   if (focusedInput.value && focusedInput.value.selectMentionUser) {
-    focusedInput.value.selectMentionUser(friend)
+    focusedInput.value.selectMentionUser(friend);
   }
 
   // 关闭mention面板
-  closeMentionPanel()
-}
+  closeMentionPanel();
+};
 
 // 处理@符号输入事件
 const handleMentionInput = () => {
   // 当用户输入@符号时，自动打开mention面板
   if (!showMentionPanel.value) {
-    showMentionPanel.value = true
+    showMentionPanel.value = true;
   }
-}
+};
 
 // 处理取消输入
 // 内容安全过滤函数
 const sanitizeContent = (content) => {
-  if (!content) return ''
+  if (!content) return "";
   // 保留mention链接，但移除其他危险标签
   // 先保存mention链接
-  const mentionLinks = []
-  let processedContent = content.replace(/<a[^>]*class="mention-link"[^>]*>.*?<\/a>/g, (match) => {
-    const placeholder = `__MENTION_${mentionLinks.length}__`
-    mentionLinks.push(match)
-    return placeholder
-  })
+  const mentionLinks = [];
+  let processedContent = content.replace(
+    /<a[^>]*class="mention-link"[^>]*>.*?<\/a>/g,
+    (match) => {
+      const placeholder = `__MENTION_${mentionLinks.length}__`;
+      mentionLinks.push(match);
+      return placeholder;
+    }
+  );
 
   // 移除所有其他HTML标签
-  processedContent = processedContent.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ')
+  processedContent = processedContent
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ");
 
   // 恢复mention链接
   mentionLinks.forEach((link, index) => {
-    processedContent = processedContent.replace(`__MENTION_${index}__`, link)
-  })
+    processedContent = processedContent.replace(`__MENTION_${index}__`, link);
+  });
 
-  return processedContent.trim()
-}
+  return processedContent.trim();
+};
 
 // 发送评论
 const handleSendComment = async () => {
   if (!userStore.isLoggedIn) {
-    showMessage('请先登录', 'error')
-    return
+    showMessage("请先登录", "error");
+    return;
   }
 
   // 对内容进行安全过滤
-  const rawContent = commentInput.value || ''
-  const sanitizedContent = sanitizeContent(rawContent)
+  const rawContent = commentInput.value || "";
+  const sanitizedContent = sanitizeContent(rawContent);
 
   if (!sanitizedContent) {
-    showMessage('请输入评论内容', 'error')
-    return
+    showMessage("请输入评论内容", "error");
+    return;
   }
 
   if (isSendingComment.value) {
-    return
+    return;
   }
 
   try {
-    isSendingComment.value = true
+    isSendingComment.value = true;
 
     const commentData = {
       post_id: props.item.id,
       content: sanitizedContent, // 使用过滤后的内容
-      parent_id: replyingTo.value ? replyingTo.value.commentId : null
-    }
+      parent_id: replyingTo.value ? replyingTo.value.commentId : null,
+    };
 
-    const response = await commentApi.createComment(commentData)
+    const response = await commentApi.createComment(commentData);
 
     if (response.success) {
-      showMessage(replyingTo.value ? '回复成功' : '评论成功', 'success')
+      showMessage(replyingTo.value ? "回复成功" : "评论成功", "success");
 
       // 清空输入框和重置状态
-      handleCancelInput()
+      handleCancelInput();
 
       // 重新获取评论列表
-      await fetchComments()
+      await fetchComments();
     } else {
-      showMessage(response.message || '发送失败，请重试', 'error')
+      showMessage(response.message || "发送失败，请重试", "error");
     }
   } catch (error) {
-    console.error('发送评论失败:', error)
-    showMessage('发送失败，请重试', 'error')
+    console.error("发送评论失败:", error);
+    showMessage("发送失败，请重试", "error");
   } finally {
-    isSendingComment.value = false
+    isSendingComment.value = false;
   }
-}
+};
 
 const handleCancelInput = () => {
-  commentInput.value = ''
-  replyingTo.value = null
-  isInputFocused.value = false
-  showEmojiPanel.value = false
-  showMentionPanel.value = false
+  commentInput.value = "";
+  replyingTo.value = null;
+  isInputFocused.value = false;
+  showEmojiPanel.value = false;
+  showMentionPanel.value = false;
   // 确保输入框失去焦点
   if (focusedInput.value) {
-    focusedInput.value.blur()
+    focusedInput.value.blur();
   }
-}
+};
 
 const fetchPostDetail = async () => {
   try {
     // 使用经过transformPostData处理的getPostDetail函数
-    const postDetail = await getPostDetail(props.item.id)
+    const postDetail = await getPostDetail(props.item.id);
 
     if (postDetail) {
       // 更新props.item以包含完整的数据（包括author_auto_id）
-      Object.assign(props.item, postDetail)
+      Object.assign(props.item, postDetail);
 
       likeStore.initPostLikeState(
         postDetail.id,
         postDetail.liked || false,
         postDetail.likeCount || postDetail.like_count || 0
-      )
+      );
 
       collectStore.initPostCollectState(
         postDetail.id,
         postDetail.collected || false,
         postDetail.collectCount || postDetail.collect_count || 0
-      )
+      );
     }
   } catch (error) {
-    console.error(`❌ 获取笔记${props.item.id}详情失败:`, error)
+    console.error(`❌ 获取笔记${props.item.id}详情失败:`, error);
     likeStore.initPostLikeState(
       props.item.id,
       props.item.liked || false,
       props.item.likeCount || props.item.like_count || 0
-    )
+    );
 
     collectStore.initPostCollectState(
       props.item.id,
       props.item.collected || false,
       props.item.collectCount || props.item.collect_count || 0
-    )
+    );
   }
-}
+};
 
-const windowWidth = ref(window.innerWidth)
+const windowWidth = ref(window.innerWidth);
 
 const handleResize = () => {
-  windowWidth.value = window.innerWidth
-}
+  windowWidth.value = window.innerWidth;
+};
 
 onMounted(() => {
-  lock()
+  lock();
 
-  window.addEventListener('resize', handleResize)
+  window.addEventListener("resize", handleResize);
 
   setTimeout(() => {
-    isAnimating.value = false
-  }, 400)
+    isAnimating.value = false;
+  }, 400);
 
   if (userStore.isLoggedIn && !userStore.userInfo) {
-    userStore.initUserInfo()
+    userStore.initUserInfo();
   }
 
   if (!props.disableAutoFetch) {
-    fetchPostDetail()
+    fetchPostDetail();
   }
 
-  fetchComments()
-
-
-})
+  fetchComments();
+});
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+  window.removeEventListener("resize", handleResize);
   // 确保移除键盘事件监听器
-  document.removeEventListener('keydown', handleViewerKeydown)
-})
+  document.removeEventListener("keydown", handleViewerKeydown);
+});
 
 watch(isInputFocused, async (newValue) => {
-  await nextTick()
+  await nextTick();
   if (newValue) {
     if (focusedInput.value) {
-      focusedInput.value.focus()
+      focusedInput.value.focus();
     }
   } else {
     if (focusedInput.value) {
-      focusedInput.value.blur()
+      focusedInput.value.blur();
     }
   }
-})
+});
 
 watch(currentImageIndex, (newIndex) => {
   // 当切换到新图片时，预加载下一张图片
   if (imageList.value.length > 1) {
-    const nextIndex = newIndex + 1
+    const nextIndex = newIndex + 1;
     if (nextIndex < imageList.value.length && imageList.value[nextIndex]) {
-      preloadImage(imageList.value[nextIndex])
+      preloadImage(imageList.value[nextIndex]);
     }
   }
-})
+});
 
-const touchStartX = ref(0)
-const touchStartY = ref(0)
-const touchEndX = ref(0)
-const touchEndY = ref(0)
-const minSwipeDistance = 50
-const SWIPE_THRESHOLD = 10 // 滑动判定阈值
+const touchStartX = ref(0);
+const touchStartY = ref(0);
+const touchEndX = ref(0);
+const touchEndY = ref(0);
+const minSwipeDistance = 50;
+const SWIPE_THRESHOLD = 10; // 滑动判定阈值
 
 const handleTouchStart = (e) => {
-  touchStartX.value = e.touches[0].clientX
-  touchStartY.value = e.touches[0].clientY
-}
+  touchStartX.value = e.touches[0].clientX;
+  touchStartY.value = e.touches[0].clientY;
+};
 
 const handleTouchMove = (e) => {
-  const touchMoveX = e.touches[0].clientX
-  const touchMoveY = e.touches[0].clientY
+  const touchMoveX = e.touches[0].clientX;
+  const touchMoveY = e.touches[0].clientY;
 
-  const deltaX = Math.abs(touchMoveX - touchStartX.value)
-  const deltaY = Math.abs(touchMoveY - touchStartY.value)
+  const deltaX = Math.abs(touchMoveX - touchStartX.value);
+  const deltaY = Math.abs(touchMoveY - touchStartY.value);
 
   // 仅当"水平滑动幅度 > 垂直滑动幅度 + 阈值"时，阻止默认行为（避免影响页面垂直滚动）
   if (deltaX > deltaY && deltaX > SWIPE_THRESHOLD) {
-    e.preventDefault()
+    e.preventDefault();
   }
-}
+};
 
 const handleTouchEnd = (e) => {
-  touchEndX.value = e.changedTouches[0].clientX
-  touchEndY.value = e.changedTouches[0].clientY
+  touchEndX.value = e.changedTouches[0].clientX;
+  touchEndY.value = e.changedTouches[0].clientY;
 
-  const deltaX = touchEndX.value - touchStartX.value
-  const deltaY = touchEndY.value - touchStartY.value
+  const deltaX = touchEndX.value - touchStartX.value;
+  const deltaY = touchEndY.value - touchStartY.value;
 
-  if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+  if (
+    Math.abs(deltaX) > Math.abs(deltaY) &&
+    Math.abs(deltaX) > minSwipeDistance
+  ) {
     if (deltaX > 0) {
-      prevImage()
+      prevImage();
     } else {
-      nextImage()
+      nextImage();
     }
   }
 
   // 重置记录
-  touchStartX.value = 0
-  touchStartY.value = 0
-}
+  touchStartX.value = 0;
+  touchStartY.value = 0;
+};
 
 // 图片查看器触摸事件处理
 const handleViewerTouchStart = (e) => {
-  touchStartX.value = e.touches[0].clientX
-  touchStartY.value = e.touches[0].clientY
-}
+  touchStartX.value = e.touches[0].clientX;
+  touchStartY.value = e.touches[0].clientY;
+};
 
 const handleViewerTouchMove = (e) => {
-  const touchMoveX = e.touches[0].clientX
-  const touchMoveY = e.touches[0].clientY
+  const touchMoveX = e.touches[0].clientX;
+  const touchMoveY = e.touches[0].clientY;
 
-  const deltaX = Math.abs(touchMoveX - touchStartX.value)
-  const deltaY = Math.abs(touchMoveY - touchStartY.value)
+  const deltaX = Math.abs(touchMoveX - touchStartX.value);
+  const deltaY = Math.abs(touchMoveY - touchStartY.value);
 
   // 仅当"水平滑动幅度 > 垂直滑动幅度 + 阈值"时，阻止默认行为（避免影响页面垂直滚动）
   if (deltaX > deltaY && deltaX > SWIPE_THRESHOLD) {
-    e.preventDefault()
+    e.preventDefault();
   }
-}
+};
 
 const handleViewerTouchEnd = (e) => {
-  touchEndX.value = e.changedTouches[0].clientX
-  touchEndY.value = e.changedTouches[0].clientY
+  touchEndX.value = e.changedTouches[0].clientX;
+  touchEndY.value = e.changedTouches[0].clientY;
 
-  const deltaX = touchEndX.value - touchStartX.value
-  const deltaY = touchEndY.value - touchStartY.value
+  const deltaX = touchEndX.value - touchStartX.value;
+  const deltaY = touchEndY.value - touchStartY.value;
 
-  if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+  if (
+    Math.abs(deltaX) > Math.abs(deltaY) &&
+    Math.abs(deltaX) > minSwipeDistance
+  ) {
     if (deltaX > 0) {
-      prevImageInViewer()
+      prevImageInViewer();
     } else {
-      nextImageInViewer()
+      nextImageInViewer();
     }
   }
 
   // 重置记录
-  touchStartX.value = 0
-  touchStartY.value = 0
-}
+  touchStartX.value = 0;
+  touchStartY.value = 0;
+};
 
 const goToImage = (index) => {
   if (index >= 0 && index < imageList.value.length) {
-    currentImageIndex.value = index
+    currentImageIndex.value = index;
   }
-}
+};
 
 // 当点击图片查看器容器的任意非控制区域时关闭预览
 const onViewerContainerClick = (event) => {
-  const target = event.target
+  const target = event.target;
   // 若点击在翻页按钮或关闭按钮上，保留原有行为
-  if (target.closest && (target.closest('.viewer-nav-btn') || target.closest('.image-viewer-close'))) {
-    return
+  if (
+    target.closest &&
+    (target.closest(".viewer-nav-btn") || target.closest(".image-viewer-close"))
+  ) {
+    return;
   }
-  closeImageViewer()
-}
+  closeImageViewer();
+};
 </script>
 
 <style scoped>
@@ -1468,7 +1824,6 @@ const onViewerContainerClick = (event) => {
   flex-direction: row;
   border-radius: 12px;
 }
-
 
 /* 缩放弹出动画 */
 .detail-card.scale-in {
@@ -1537,7 +1892,7 @@ const onViewerContainerClick = (event) => {
 }
 
 .tooltip::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -4px;
   left: 46%;
@@ -1754,15 +2109,12 @@ const onViewerContainerClick = (event) => {
   cursor: pointer;
 }
 
-
 .author-name {
   font-weight: 600;
   color: var(--text-color-primary);
   font-size: 16px;
   cursor: pointer;
 }
-
-
 
 .scrollable-content {
   flex: 1;
@@ -1819,7 +2171,6 @@ const onViewerContainerClick = (event) => {
 .clickable-tag:hover {
   opacity: 0.8;
 }
-
 
 .note-meta {
   display: flex;
@@ -1902,8 +2253,6 @@ const onViewerContainerClick = (event) => {
   cursor: pointer;
 }
 
-
-
 .comment-content {
   flex: 1;
   min-width: 0;
@@ -1982,7 +2331,6 @@ const onViewerContainerClick = (event) => {
   color: var(--text-color-secondary);
 }
 
-
 .comment-replay-icon {
   cursor: pointer;
   transition: all 0.2s ease;
@@ -2037,10 +2385,6 @@ const onViewerContainerClick = (event) => {
   flex-shrink: 0;
   cursor: pointer;
 }
-
-
-
-
 
 .reply-content {
   flex: 1;
@@ -2148,8 +2492,6 @@ const onViewerContainerClick = (event) => {
   transition: all 0.2s ease;
   font-weight: 500;
 }
-
-
 
 /* 底部操作栏样式 */
 .footer-actions {
@@ -2408,9 +2750,6 @@ const onViewerContainerClick = (event) => {
   color: var(--text-color-primary);
 }
 
-
-
-
 .action-btn svg {
   width: 24px;
   height: 24px;
@@ -2470,7 +2809,6 @@ const onViewerContainerClick = (event) => {
 
 /* 响应式设计 - 移动端适配 */
 @media (max-width: 768px) {
-
   /* 移动端page-mode样式 */
   .detail-card.page-mode {
     max-width: 100vw;
@@ -2591,7 +2929,7 @@ const onViewerContainerClick = (event) => {
 
   /* 在可滚动内容的开头添加图片 */
   .scrollable-content::before {
-    content: '';
+    content: "";
     display: block;
     width: 100%;
     height: 0;
@@ -2725,7 +3063,6 @@ const onViewerContainerClick = (event) => {
     background: var(--primary-color);
     transform: scale(1.2);
   }
-
 
   .note-content {
     padding: 0 16px 16px 16px;

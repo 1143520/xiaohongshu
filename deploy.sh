@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🚀 开始部署小红书图文社区..."
+echo "🚀 开始部署大红薯图文社区..."
 
 # 检查Docker和Docker Compose是否已安装
 if ! command -v docker &> /dev/null; then

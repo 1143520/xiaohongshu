@@ -1,6 +1,6 @@
 # 部署指南
 
-本文档详细介绍了小红书图文社区项目的部署流程和配置说明。
+本文档详细介绍了大红薯图文社区项目的部署流程和配置说明。
 
 ## 部署方式
 
@@ -22,15 +22,16 @@
 
 ### 镜像与版本说明
 
-| 组件 | 镜像/来源 | 版本/标签 | 说明 |
-|------|-----------|-----------|------|
-| 数据库 | mysql | 8.0 | 使用官方镜像 `mysql:8.0`，utf8mb4 默认配置 |
-| 后端运行时 | node | 18-alpine | `express-project/Dockerfile` 采用 `node:18-alpine` |
-| 前端构建 | node | 18-alpine | `vue3-project/Dockerfile` 构建阶段使用 |
-| 前端运行时 | nginx | alpine | 使用 `nginx:alpine` 提供静态文件 |
-| Compose 健康检查 | wget | - | 前端健康检查使用 `wget --spider http://localhost/` |
+| 组件             | 镜像/来源 | 版本/标签 | 说明                                               |
+| ---------------- | --------- | --------- | -------------------------------------------------- |
+| 数据库           | mysql     | 8.0       | 使用官方镜像 `mysql:8.0`，utf8mb4 默认配置         |
+| 后端运行时       | node      | 18-alpine | `express-project/Dockerfile` 采用 `node:18-alpine` |
+| 前端构建         | node      | 18-alpine | `vue3-project/Dockerfile` 构建阶段使用             |
+| 前端运行时       | nginx     | alpine    | 使用 `nginx:alpine` 提供静态文件                   |
+| Compose 健康检查 | wget      | -         | 前端健康检查使用 `wget --spider http://localhost/` |
 
 > 说明：上述版本与 `docker-compose.yml`、前后端 `Dockerfile` 保持一致；如需变更请同步调整对应文件与文档。
+
 ### 快速开始
 
 #### 1. 克隆项目
@@ -50,6 +51,7 @@ cd XiaoShiLiu
 #### 3. 一键启动
 
 **Windows 用户：**
+
 ```powershell
 # 启动服务
 .\deploy.ps1
@@ -73,6 +75,7 @@ cd XiaoShiLiu
 ```
 
 **Linux/macOS 用户：**
+
 ```bash
 # 给脚本执行权限
 chmod +x deploy.sh
@@ -97,11 +100,11 @@ chmod +x deploy.sh
 
 服务启动成功后，可以通过以下地址访问：
 
-| 服务 | 地址 | 说明 |
-|------|------|------|
-| 前端界面 | http://localhost | 主要访问入口 |
-| 后端API | http://localhost:3001 | API接口 |
-| 数据库 | localhost:3306 | MySQL数据库 |
+| 服务     | 地址                  | 说明         |
+| -------- | --------------------- | ------------ |
+| 前端界面 | http://localhost      | 主要访问入口 |
+| 后端 API | http://localhost:3001 | API 接口     |
+| 数据库   | localhost:3306        | MySQL 数据库 |
 
 ### Docker 部署架构
 
@@ -176,10 +179,10 @@ Docker 部署使用数据卷进行数据持久化：
 services:
   frontend:
     ports:
-      - "8080:80"  # 修改前端端口
+      - "8080:80" # 修改前端端口
   backend:
     ports:
-      - "3002:3001"  # 修改后端端口
+      - "3002:3001" # 修改后端端口
 ```
 
 #### 2. 内存不足
@@ -199,11 +202,13 @@ docker-compose logs mysql
 ```
 
 - 灌装示例数据（Windows）：
+
 ```powershell
 .\deploy.ps1 -Seed
 ```
 
 - 灌装示例数据（手动执行）：
+
 ```bash
 docker-compose exec -T backend node scripts/generate-data.js
 ```
@@ -226,14 +231,14 @@ docker-compose exec -T backend node scripts/generate-data.js
 
 ## 环境要求
 
-| 组件 | 版本要求 | 说明 |
-|------|----------|------|
-| Node.js | >= 16.0.0 | 运行环境 |
-| MySQL | >= 5.7 | 数据库 |
-| MariaDB | >= 10.3 | 数据库（可选） |
-| npm | >= 8.0.0 | 包管理器 |
-| yarn | >= 1.22.0 | 包管理器（可选） |
-| 浏览器 | 支持ES6+ | 现代浏览器 |
+| 组件    | 版本要求  | 说明             |
+| ------- | --------- | ---------------- |
+| Node.js | >= 16.0.0 | 运行环境         |
+| MySQL   | >= 5.7    | 数据库           |
+| MariaDB | >= 10.3   | 数据库（可选）   |
+| npm     | >= 8.0.0  | 包管理器         |
+| yarn    | >= 1.22.0 | 包管理器（可选） |
+| 浏览器  | 支持 ES6+ | 现代浏览器       |
 
 ## 快速开始
 
@@ -246,7 +251,7 @@ cnpm install
 yarn install
 ```
 
-### 2. 配置后端API地址
+### 2. 配置后端 API 地址
 
 创建环境配置文件（可选）：
 
@@ -255,7 +260,7 @@ yarn install
 cp .env.example .env
 ```
 
-编辑 `.env` 文件，配置后端API地址：
+编辑 `.env` 文件，配置后端 API 地址：
 
 ```env
 # 后端API地址
@@ -291,20 +296,21 @@ npm run preview
 ⚠️ **重要提醒**：前端项目需要配合后端服务使用
 
 1. **启动后端服务**：
+
    ```bash
    # 进入后端项目目录
    cd ../express-project
-   
+
    # 安装后端依赖
    npm install
-   
+
    # 启动后端服务
    npm start
    ```
 
 2. **后端服务地址**：`http://localhost:3001`
 
-3. **API文档**：查看后端项目的 `API_DOCS.md` 文件
+3. **API 文档**：查看后端项目的 `API_DOCS.md` 文件
 
 ## 开发环境配置
 
@@ -336,44 +342,44 @@ npm run dev
 
 ## 配置文件说明
 
-### 前端配置文件（vue3-project目录）
+### 前端配置文件（vue3-project 目录）
 
-| 文件 | 说明 |
-|------|------|
-| `.env` | 环境变量配置文件 |
-| `vite.config.js` | Vite构建工具配置 |
-| `package.json` | 项目依赖和脚本配置 |
-| `jsconfig.json` | JavaScript项目配置 |
+| 文件             | 说明                |
+| ---------------- | ------------------- |
+| `.env`           | 环境变量配置文件    |
+| `vite.config.js` | Vite 构建工具配置   |
+| `package.json`   | 项目依赖和脚本配置  |
+| `jsconfig.json`  | JavaScript 项目配置 |
 
-### 后端配置文件（express-project目录）
+### 后端配置文件（express-project 目录）
 
-| 文件 | 说明 |
-|------|------|
-| `config/config.js` | 主配置文件 |
-| `config/database.js` | 数据库配置 |
-| `.env` | 环境变量配置文件 |
-| `database_design.md` | 数据库设计文档 |
+| 文件                       | 说明             |
+| -------------------------- | ---------------- |
+| `config/config.js`         | 主配置文件       |
+| `config/database.js`       | 数据库配置       |
+| `.env`                     | 环境变量配置文件 |
+| `database_design.md`       | 数据库设计文档   |
 | `scripts/init-database.js` | 数据库初始化脚本 |
-| `generate-data.js` | 测试数据生成脚本 |
+| `generate-data.js`         | 测试数据生成脚本 |
 
-## npm脚本命令
+## npm 脚本命令
 
-### 前端脚本（在vue3-project目录下执行）
+### 前端脚本（在 vue3-project 目录下执行）
 
-| 命令 | 说明 |
-|------|------|
-| `npm run dev` | 启动开发服务器 |
-| `npm run build` | 构建生产版本 |
-| `npm run preview` | 预览生产版本 |
+| 命令              | 说明           |
+| ----------------- | -------------- |
+| `npm run dev`     | 启动开发服务器 |
+| `npm run build`   | 构建生产版本   |
+| `npm run preview` | 预览生产版本   |
 
-### 后端脚本（在express-project目录下执行）
+### 后端脚本（在 express-project 目录下执行）
 
-| 命令 | 说明 |
-|------|------|
-| `npm start` | 启动服务器 |
-| `npm run dev` | 启动开发服务器（热重载） |
-| `npm run init-db` | 初始化数据库 |
-| `npm run generate-data` | 生成测试数据 |
+| 命令                    | 说明                     |
+| ----------------------- | ------------------------ |
+| `npm start`             | 启动服务器               |
+| `npm run dev`           | 启动开发服务器（热重载） |
+| `npm run init-db`       | 初始化数据库             |
+| `npm run generate-data` | 生成测试数据             |
 
 ## 环境变量配置
 
@@ -421,6 +427,7 @@ UPLOAD_MAX_SIZE=50mb
 ### 脚本文件介绍
 
 #### 1. 数据库初始化脚本
+
 - **文件位置**：`scripts/init-database.js`
 - **功能**：创建数据库和所有数据表结构
 - **使用方法**：
@@ -428,9 +435,10 @@ UPLOAD_MAX_SIZE=50mb
   cd express-project
   node scripts/init-database.js
   ```
-- **说明**：首次部署时必须运行，会自动创建 `xiaoshiliu` 数据库和12个数据表
+- **说明**：首次部署时必须运行，会自动创建 `xiaoshiliu` 数据库和 12 个数据表
 
 #### 2. 测试数据生成脚本
+
 - **文件位置**：`scripts/generate-data.js`
 - **功能**：生成模拟的用户、帖子、评论等测试数据
 - **使用方法**：
@@ -438,15 +446,17 @@ UPLOAD_MAX_SIZE=50mb
   cd express-project
   node scripts/generate-data.js
   ```
-- **说明**：可选运行，用于快速填充测试数据，包含50个用户、200个帖子、800条评论等
+- **说明**：可选运行，用于快速填充测试数据，包含 50 个用户、200 个帖子、800 条评论等
 
-#### 3. SQL初始化文件
+#### 3. SQL 初始化文件
+
 - **文件位置**：`scripts/init-database.sql`
-- **功能**：纯SQL版本的数据库初始化脚本
-- **使用方法**：可直接在MySQL客户端中执行
-- **说明**：与 `init-database.js` 功能相同，提供SQL版本供参考
+- **功能**：纯 SQL 版本的数据库初始化脚本
+- **使用方法**：可直接在 MySQL 客户端中执行
+- **说明**：与 `init-database.js` 功能相同，提供 SQL 版本供参考
 
 #### 4. 示例图片更新脚本
+
 - **文件位置**：`scripts/update-sample-images.js`
 - **功能**：自动获取最新图片链接并更新数据库中的示例图片
 - **使用方法**：
@@ -455,9 +465,9 @@ UPLOAD_MAX_SIZE=50mb
   node scripts/update-sample-images.js
   ```
 - **说明**：
-  - 自动从栗次元API获取最新的图片链接
-  - 更新 `imgLinks/avatar_link.txt`（50个头像链接）
-  - 更新 `imgLinks/post_img_link.txt`（300个帖子图片链接）
+  - 自动从栗次元 API 获取最新的图片链接
+  - 更新 `imgLinks/avatar_link.txt`（50 个头像链接）
+  - 更新 `imgLinks/post_img_link.txt`（300 个帖子图片链接）
   - 批量更新数据库中的用户头像和帖子图片
   - 支持统计显示更新前后的图片数量
 
@@ -505,7 +515,7 @@ npm run dev
 
 ### 3. 访问应用
 
-| 服务 | 地址 |
-|------|------|
+| 服务     | 地址                  |
+| -------- | --------------------- |
 | 前端界面 | http://localhost:5173 |
-| 后端API | http://localhost:3001 |
+| 后端 API | http://localhost:3001 |
