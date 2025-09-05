@@ -64,7 +64,7 @@ services:
     container_name: xiaoshiliu-frontend
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-80}:80"
+      - "${FRONTEND_PORT:-5080}:80"
     networks:
       - xiaoshiliu-network
     depends_on:
