@@ -2,8 +2,8 @@
  * 大红薯校园图文社区 - 应用配置文件
  * 集中管理所有配置项
  * 
- * @author ZTMYO
- * @github https://github.com/ZTMYO
+ * @author 1143520
+ * @github https://github.com/1143520/xiaohongshu
  * @description Express应用的核心配置管理
  * @version 1.0.0
  */

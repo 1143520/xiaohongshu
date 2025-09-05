@@ -1,12 +1,16 @@
 <template>
-  <div class="about-modal-overlay" v-click-outside.mousedown="closeModal" v-escape-key="closeModal"
-    :class="{ 'animating': isAnimating }">
+  <div
+    class="about-modal-overlay"
+    v-click-outside.mousedown="closeModal"
+    v-escape-key="closeModal"
+    :class="{ animating: isAnimating }"
+  >
     <div class="about-modal" @click.stop :class="{ 'scale-in': isAnimating }">
       <div class="about-header">
         <div class="header-content">
           <div class="logo-section">
-            <img :src="logoUrl" alt="小红书" class="about-logo" />
-            <h2 class="about-title">关于小红书</h2>
+            <img :src="logoUrl" alt="大红薯" class="about-logo" />
+            <h2 class="about-title">关于大红薯</h2>
           </div>
           <p class="version">v1.0.1</p>
         </div>
@@ -20,32 +24,114 @@
           <div class="intro-section">
             <h3>项目简介</h3>
             <p>
-              小红书校园图文社区是一个面向开发者与学习者的开源示例项目，旨在提供从前端到后端的完整实践范本，帮助大家学习现代 Web 应用的架构设计、工程化与业务实现。
+              大红薯校园图文社区是一个面向开发者与学习者的开源示例项目，旨在提供从前端到后端的完整实践范本，帮助大家学习现代
+              Web 应用的架构设计、工程化与业务实现。
             </p>
           </div>
           <div class="author-section">
             <h3>开发者</h3>
-            <a href="https://github.com/ZTMYO" target="_blank" class="author-link">
+            <a
+              href="https://github.com/1143520/xiaohongshu"
+              target="_blank"
+              class="author-link"
+            >
               <div class="author-info">
-                <img class="author-avatar" :src="ztmyoUrl" alt="ZTMYO">
+                <img class="author-avatar" :src="ztmyoUrl" alt="1143520" />
                 <div class="author-details">
-                  <p class="author-name">@ZTMYO</p>
+                  <p class="author-name">@1143520</p>
                   <p class="author-desc">全栈开发者</p>
                 </div>
               </div>
             </a>
+
+            <!-- GitHub 徽章 -->
+            <div class="badges-section">
+              <a
+                href="https://github.com/1143520/xiaohongshu"
+                target="_blank"
+                class="badge-link"
+              >
+                <img
+                  src="https://img.shields.io/github/stars/1143520/xiaohongshu?style=social"
+                  alt="GitHub Stars"
+                  class="badge-img"
+                />
+              </a>
+              <a
+                href="https://github.com/1143520/xiaohongshu/releases"
+                target="_blank"
+                class="badge-link"
+              >
+                <img
+                  src="https://img.shields.io/github/v/release/1143520/xiaohongshu?style=flat-square&color=green"
+                  alt="Version"
+                  class="badge-img"
+                />
+              </a>
+              <a
+                href="https://github.com/1143520/xiaohongshu/forks"
+                target="_blank"
+                class="badge-link"
+              >
+                <img
+                  src="https://img.shields.io/github/forks/1143520/xiaohongshu?style=social"
+                  alt="GitHub Forks"
+                  class="badge-img"
+                />
+              </a>
+              <a
+                href="https://github.com/1143520/xiaohongshu/issues"
+                target="_blank"
+                class="badge-link"
+              >
+                <img
+                  src="https://img.shields.io/github/issues/1143520/xiaohongshu?style=flat-square"
+                  alt="GitHub Issues"
+                  class="badge-img"
+                />
+              </a>
+              <a
+                href="https://github.com/1143520/xiaohongshu/blob/main/LICENSE"
+                target="_blank"
+                class="badge-link"
+              >
+                <img
+                  src="https://img.shields.io/github/license/1143520/xiaohongshu?style=flat-square"
+                  alt="License"
+                  class="badge-img"
+                />
+              </a>
+            </div>
           </div>
           <div class="features-section">
             <h3>项目亮点</h3>
             <ul class="features-list">
               <li><strong>前端：</strong>Vue 3+Vite+Pinia+Vue Router</li>
               <li><strong>后端：</strong>Node.js/Express+MySQL</li>
-              <li><strong>工程化：</strong>环境配置、代码规范、构建与产物优化的完整流程</li>
-              <li><strong>业务能力：</strong>鉴权流程、路由守卫、状态管理与接口封装</li>
-              <li><strong>体验优化：</strong>骨架屏、懒加载、预加载、无障碍与响应式适配</li>
-              <li><strong>组件与分层：</strong>可复用组件拆分、按领域分组与别名引入</li>
-              <li><strong>后台管理：</strong>基础CRUD、数据管理与配置面板，支持后续扩展权限与统计</li>
-              <li><strong>第三方库：</strong>VueUse、Cropper.js、vue3-emoji-picker 等的集成与实践</li>
+              <li>
+                <strong>工程化：</strong
+                >环境配置、代码规范、构建与产物优化的完整流程
+              </li>
+              <li>
+                <strong>业务能力：</strong
+                >鉴权流程、路由守卫、状态管理与接口封装
+              </li>
+              <li>
+                <strong>体验优化：</strong
+                >骨架屏、懒加载、预加载、无障碍与响应式适配
+              </li>
+              <li>
+                <strong>组件与分层：</strong
+                >可复用组件拆分、按领域分组与别名引入
+              </li>
+              <li>
+                <strong>后台管理：</strong
+                >基础CRUD、数据管理与配置面板，支持后续扩展权限与统计
+              </li>
+              <li>
+                <strong>第三方库：</strong>VueUse、Cropper.js、vue3-emoji-picker
+                等的集成与实践
+              </li>
             </ul>
           </div>
 
@@ -53,36 +139,62 @@
             <h3>接口服务</h3>
             <div class="api-content">
               <p>
-                <strong>图片存储：</strong>灌装的示例图片来自 <a href="https://t.alcy.cc/" target="_blank" class="api-link"><img
-                    :src="liciUrl" alt="栗次元" class="api-icon">栗次元图床</a>，提供稳定的图片存储服务。
+                <strong>图片存储：</strong>灌装的示例图片来自
+                <a href="https://t.alcy.cc/" target="_blank" class="api-link"
+                  ><img
+                    :src="liciUrl"
+                    alt="栗次元"
+                    class="api-icon"
+                  />栗次元图床</a
+                >，提供稳定的图片存储服务。
               </p>
               <p>
-                <strong>图片上传：</strong>用户上传图片使用了 <a href="https://api.aa1.cn/doc/xinyew_jdtc.html" target="_blank"
-                  class="api-link"><img :src="xiaRouUrl" alt="夏柔" class="api-icon">夏柔API</a>，确保图片上传的稳定性和速度。
+                <strong>图片上传：</strong>用户上传图片使用了
+                <a
+                  href="https://api.aa1.cn/doc/xinyew_jdtc.html"
+                  target="_blank"
+                  class="api-link"
+                  ><img
+                    :src="xiaRouUrl"
+                    alt="夏柔"
+                    class="api-icon"
+                  />夏柔API</a
+                >，确保图片上传的稳定性和速度。
               </p>
               <p>
-                <strong>属地查询：</strong>IP属地查询服务使用 <a href="https://api.pearktrue.cn/dashboard/detail/290" target="_blank"
-                  class="api-link"><img :src="baoLuoUrl" alt="保罗" class="api-icon">保罗API</a>，实现精准的IP属地定位功能。
+                <strong>属地查询：</strong>IP属地查询服务使用
+                <a
+                  href="https://api.pearktrue.cn/dashboard/detail/290"
+                  target="_blank"
+                  class="api-link"
+                  ><img
+                    :src="baoLuoUrl"
+                    alt="保罗"
+                    class="api-icon"
+                  />保罗API</a
+                >，实现精准的IP属地定位功能。
               </p>
             </div>
           </div>
-
-
 
           <div class="privacy-section">
             <h3>隐私声明</h3>
             <div class="privacy-content">
               <p>
-                <strong>数据保护：</strong>我们承诺不收集或存储用户的IP地址信息，保护用户的隐私和匿名性。
+                <strong>数据保护：</strong
+                >我们承诺不收集或存储用户的IP地址信息，保护用户的隐私和匿名性。
               </p>
               <p>
-                <strong>密码安全：</strong>用户密码采用SHA256加密算法进行哈希处理，确保密码信息的安全性，系统无法获取用户的明文密码。
+                <strong>密码安全：</strong
+                >用户密码采用SHA256加密算法进行哈希处理，确保密码信息的安全性，系统无法获取用户的明文密码。
               </p>
               <p>
-                <strong>数据最小化：</strong>我们仅收集必要的用户信息用于基本功能实现，不会收集与服务无关的个人数据。
+                <strong>数据最小化：</strong
+                >我们仅收集必要的用户信息用于基本功能实现，不会收集与服务无关的个人数据。
               </p>
               <p>
-                <strong>本地存储：</strong>所有用户数据均存储在本地数据库中，不会上传至第三方服务器或云端。
+                <strong>本地存储：</strong
+                >所有用户数据均存储在本地数据库中，不会上传至第三方服务器或云端。
               </p>
             </div>
           </div>
@@ -91,19 +203,22 @@
             <h3>版权声明</h3>
             <div class="copyright-content">
               <p>
-                <strong>设计灵感：</strong>本校园图文社区的UI设计和交互体验参考了小红书平台，旨在为下载该开源项目的人员提供一个熟悉的项目体验。
+                <strong>设计灵感：</strong
+                >本校园图文社区的UI设计和交互体验参考了大红薯平台，旨在为下载该开源项目的人员提供一个熟悉的项目体验。
               </p>
               <p>
-                <strong>开源项目：</strong>本项目仅供学习交流使用，不用于商业用途。所有代码遵循开源协议，欢迎技术交流与讨论。
+                <strong>开源项目：</strong
+                >本项目仅供学习交流使用，不用于商业用途。所有代码遵循开源协议，欢迎技术交流与讨论。
               </p>
               <p>
-                <strong>免责声明：</strong>本项目与小红书官方无任何关联，所有商标、品牌名称归其各自所有者所有。
+                <strong>免责声明：</strong
+                >本项目与大红薯官方无任何关联，所有商标、品牌名称归其各自所有者所有。
               </p>
             </div>
           </div>
 
           <div class="about-footer">
-            <p>&copy; 2025 小红书校园图文社区. Made with ❤️ by @ZTMYO</p>
+            <p>&copy; 2025 大红薯校园图文社区. Made with ❤️ by @1143520</p>
           </div>
         </div>
       </div>
@@ -112,38 +227,38 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import SvgIcon from '@/components/SvgIcon.vue'
-import { useScrollLock } from '@/composables/useScrollLock'
+import { ref, onMounted } from "vue";
+import SvgIcon from "@/components/SvgIcon.vue";
+import { useScrollLock } from "@/composables/useScrollLock";
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(["close"]);
 
-const { lock, unlock } = useScrollLock()
+const { lock, unlock } = useScrollLock();
 
 // 静态资源URL
-const logoUrl = new URL('@/assets/imgs/logo.ico', import.meta.url).href
-const ztmyoUrl = new URL('@/assets/imgs/ztmyo.png', import.meta.url).href
-const liciUrl = new URL('@/assets/imgs/栗次元.ico', import.meta.url).href
-const xiaRouUrl = new URL('@/assets/imgs/夏柔.ico', import.meta.url).href
-const baoLuoUrl = new URL('@/assets/imgs/保罗.ico', import.meta.url).href
+const logoUrl = new URL("@/assets/imgs/logo.ico", import.meta.url).href;
+const ztmyoUrl = new URL("@/assets/imgs/ztmyo.png", import.meta.url).href;
+const liciUrl = new URL("@/assets/imgs/栗次元.ico", import.meta.url).href;
+const xiaRouUrl = new URL("@/assets/imgs/夏柔.ico", import.meta.url).href;
+const baoLuoUrl = new URL("@/assets/imgs/保罗.ico", import.meta.url).href;
 
-const isAnimating = ref(false)
+const isAnimating = ref(false);
 
 const closeModal = () => {
-  isAnimating.value = false
-  unlock()
+  isAnimating.value = false;
+  unlock();
   setTimeout(() => {
-    emit('close')
-  }, 200)
-}
+    emit("close");
+  }, 200);
+};
 
 onMounted(() => {
-  lock()
+  lock();
 
   setTimeout(() => {
-    isAnimating.value = true
-  }, 10)
-})
+    isAnimating.value = true;
+  }, 10);
+});
 </script>
 
 <style scoped>
@@ -327,8 +442,6 @@ onMounted(() => {
   border: 1px solid var(--border-color-primary);
 }
 
-
-
 .author-details {
   flex: 1;
 }
@@ -344,6 +457,31 @@ onMounted(() => {
   font-size: 14px;
   color: var(--text-color-secondary);
   margin: 0;
+}
+
+/* GitHub 徽章样式 */
+.badges-section {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.badge-link {
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.badge-link:hover {
+  transform: scale(1.05);
+}
+
+.badge-img {
+  height: 20px;
+  border-radius: 3px;
+  vertical-align: middle;
 }
 
 .privacy-content p,
@@ -363,8 +501,6 @@ onMounted(() => {
 .copyright-content strong {
   color: var(--text-color-primary);
 }
-
-
 
 .about-footer {
   text-align: center;
