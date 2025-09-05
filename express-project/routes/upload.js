@@ -22,7 +22,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB 限制
+    fileSize: 50 * 1024 * 1024 // 50MB 限制
   }
 });
 
@@ -155,7 +155,7 @@ router.post('/base64', authenticateToken, async (req, res) => {
 router.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({ code: 400, message: '文件大小超过限制（5MB）' });
+      return res.status(400).json({ code: 400, message: '文件大小超过限制（50MB）' });
     }
     if (error.code === 'LIMIT_FILE_COUNT') {
       return res.status(400).json({ code: 400, message: '文件数量超过限制（9个）' });
