@@ -212,11 +212,11 @@ const isFormValid = computed(() => {
 
 const validateUserId = () => {
   if (!formData.user_id.trim()) {
-    errors.user_id = "请输入小红书号";
+    errors.user_id = "请输入大红薯号";
   } else if (!isLoginMode.value && formData.user_id.length < 3) {
-    errors.user_id = "小红书号至少需要3位";
+    errors.user_id = "大红薯号至少需要3位";
   } else if (!/^[a-zA-Z0-9_]+$/.test(formData.user_id)) {
-    errors.user_id = "小红书号只能包含字母、数字和下划线";
+    errors.user_id = "大红薯号只能包含字母、数字和下划线";
   } else {
     errors.user_id = "";
   }
@@ -297,7 +297,7 @@ const handleSubmit = async () => {
     }
 
     if (isUserIdEmpty) {
-      unifiedMessage.value = "请输入小红书号";
+      unifiedMessage.value = "请输入大红薯号";
       return;
     }
 

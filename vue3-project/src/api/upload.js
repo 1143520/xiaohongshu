@@ -1,5 +1,4 @@
 import request from './request.js'
-import { API_CONFIG } from '@/config/api.js'
 
 // 压缩图片函数
 const compressImage = (file, maxSizeMB = 0.8, quality = 0.4) => {
@@ -291,82 +290,6 @@ export async function uploadBase64Images(base64Images) {
   }
 }
 
-// 上传到4399图床
-const uploadTo4399 = async (file) => {
-  return new Promise((resolve, reject) => {
-    const formData = new FormData()
-    formData.append('file', file)
-    
-    // 使用fetch替代GM_xmlhttpRequest
-    fetch(API_CONFIG.upload.uploadMethods.external.url, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'device': 'main_pc'
-      }
-    })
-    .then(response => response.json())
-    .then(rspJson => {
-      if (rspJson.code !== 1000) {
-        throw new Error('上传失败')
-      }
-      
-      if (rspJson && rspJson.data && rspJson.data.file) {
-        const imageUrl = rspJson.data.file.split('?')[0]
-        resolve({
-          success: true,
-          data: {
-            url: imageUrl,
-            filename: file.name
-          }
-        })
-      } else {
-        throw new Error('响应数据格式错误')
-      }
-    })
-    .catch(error => {
-      reject({
-        success: false,
-        message: error.message || '上传到4399图床失败'
-      })
-    })
-  })
-}
-
-// 统一上传接口（支持选择上传方式）
-const uploadWithMethod = async (files, method = 'server') => {
-  if (!Array.isArray(files)) {
-    files = [files]
-  }
-  
-  const results = []
-  
-  for (const file of files) {
-    try {
-      let result
-      
-      if (method === 'external') {
-        // 上传到4399图床
-        result = await uploadTo4399(file)
-      } else {
-        // 上传到服务器（默认）
-        const compressedFile = await compressImage(file)
-        result = await uploadImage(compressedFile)
-      }
-      
-      results.push(result)
-    } catch (error) {
-      results.push({
-        success: false,
-        message: error.message || '上传失败',
-        filename: file.name
-      })
-    }
-  }
-  
-  return results
-}
-
 export default {
   uploadImage,
   uploadImages,
@@ -374,7 +297,5 @@ export default {
   validateImageFile,
   formatFileSize,
   createImagePreview,
-  uploadBase64Images,
-  uploadTo4399,
-  uploadWithMethod
+  uploadBase64Images
 }

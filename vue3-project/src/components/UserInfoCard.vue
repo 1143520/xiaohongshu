@@ -95,8 +95,8 @@ const isCurrentUser = computed(() => {
     return false
   }
 
-  const currentUserId = userStore.userInfo.user_id // 当前用户的小红书号
-  const userId = props.userInfo.id // 传入的用户ID（小红书号）
+  const currentUserId = userStore.userInfo.user_id // 当前用户的大红薯号
+  const userId = props.userInfo.id // 传入的用户ID（大红薯号）
 
   return currentUserId === userId
 })
@@ -164,7 +164,7 @@ function handleAvatarError(event) {
 watch(() => props.userInfo, (newUserInfo) => {
   if (newUserInfo && newUserInfo.id) {
     // 初始化关注状态到 store
-    // 确保使用正确的用户ID（小红书号）
+    // 确保使用正确的用户ID（大红薯号）
     const userId = newUserInfo.user_id || newUserInfo.userId || newUserInfo.id
     followStore.initUserFollowState(
       userId,

@@ -715,7 +715,7 @@ const animationStyle = computed(() => {
 });
 
 const authorData = computed(() => {
-  // 使用小红书号进行用户跳转
+  // 使用大红薯号进行用户跳转
   const userId =
     props.item.author_account ||
     props.item.user_id ||

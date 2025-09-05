@@ -18,25 +18,11 @@ export const apiConfig = {
   },
 
   // 文件上传配置
-upload: {
-  maxFileSize: 50 * 1024 * 1024, // 50MB
-  allowedImageTypes: ['image/jpeg', 'image/png', 'image/webp'],
-  maxImageCount: 9, // 最多上传9张图片
-  // 上传方式配置
-  uploadMethods: {
-    server: {
-      name: '服务器上传',
-      url: '/api/upload/images',
-      description: '上传到本地服务器'
-    },
-    external: {
-      name: '4399图床',
-      url: 'https://api.h5wan.4399sj.com/html5/report/upload',
-      description: '上传到4399图床'
-    }
-  },
-  defaultMethod: 'server' // 默认使用服务器上传
-}
+  upload: {
+    maxFileSize: 50 * 1024 * 1024, // 50MB
+    allowedImageTypes: ['image/jpeg', 'image/png', 'image/webp'],
+    maxImageCount: 9 // 最多上传9张图片
+  }
 }
 
 // 本地开发环境配置
