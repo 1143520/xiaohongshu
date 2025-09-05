@@ -19,7 +19,7 @@ export const apiConfig = {
 
   // 文件上传配置
   upload: {
-    maxFileSize: 10 * 1024 * 1024, // 10MB
+    maxFileSize: 50 * 1024 * 1024, // 50MB
     allowedImageTypes: ['image/jpeg', 'image/png', 'image/webp'],
     maxImageCount: 9 // 最多上传9张图片
   }
