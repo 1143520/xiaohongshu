@@ -1380,7 +1380,7 @@ const apiGroups = ref([
         method: "POST",
         path: "/api/upload/multiple",
         title: "多文件上传",
-        description: "上传多个图片文件，最多9个，每个限制5MB",
+        description: "上传多个图片文件，最多9个，每个限制50MB",
         auth: true,
         expanded: false,
         params: [

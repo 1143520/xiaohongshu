@@ -247,7 +247,7 @@ const confirmCrop = async () => {
 
 const validateFile = (file) => {
   const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-  const maxSize = 5 * 1024 * 1024;
+  const maxSize = 50 * 1024 * 1024;
 
   if (!validTypes.includes(file.type)) {
     error.value = "请选择有效的图片格式 (JPEG, PNG, GIF, WebP)";
@@ -255,7 +255,7 @@ const validateFile = (file) => {
   }
 
   if (file.size > maxSize) {
-    error.value = "图片大小不能超过 5MB";
+    error.value = "图片大小不能超过 50MB";
     return false;
   }
 
