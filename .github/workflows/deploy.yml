@@ -22,6 +22,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -56,6 +59,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./vue3-project
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
@@ -66,6 +70,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./express-project
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
@@ -76,7 +81,8 @@ jobs:
         run: |
           echo "Frontend image: ${{ steps.meta-frontend.outputs.tags }}"
           echo "Backend image: ${{ steps.meta-backend.outputs.tags }}"
-          echo "构建完成！可以在服务器上使用以下命令部署："
+          echo "构建完成！支持 AMD64 和 ARM64 架构"
+          echo "可以在服务器上使用以下命令部署："
           echo "git clone ${{ github.server_url }}/${{ github.repository }}.git"
           echo "cd $(basename ${{ github.repository }})"
           echo "cp env.production.example .env"
