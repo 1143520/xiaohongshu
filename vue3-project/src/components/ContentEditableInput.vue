@@ -227,6 +227,45 @@ const handleClick = (event) => {
   }
 }
 
+// 插入文本到光标位置
+const insertText = (text) => {
+  if (!inputRef.value) return
+
+  inputRef.value.focus()
+  
+  const selection = window.getSelection()
+  if (selection.rangeCount > 0) {
+    const range = selection.getRangeAt(0)
+    
+    // 删除选中的内容
+    range.deleteContents()
+    
+    // 插入新文本
+    const textNode = document.createTextNode(text)
+    range.insertNode(textNode)
+    
+    // 将光标移动到插入文本的末尾
+    range.setStartAfter(textNode)
+    range.setEndAfter(textNode)
+    selection.removeAllRanges()
+    selection.addRange(range)
+  } else {
+    // 如果没有选区，在末尾添加
+    inputRef.value.innerHTML += text
+  }
+  
+  // 触发输入事件
+  const event = new Event('input', { bubbles: true })
+  inputRef.value.dispatchEvent(event)
+}
+
+// 暴露方法给父组件
+defineExpose({
+  insertText,
+  focus: () => inputRef.value?.focus(),
+  blur: () => inputRef.value?.blur()
+})
+
 const removeMentionLink = (linkElement) => {
   if (linkElement && linkElement.classList && linkElement.classList.contains('mention-link')) {
     linkElement.remove()

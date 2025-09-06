@@ -92,6 +92,10 @@ export function cleanMentions(text) {
   const htmlUrlRegex = /<a[^>]*class="url-link"[^>]*>([^<]*)<\/a>/g
   cleanedText = cleanedText.replace(htmlUrlRegex, '$1')
 
+  // 清理HTML格式的图片，提取alt文本
+  const htmlImageRegex = /<img[^>]*class="markdown-image"[^>]*alt="([^"]*)"[^>]*>/g
+  cleanedText = cleanedText.replace(htmlImageRegex, '[$1]')
+
   // 移除所有HTML标签，只保留文本内容
   cleanedText = cleanedText.replace(/<[^>]*>/g, '')
 

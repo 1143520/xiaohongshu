@@ -234,7 +234,11 @@
                       </button>
                     </div>
                     <p class="comment-text">
-                      <MentionText :text="comment.content" />
+                      <MarkdownRenderer 
+                        :content="comment.content" 
+                        max-image-width="150px"
+                        max-image-height="120px"
+                      />
                     </p>
                     <span class="comment-time"
                       >{{ comment.time }} {{ comment.location }}</span
@@ -459,6 +463,11 @@
                       height="24"
                     />
                   </button>
+                  <CommentImageUpload 
+                    @uploaded="handleImageUploaded"
+                    @error="handleImageUploadError"
+                    @success="handleImageUploadSuccess"
+                  />
                 </div>
                 <div class="send-cancel-buttons">
                   <button
@@ -585,6 +594,8 @@ import EmojiPicker from "@/components/EmojiPicker.vue";
 import MentionModal from "@/components/mention/MentionModal.vue";
 import MentionText from "./mention/MentionText.vue";
 import ContentEditableInput from "./ContentEditableInput.vue";
+import CommentImageUpload from "./CommentImageUpload.vue";
+import MarkdownRenderer from "./MarkdownRenderer.vue";
 import { useThemeStore } from "@/stores/theme";
 import { useUserStore } from "@/stores/user";
 import { useLikeStore } from "@/stores/like.js";
@@ -1486,7 +1497,8 @@ const handleMentionInput = () => {
 // 内容安全过滤函数
 const sanitizeContent = (content) => {
   if (!content) return "";
-  // 保留mention链接和URL链接，但移除其他危险标签
+  
+  // 保留mention链接、URL链接和markdown图片语法，但移除其他危险标签
   // 先保存mention链接和URL链接
   const preservedLinks = [];
   let processedContent = content.replace(
@@ -1494,6 +1506,17 @@ const sanitizeContent = (content) => {
     (match) => {
       const placeholder = `__LINK_${preservedLinks.length}__`;
       preservedLinks.push(match);
+      return placeholder;
+    }
+  );
+
+  // 保存markdown图片语法
+  const markdownImages = [];
+  processedContent = processedContent.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)/g,
+    (match) => {
+      const placeholder = `__IMG_${markdownImages.length}__`;
+      markdownImages.push(match);
       return placeholder;
     }
   );
@@ -1506,6 +1529,11 @@ const sanitizeContent = (content) => {
   // 恢复保留的链接
   preservedLinks.forEach((link, index) => {
     processedContent = processedContent.replace(`__LINK_${index}__`, link);
+  });
+
+  // 恢复markdown图片
+  markdownImages.forEach((img, index) => {
+    processedContent = processedContent.replace(`__IMG_${index}__`, img);
   });
 
   return processedContent.trim();
@@ -1571,6 +1599,25 @@ const handleCancelInput = () => {
   if (focusedInput.value) {
     focusedInput.value.blur();
   }
+};
+
+// 图片上传处理函数
+const handleImageUploaded = (markdown) => {
+  // 在当前光标位置插入markdown图片
+  if (focusedInput.value && focusedInput.value.insertText) {
+    focusedInput.value.insertText(markdown);
+  } else {
+    // 如果没有insertText方法，直接添加到内容末尾
+    commentInput.value = (commentInput.value || '') + markdown;
+  }
+};
+
+const handleImageUploadError = (message) => {
+  showMessage(message, "error");
+};
+
+const handleImageUploadSuccess = (message) => {
+  showMessage(message, "success");
 };
 
 const fetchPostDetail = async () => {
