@@ -1,16 +1,16 @@
 // 频道配置
 export const CHANNELS = [
   { id: 'recommend', label: '推荐', path: '/recommend' },
-  { id: 'study', label: '学习', path: '/study' },
-  { id: 'campus', label: '校园', path: '/campus' },
-  { id: 'emotion', label: '情感', path: '/emotion' },
-  { id: 'interest', label: '兴趣', path: '/interest' },
-  { id: 'life', label: '生活', path: '/life' },
-  { id: 'social', label: '社交', path: '/social' },
-  { id: 'help', label: '求助', path: '/help' },
-  { id: 'opinion', label: '观点', path: '/opinion' },
-  { id: 'graduation', label: '毕业', path: '/graduation' },
-  { id: 'career', label: '职场', path: '/career' }
+  { id: 'opensource', label: '开源项目', path: '/opensource' },
+  { id: 'knowledge', label: '知识碎片', path: '/knowledge' },
+  { id: 'tinkering', label: '折腾日常', path: '/tinkering' },
+  { id: 'wallpaper', label: '壁纸收集', path: '/wallpaper' },
+  { id: 'weblinks', label: '网页收集', path: '/weblinks' },
+  { id: 'repost', label: '转载', path: '/repost' },
+  { id: 'aitools', label: 'AI工具', path: '/aitools' },
+  { id: 'selfbuilt', label: '自建项目', path: '/selfbuilt' },
+  { id: 'upfollow', label: 'up关注', path: '/upfollow' },
+  { id: 'todo', label: '待办项目', path: '/todo' }
 ]
 
 // 获取有效的频道路径（用于路由验证）

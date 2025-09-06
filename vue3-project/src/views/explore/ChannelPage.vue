@@ -15,16 +15,16 @@ const channelType = computed(() => {
 // 频道配置映射
 const channelConfig = {
     'recommend': { category: 'recommend', title: '推荐' },
-    'study': { category: 'study', title: '学习' },
-    'campus': { category: 'campus', title: '校园' },
-    'emotion': { category: 'emotion', title: '情感' },
-    'interest': { category: 'interest', title: '兴趣' },
-    'life': { category: 'life', title: '生活' },
-    'social': { category: 'social', title: '社交' },
-    'help': { category: 'help', title: '帮助' },
-    'opinion': { category: 'opinion', title: '观点' },
-    'graduation': { category: 'graduation', title: '毕业' },
-    'career': { category: 'career', title: '职场' }
+    'opensource': { category: 'opensource', title: '开源项目' },
+    'knowledge': { category: 'knowledge', title: '知识碎片' },
+    'tinkering': { category: 'tinkering', title: '折腾日常' },
+    'wallpaper': { category: 'wallpaper', title: '壁纸收集' },
+    'weblinks': { category: 'weblinks', title: '网页收集' },
+    'repost': { category: 'repost', title: '转载' },
+    'aitools': { category: 'aitools', title: 'AI工具' },
+    'selfbuilt': { category: 'selfbuilt', title: '自建项目' },
+    'upfollow': { category: 'upfollow', title: 'up关注' },
+    'todo': { category: 'todo', title: '待办项目' }
 }
 
 // 获取当前频道配置

@@ -40,16 +40,16 @@ const GENDERS = {
 
 // 笔记分类
 const POST_CATEGORIES = {
-  STUDY: 'study',
-  CAMPUS: 'campus', 
-  EMOTION: 'emotion',
-  INTEREST: 'interest',
-  LIFE: 'life',
-  SOCIAL: 'social',
-  HELP: 'help',
-  OPINION: 'opinion',
-  GRADUATION: 'graduation',
-  CAREER: 'career'
+  OPENSOURCE: 'opensource',
+  KNOWLEDGE: 'knowledge',
+  TINKERING: 'tinkering',
+  WALLPAPER: 'wallpaper',
+  WEBLINKS: 'weblinks',
+  REPOST: 'repost',
+  AITOOLS: 'aitools',
+  SELFBUILT: 'selfbuilt',
+  UPFOLLOW: 'upfollow',
+  TODO: 'todo'
 };
 
 // 通知类型
