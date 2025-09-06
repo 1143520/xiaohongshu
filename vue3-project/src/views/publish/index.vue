@@ -170,7 +170,6 @@ const loadCategories = () => {
     { id: 'tinkering', name: '折腾日常' },
     { id: 'wallpaper', name: '壁纸收集' },
     { id: 'weblinks', name: '网页收集' },
-    { id: 'repost', name: '转载' },
     { id: 'aitools', name: 'AI工具' },
     { id: 'selfbuilt', name: '自建项目' },
     { id: 'upfollow', name: 'up关注' },

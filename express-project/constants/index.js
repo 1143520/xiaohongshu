@@ -47,7 +47,6 @@ const POST_CATEGORIES = {
   TINKERING: 'tinkering',
   WALLPAPER: 'wallpaper',
   WEBLINKS: 'weblinks',
-  REPOST: 'repost',
   AITOOLS: 'aitools',
   SELFBUILT: 'selfbuilt',
   UPFOLLOW: 'upfollow',

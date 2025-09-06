@@ -21,7 +21,6 @@ const channelConfig = {
     'tinkering': { category: 'tinkering', title: '折腾日常' },
     'wallpaper': { category: 'wallpaper', title: '壁纸收集' },
     'weblinks': { category: 'weblinks', title: '网页收集' },
-    'repost': { category: 'repost', title: '转载' },
     'aitools': { category: 'aitools', title: 'AI工具' },
     'selfbuilt': { category: 'selfbuilt', title: '自建项目' },
     'upfollow': { category: 'upfollow', title: 'up关注' },

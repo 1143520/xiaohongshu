@@ -7,7 +7,6 @@ export const CHANNELS = [
   { id: 'tinkering', label: '折腾日常', path: '/tinkering' },
   { id: 'wallpaper', label: '壁纸收集', path: '/wallpaper' },
   { id: 'weblinks', label: '网页收集', path: '/weblinks' },
-  { id: 'repost', label: '转载', path: '/repost' },
   { id: 'aitools', label: 'AI工具', path: '/aitools' },
   { id: 'selfbuilt', label: '自建项目', path: '/selfbuilt' },
   { id: 'upfollow', label:'up关注', path: '/upfollow' },
