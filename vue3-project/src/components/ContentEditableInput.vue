@@ -221,6 +221,9 @@ const handleClick = (event) => {
       const userUrl = `${window.location.origin}/user/${userId}`
       window.open(userUrl, '_blank')
     }
+  } else if (target.classList.contains('url-link')) {
+    // URL链接已经有 target="_blank"，不需要额外处理
+    // 这里可以添加统计或其他逻辑
   }
 }
 

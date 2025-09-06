@@ -1486,14 +1486,14 @@ const handleMentionInput = () => {
 // 内容安全过滤函数
 const sanitizeContent = (content) => {
   if (!content) return "";
-  // 保留mention链接，但移除其他危险标签
-  // 先保存mention链接
-  const mentionLinks = [];
+  // 保留mention链接和URL链接，但移除其他危险标签
+  // 先保存mention链接和URL链接
+  const preservedLinks = [];
   let processedContent = content.replace(
-    /<a[^>]*class="mention-link"[^>]*>.*?<\/a>/g,
+    /<a[^>]*class="(mention-link|url-link)"[^>]*>.*?<\/a>/g,
     (match) => {
-      const placeholder = `__MENTION_${mentionLinks.length}__`;
-      mentionLinks.push(match);
+      const placeholder = `__LINK_${preservedLinks.length}__`;
+      preservedLinks.push(match);
       return placeholder;
     }
   );
@@ -1503,9 +1503,9 @@ const sanitizeContent = (content) => {
     .replace(/<[^>]*>/g, "")
     .replace(/&nbsp;/g, " ");
 
-  // 恢复mention链接
-  mentionLinks.forEach((link, index) => {
-    processedContent = processedContent.replace(`__MENTION_${index}__`, link);
+  // 恢复保留的链接
+  preservedLinks.forEach((link, index) => {
+    processedContent = processedContent.replace(`__LINK_${index}__`, link);
   });
 
   return processedContent.trim();

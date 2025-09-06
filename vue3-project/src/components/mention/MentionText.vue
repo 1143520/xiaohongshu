@@ -20,7 +20,7 @@ const parsedText = computed(() => {
   return parseMentions(props.text)
 })
 
-// 处理mention链接点击事件
+// 处理mention链接和URL链接点击事件
 const handleMentionClick = (event) => {
   const target = event.target
   
@@ -34,6 +34,11 @@ const handleMentionClick = (event) => {
       const userUrl = `${window.location.origin}/user/${userId}`
       window.open(userUrl, '_blank')
     }
+  }
+  // 检查点击的是否是URL链接
+  else if (target.classList.contains('url-link')) {
+    // URL链接已经有 target="_blank"，不需要额外处理
+    // 这里可以添加统计或其他逻辑
   }
 }
 </script>
@@ -63,5 +68,22 @@ const handleMentionClick = (event) => {
   outline: none;
   box-shadow: none;
   border: none;
+}
+
+:deep(.url-link) {
+  color: var(--text-color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+:deep(.url-link:hover) {
+  color: var(--text-color-tag);
+  opacity: 0.8;
+}
+
+:deep(.url-link:active) {
+  color: var(--text-color-tag);
+  opacity: 0.6;
 }
 </style>
