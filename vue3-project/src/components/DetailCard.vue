@@ -268,8 +268,22 @@
                       </div>
                     </div>
 
+                    <!-- 查看回复按钮 -->
                     <div
-                      v-if="comment.replies && comment.replies.length > 0"
+                      v-if="comment.reply_count > 0 && !comment.repliesLoaded"
+                      class="view-replies-btn"
+                    >
+                      <button
+                        class="view-replies-button"
+                        @click="loadReplies(comment.id)"
+                      >
+                        查看 {{ comment.reply_count }} 条回复
+                      </button>
+                    </div>
+
+                    <!-- 回复列表 -->
+                    <div
+                      v-if="comment.showReplies && comment.replies && comment.replies.length > 0"
                       class="replies-list"
                     >
                       <div
@@ -369,6 +383,27 @@
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <!-- 加载更多评论按钮 -->
+                <div
+                  v-if="commentStore.getComments(item.id).hasMore && !loadingComments"
+                  class="load-more-comments"
+                >
+                  <button
+                    class="load-more-button"
+                    @click="loadMoreComments"
+                  >
+                    加载更多评论
+                  </button>
+                </div>
+
+                <!-- 加载中提示 -->
+                <div
+                  v-if="loadingComments"
+                  class="loading-comments"
+                >
+                  <span>加载中...</span>
                 </div>
               </div>
             </div>
@@ -844,9 +879,9 @@ watch(
   }
 );
 
-const fetchComments = async () => {
+const fetchComments = async (page = 1) => {
   try {
-    const result = await commentStore.fetchComments(props.item.id);
+    const result = await commentStore.fetchComments(props.item.id, { page, limit: 20 });
     await nextTick();
     const latestComments = comments.value;
     if (latestComments && latestComments.length > 0) {
@@ -863,6 +898,36 @@ const fetchComments = async () => {
       showMessage("获取评论失败，请稍后重试", "error");
     }
   }
+};
+
+// 加载更多评论
+const loadMoreComments = async () => {
+  const commentData = commentStore.getComments(props.item.id);
+  if (commentData.hasMore && !commentData.loading) {
+    const nextPage = (commentData.page || 1) + 1;
+    await fetchComments(nextPage);
+  }
+};
+
+// 加载评论回复
+const loadReplies = async (commentId) => {
+  try {
+    await commentStore.loadCommentReplies(props.item.id, commentId);
+    await nextTick();
+    // 重新初始化新加载的回复的点赞状态
+    const latestComments = comments.value;
+    if (latestComments && latestComments.length > 0) {
+      commentLikeStore.initCommentsLikeStates(latestComments);
+    }
+  } catch (error) {
+    console.error(`加载评论回复失败:`, error);
+    showMessage("加载回复失败，请稍后重试", "error");
+  }
+};
+
+// 切换回复显示
+const toggleReplies = (commentId) => {
+  commentStore.toggleReplies(props.item.id, commentId);
 };
 
 const isCurrentUserComment = (comment) => {
@@ -3360,5 +3425,109 @@ const onViewerContainerClick = (event) => {
 .image-viewer-enter-to,
 .image-viewer-leave-from {
   opacity: 1;
+}
+
+/* 查看回复按钮样式 */
+.view-replies-btn {
+  margin-top: 8px;
+}
+
+.view-replies-button {
+  background: none;
+  border: none;
+  color: var(--text-color-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+}
+
+.view-replies-button:hover {
+  color: var(--text-color-primary);
+}
+
+/* 加载更多评论样式 */
+.load-more-comments {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-color-primary);
+}
+
+.load-more-button {
+  background: var(--bg-color-secondary);
+  border: 1px solid var(--border-color-primary);
+  color: var(--text-color-primary);
+  padding: 8px 24px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.load-more-button:hover {
+  background: var(--bg-color-tertiary);
+  border-color: var(--text-color-secondary);
+}
+
+/* 加载中提示样式 */
+.loading-comments {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  color: var(--text-color-secondary);
+  font-size: 14px;
+}
+.view-replies-btn {
+  margin-top: 8px;
+}
+
+.view-replies-button {
+  background: none;
+  border: none;
+  color: var(--text-color-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+}
+
+.view-replies-button:hover {
+  color: var(--text-color-primary);
+}
+
+/* 加载更多评论样式 */
+.load-more-comments {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-color-primary);
+}
+
+.load-more-button {
+  background: var(--bg-color-secondary);
+  border: 1px solid var(--border-color-primary);
+  color: var(--text-color-primary);
+  padding: 8px 24px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.load-more-button:hover {
+  background: var(--bg-color-tertiary);
+  border-color: var(--text-color-secondary);
+}
+
+/* 加载中提示样式 */
+.loading-comments {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  color: var(--text-color-secondary);
+  font-size: 14px;
 }
 </style>
