@@ -108,6 +108,10 @@ router.get('/', optionalAuth, async (req, res) => {
         LIMIT ? OFFSET ?
       `;
       queryParams = [isDraft.toString(), topPostsCount.toString(), limit.toString(), offset.toString()];
+    } else if (category === 'all') {
+      // 全部频道：显示所有笔记，按创建时间降序排列
+      query += ` ORDER BY p.created_at DESC LIMIT ? OFFSET ?`;
+      queryParams.push(limit.toString(), offset.toString());
     } else {
       let whereConditions = [];
       let additionalParams = [];
@@ -175,6 +179,10 @@ router.get('/', optionalAuth, async (req, res) => {
       const [totalCountResult] = await pool.execute('SELECT COUNT(*) as total FROM posts WHERE is_draft = ?', [isDraft.toString()]);
       const totalPosts = totalCountResult[0].total;
       total = Math.ceil(totalPosts * 0.2);
+    } else if (category === 'all') {
+      // 全部频道的总数就是所有笔记数量
+      const [totalCountResult] = await pool.execute('SELECT COUNT(*) as total FROM posts WHERE is_draft = ?', [isDraft.toString()]);
+      total = totalCountResult[0].total;
     } else {
       let countQuery = 'SELECT COUNT(*) as total FROM posts WHERE is_draft = ?';
       let countParams = [isDraft.toString()];

@@ -1,5 +1,6 @@
 // 频道配置
 export const CHANNELS = [
+  { id: 'all', label: '全部', path: '/all' },
   { id: 'recommend', label: '推荐', path: '/recommend' },
   { id: 'opensource', label: '开源项目', path: '/opensource' },
   { id: 'knowledge', label: '知识碎片', path: '/knowledge' },
@@ -9,7 +10,7 @@ export const CHANNELS = [
   { id: 'repost', label: '转载', path: '/repost' },
   { id: 'aitools', label: 'AI工具', path: '/aitools' },
   { id: 'selfbuilt', label: '自建项目', path: '/selfbuilt' },
-  { id: 'upfollow', label: 'up关注', path: '/upfollow' },
+  { id: 'upfollow', label:'up关注', path: '/upfollow' },
   { id: 'todo', label: '待办项目', path: '/todo' }
 ]
 
@@ -25,15 +26,15 @@ export const getChannelIdByPath = (path) => {
   if (path.startsWith('/explore/')) {
     channelPath = path.replace('/explore', '')
   } else if (path === '/explore') {
-    return 'recommend' // 默认返回推荐频道
+    return 'all' // 默认返回全部频道
   }
 
   const channel = CHANNELS.find(ch => ch.path === channelPath)
-  return channel ? channel.id : 'recommend'
+  return channel ? channel.id : 'all'
 }
 
 // 根据频道ID获取路径
 export const getChannelPath = (channelId) => {
   const channel = CHANNELS.find(ch => ch.id === channelId)
-  return channel ? channel.path : '/recommend'
+  return channel ? channel.path : '/all'
 }

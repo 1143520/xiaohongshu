@@ -44,7 +44,7 @@ const router = createRouter({
           children: [
             {
               path: '',
-              name: 'recommend',
+              name: 'all',
               component: ChannelPage
             },
             {

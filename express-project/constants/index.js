@@ -40,6 +40,8 @@ const GENDERS = {
 
 // 笔记分类
 const POST_CATEGORIES = {
+  ALL: 'all',
+  RECOMMEND: 'recommend',
   OPENSOURCE: 'opensource',
   KNOWLEDGE: 'knowledge',
   TINKERING: 'tinkering',

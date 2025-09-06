@@ -14,6 +14,7 @@ const channelType = computed(() => {
 
 // 频道配置映射
 const channelConfig = {
+    'all': { category: 'all', title: '全部' },
     'recommend': { category: 'recommend', title: '推荐' },
     'opensource': { category: 'opensource', title: '开源项目' },
     'knowledge': { category: 'knowledge', title: '知识碎片' },
@@ -29,7 +30,7 @@ const channelConfig = {
 
 // 获取当前频道配置
 const currentChannel = computed(() => {
-    return channelConfig[channelType.value] || channelConfig['recommend']
+    return channelConfig[channelType.value] || channelConfig['all']
 })
 </script>
 
