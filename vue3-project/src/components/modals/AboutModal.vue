@@ -173,13 +173,13 @@ vim .env  # 配置环境变量
             <div class="api-content">
               <p>
                 <strong>图片存储：</strong>示例图片来自
-                <a href="https://t.alcy.cc/" target="_blank" class="api-link"
+                <a href="https://www.pinterest.com/" target="_blank" class="api-link"
                   ><img
                     :src="liciUrl"
-                    alt="栗次元"
+                    alt="Pinterest"
                     class="api-icon"
-                  />栗次元图床</a
-                >，提供稳定的图片存储服务。
+                  />Pinterest</a
+                >，提供丰富的图片素材和灵感。
               </p>
               <p>
                 <strong>图片上传：</strong>用户上传图片使用
