@@ -3,7 +3,7 @@
  */
 
 /**
- * 上传图片到4399图床
+ * 上传图片到4399图床（通过后端代理）
  * @param {File} file - 图片文件
  * @returns {Promise<string>} - 返回图片URL
  */
@@ -12,21 +12,17 @@ export async function uploadTo4399(file) {
     const formData = new FormData()
     formData.append('file', file)
     
-    // 使用原生fetch而不是GM_xmlhttpRequest
-    fetch('https://api.h5wan.4399sj.com/html5/report/upload', {
+    // 通过后端代理上传到4399图床
+    fetch('/api/upload/4399-proxy', {
       method: 'POST',
-      body: formData,
-      headers: {
-        'device': 'main_pc'
-      }
+      body: formData
     })
     .then(response => response.json())
     .then(data => {
-      if (data.code === 1000 && data.data && data.data.file) {
-        const imageUrl = data.data.file.split('?')[0]
-        resolve(imageUrl)
+      if (data.success && data.data && data.data.url) {
+        resolve(data.data.url)
       } else {
-        reject(new Error('图片上传失败，请重试'))
+        reject(new Error(data.message || '图片上传失败，请重试'))
       }
     })
     .catch(error => {

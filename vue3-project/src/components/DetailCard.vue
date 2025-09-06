@@ -832,9 +832,9 @@ const enhancedComments = computed(() => {
     const enhancedReplies = comment.replies
       ? comment.replies.map((reply) => {
           const replyLikeState = commentLikeStore.getCommentLikeState(reply.id);
-          return {
-            ...reply,
-            isLiked: replyLikeState.liked,
+      return {
+        ...reply,
+        isLiked: replyLikeState.liked,
             likeCount: replyLikeState.likeCount,
           };
         })

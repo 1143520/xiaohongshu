@@ -149,6 +149,77 @@ router.post('/base64', authenticateToken, async (req, res) => {
   }
 });
 
+// 4399图床代理上传接口
+router.post('/4399-proxy', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: '请选择要上传的文件'
+      });
+    }
+
+    // 验证文件类型
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+      return res.status(400).json({
+        success: false,
+        message: '只支持 JPG、PNG、GIF、WebP 格式的图片'
+      });
+    }
+
+    // 验证文件大小 (10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (req.file.size > maxSize) {
+      return res.status(400).json({
+        success: false,
+        message: '图片大小不能超过 10MB'
+      });
+    }
+
+    // 使用axios发送到4399图床
+    const axios = require('axios');
+    const FormData = require('form-data');
+    
+    const formData = new FormData();
+    formData.append('file', req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype
+    });
+
+    const response = await axios.post('https://api.h5wan.4399sj.com/html5/report/upload', formData, {
+      headers: {
+        ...formData.getHeaders(),
+        'device': 'main_pc'
+      },
+      timeout: 30000 // 30秒超时
+    });
+
+    if (response.data.code === 1000 && response.data.data && response.data.data.file) {
+      const imageUrl = response.data.data.file.split('?')[0];
+      return res.json({
+        success: true,
+        message: '上传成功',
+        data: {
+          url: imageUrl
+        }
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: '图片上传失败，请重试'
+      });
+    }
+
+  } catch (error) {
+    console.error('4399图床上传失败:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.response?.data?.message || '图片上传失败，请重试'
+    });
+  }
+});
+
 // 注意：使用云端图床后，文件删除由图床服务商管理
 
 // 错误处理中间件
