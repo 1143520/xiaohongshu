@@ -46,16 +46,15 @@ const toastType = ref('success')
 
 // 分类数据
 const categories = [
-  { value: 'study', label: '学习' },
-  { value: 'campus', label: '校园' },
-  { value: 'emotion', label: '情感' },
-  { value: 'interest', label: '兴趣' },
-  { value: 'life', label: '生活' },
-  { value: 'social', label: '社交' },
-  { value: 'help', label: '求助' },
-  { value: 'opinion', label: '观点' },
-  { value: 'graduation', label: '毕业' },
-  { value: 'career', label: '职场' }
+  { value: 'opensource', label: '开源项目' },
+  { value: 'knowledge', label: '知识碎片' },
+  { value: 'tinkering', label: '折腾日常' },
+  { value: 'wallpaper', label: '壁纸收集' },
+  { value: 'weblinks', label: '网页收集' },
+  { value: 'aitools', label: 'AI工具' },
+  { value: 'selfbuilt', label: '自建项目' },
+  { value: 'upfollow', label: 'up关注' },
+  { value: 'todo', label: '待办项目' }
 ]
 
 // 表单字段配置
