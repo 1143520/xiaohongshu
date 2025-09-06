@@ -8,15 +8,15 @@ set -e
 echo "🚀 开始部署大红薯图文社区..."
 
 # 检查Docker和Docker Compose是否已安装
-if ! command -v docker &> /dev/null; then
+    if ! command -v docker &> /dev/null; then
     echo "❌ Docker 未安装，请先安装 Docker"
-    exit 1
-fi
-
+        exit 1
+    fi
+    
 if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
     echo "❌ Docker Compose 未安装，请先安装 Docker Compose"
-    exit 1
-fi
+        exit 1
+    fi
 
 # 检查环境变量文件
 if [ ! -f .env ]; then
@@ -68,10 +68,10 @@ if docker-compose -f docker-compose.prod.yml ps | grep -q "Up"; then
     echo "🔗 后端API: http://localhost:3001"
     echo "📊 服务状态:"
     docker-compose -f docker-compose.prod.yml ps
-else
+    else
     echo "❌ 部署失败，请检查日志:"
     docker-compose -f docker-compose.prod.yml logs
-    exit 1
-fi
+        exit 1
+    fi
 
 echo "🎉 部署完成！"

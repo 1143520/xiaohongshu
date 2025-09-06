@@ -117,9 +117,9 @@ const toastType = ref("success");
 watch(
   () => props.modelValue,
   (newValue) => {
-    if (newValue !== imageUrl.value) {
+  if (newValue !== imageUrl.value) {
       imageUrl.value = newValue;
-    }
+  }
   },
   { immediate: true }
 );
