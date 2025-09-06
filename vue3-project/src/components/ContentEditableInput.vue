@@ -254,12 +254,7 @@ const insertText = (text) => {
   inputRef.value.dispatchEvent(event)
 }
 
-// 暴露方法给父组件
-defineExpose({
-  insertText,
-  focus: () => inputRef.value?.focus(),
-  blur: () => inputRef.value?.blur()
-})
+// 将 insertText 方法添加到现有的 defineExpose 中
 
 const removeMentionLink = (linkElement) => {
   if (linkElement && linkElement.classList && linkElement.classList.contains('mention-link')) {
@@ -649,7 +644,8 @@ defineExpose({
   blur,
   selectMentionUser,
   insertAtSymbol,
-  insertEmoji
+  insertEmoji,
+  insertText
 })
 </script>
 
