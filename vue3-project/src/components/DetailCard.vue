@@ -234,11 +234,7 @@
                       </button>
                     </div>
                     <p class="comment-text">
-                      <MarkdownRenderer 
-                        :content="comment.content" 
-                        max-image-width="150px"
-                        max-image-height="120px"
-                      />
+                      <MentionText :text="comment.content" />
                     </p>
                     <span class="comment-time"
                       >{{ comment.time }} {{ comment.location }}</span
@@ -463,10 +459,20 @@
                       height="24"
                     />
                   </button>
-                  <CommentImageUpload 
-                    @uploaded="handleImageUploaded"
-                    @error="handleImageUploadError"
-                    @success="handleImageUploadSuccess"
+                  <button class="image-btn" @click="triggerImageUpload" :disabled="isUploadingImage">
+                    <SvgIcon
+                      name="imgNote"
+                      class="image-icon"
+                      width="24"
+                      height="24"
+                    />
+                  </button>
+                  <input
+                    ref="imageInput"
+                    type="file"
+                    accept="image/*"
+                    style="display: none"
+                    @change="handleImageUpload"
                   />
                 </div>
                 <div class="send-cancel-buttons">
@@ -594,8 +600,6 @@ import EmojiPicker from "@/components/EmojiPicker.vue";
 import MentionModal from "@/components/mention/MentionModal.vue";
 import MentionText from "./mention/MentionText.vue";
 import ContentEditableInput from "./ContentEditableInput.vue";
-import CommentImageUpload from "./CommentImageUpload.vue";
-import MarkdownRenderer from "./MarkdownRenderer.vue";
 import { useThemeStore } from "@/stores/theme";
 import { useUserStore } from "@/stores/user";
 import { useLikeStore } from "@/stores/like.js";
@@ -608,6 +612,7 @@ import { commentApi, postApi } from "@/api/index.js";
 import { getPostDetail } from "@/api/posts.js";
 import { useScrollLock } from "@/composables/useScrollLock";
 import { formatTime } from "@/utils/timeFormat";
+import { uploadTo4399, validateImageFile, generateMarkdownImage } from "@/utils/imageUpload4399";
 
 const router = useRouter();
 
@@ -691,6 +696,10 @@ const expandedReplies = ref(new Set());
 
 const showEmojiPanel = ref(false);
 const showMentionPanel = ref(false);
+
+// 图片上传相关
+const imageInput = ref(null);
+const isUploadingImage = ref(false);
 
 const contentSectionWidth = computed(() => {
   if (windowWidth.value <= 768) {
@@ -1493,30 +1502,63 @@ const handleMentionInput = () => {
   }
 };
 
+// 图片上传相关方法
+const triggerImageUpload = () => {
+  if (imageInput.value) {
+    imageInput.value.click();
+  }
+};
+
+const handleImageUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  try {
+    // 验证文件
+    validateImageFile(file);
+    
+    isUploadingImage.value = true;
+    showMessage("正在上传图片...", "info");
+    
+    // 上传到4399图床
+    const imageUrl = await uploadTo4399(file);
+    
+    // 生成Markdown格式的图片
+    const markdownImage = generateMarkdownImage(imageUrl, file.name.split('.')[0]);
+    
+    // 插入到评论输入框
+    if (focusedInput.value && focusedInput.value.insertText) {
+      focusedInput.value.insertText(markdownImage);
+    } else {
+      commentInput.value += markdownImage;
+    }
+    
+    showMessage("图片上传成功", "success");
+    
+  } catch (error) {
+    console.error('图片上传失败:', error);
+    showMessage(error.message || "图片上传失败", "error");
+  } finally {
+    isUploadingImage.value = false;
+    // 清空文件输入
+    if (imageInput.value) {
+      imageInput.value.value = '';
+    }
+  }
+};
+
 // 处理取消输入
 // 内容安全过滤函数
 const sanitizeContent = (content) => {
   if (!content) return "";
-  
-  // 保留mention链接、URL链接和markdown图片语法，但移除其他危险标签
-  // 先保存mention链接和URL链接
-  const preservedLinks = [];
+  // 保留mention链接、URL链接和图片，但移除其他危险标签
+  // 先保存mention链接、URL链接和图片
+  const preservedElements = [];
   let processedContent = content.replace(
-    /<a[^>]*class="(mention-link|url-link)"[^>]*>.*?<\/a>/g,
+    /<(a[^>]*class="(mention-link|url-link)"[^>]*>.*?<\/a>|img[^>]*class="markdown-image"[^>]*\/?>)/g,
     (match) => {
-      const placeholder = `__LINK_${preservedLinks.length}__`;
-      preservedLinks.push(match);
-      return placeholder;
-    }
-  );
-
-  // 保存markdown图片语法
-  const markdownImages = [];
-  processedContent = processedContent.replace(
-    /!\[([^\]]*)\]\(([^)]+)\)/g,
-    (match) => {
-      const placeholder = `__IMG_${markdownImages.length}__`;
-      markdownImages.push(match);
+      const placeholder = `__ELEMENT_${preservedElements.length}__`;
+      preservedElements.push(match);
       return placeholder;
     }
   );
@@ -1526,14 +1568,9 @@ const sanitizeContent = (content) => {
     .replace(/<[^>]*>/g, "")
     .replace(/&nbsp;/g, " ");
 
-  // 恢复保留的链接
-  preservedLinks.forEach((link, index) => {
-    processedContent = processedContent.replace(`__LINK_${index}__`, link);
-  });
-
-  // 恢复markdown图片
-  markdownImages.forEach((img, index) => {
-    processedContent = processedContent.replace(`__IMG_${index}__`, img);
+  // 恢复保留的元素
+  preservedElements.forEach((element, index) => {
+    processedContent = processedContent.replace(`__ELEMENT_${index}__`, element);
   });
 
   return processedContent.trim();
@@ -1599,25 +1636,6 @@ const handleCancelInput = () => {
   if (focusedInput.value) {
     focusedInput.value.blur();
   }
-};
-
-// 图片上传处理函数
-const handleImageUploaded = (markdown) => {
-  // 在当前光标位置插入markdown图片
-  if (focusedInput.value && focusedInput.value.insertText) {
-    focusedInput.value.insertText(markdown);
-  } else {
-    // 如果没有insertText方法，直接添加到内容末尾
-    commentInput.value = (commentInput.value || '') + markdown;
-  }
-};
-
-const handleImageUploadError = (message) => {
-  showMessage(message, "error");
-};
-
-const handleImageUploadSuccess = (message) => {
-  showMessage(message, "success");
 };
 
 const fetchPostDetail = async () => {
@@ -2701,7 +2719,8 @@ const onViewerContainerClick = (event) => {
 }
 
 .emoji-btn,
-.mention-btn {
+.mention-btn,
+.image-btn {
   background: none;
   border: none;
   padding: 4px;
@@ -2714,18 +2733,26 @@ const onViewerContainerClick = (event) => {
 }
 
 .emoji-btn:hover,
-.mention-btn:hover {
+.mention-btn:hover,
+.image-btn:hover {
   background: var(--bg-color-secondary);
 }
 
+.image-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .emoji-icon,
-.mention-icon {
+.mention-icon,
+.image-icon {
   color: var(--text-color-secondary);
   transition: color 0.2s;
 }
 
 .emoji-btn:hover .emoji-icon,
-.mention-btn:hover .mention-icon {
+.mention-btn:hover .mention-icon,
+.image-btn:hover .image-icon {
   color: var(--text-color-primary);
 }
 

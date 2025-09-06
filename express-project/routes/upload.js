@@ -3,9 +3,6 @@ const router = express.Router();
 const multer = require('multer');
 const { authenticateToken } = require('../middleware/auth');
 const { uploadToImageHost, uploadBase64ToImageHost } = require('../utils/uploadHelper');
-const fetch = require('node-fetch'); // 需要安装: npm install node-fetch@2
-const FormData = require('form-data');
-const { responseHelper } = require('../utils/responseHelper');
 
 // 配置 multer 内存存储（用于云端图床）
 const storage = multer.memoryStorage();
@@ -149,48 +146,6 @@ router.post('/base64', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Base64图片上传失败:', error);
     res.status(500).json({ code: 500, message: '上传失败' });
-  }
-});
-
-// 4399图床代理上传接口
-router.post('/4399', upload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return responseHelper.error(res, '请选择要上传的文件');
-    }
-
-    // 创建FormData用于转发请求
-    const formData = new FormData();
-    formData.append('file', req.file.buffer, {
-      filename: req.file.originalname,
-      contentType: req.file.mimetype
-    });
-
-    // 转发到4399图床API
-    const response = await fetch('https://api.h5wan.4399sj.com/html5/report/upload', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'device': 'main_pc',
-        ...formData.getHeaders()
-      }
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.code === 1000 && data.data && data.data.file) {
-      const imageUrl = data.data.file.split('?')[0];
-      return responseHelper.success(res, {
-        imageUrl,
-        originalName: req.file.originalname
-      }, '上传成功');
-    } else {
-      return responseHelper.error(res, '图床服务返回错误');
-    }
-
-  } catch (error) {
-    console.error('4399图床上传失败:', error);
-    return responseHelper.error(res, '上传失败，请重试');
   }
 });
 

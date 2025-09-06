@@ -18,6 +18,12 @@ export function parseMentions(text) {
     return `<a href="/user/${userId}" class="mention-link" data-user-id="${userId}" contenteditable="false">@${nickname}</a>`
   })
 
+  // 处理Markdown图片语法 ![alt](url)
+  const markdownImageRegex = /!\[([^\]]*)\]\(([^)]+)\)/gi
+  processedText = processedText.replace(markdownImageRegex, (match, alt, url) => {
+    return `<img src="${url}" alt="${alt || '图片'}" class="markdown-image" style="max-width: 200px; max-height: 200px; border-radius: 8px; cursor: pointer;" onclick="window.open('${url}', '_blank')" />`
+  })
+
   // 处理URL链接（http://、https://、www.开头的链接）
   const urlRegex = /(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi
   processedText = processedText.replace(urlRegex, (match) => {
@@ -91,10 +97,6 @@ export function cleanMentions(text) {
   // 清理HTML格式的URL链接，提取链接文本部分
   const htmlUrlRegex = /<a[^>]*class="url-link"[^>]*>([^<]*)<\/a>/g
   cleanedText = cleanedText.replace(htmlUrlRegex, '$1')
-
-  // 清理HTML格式的图片，提取alt文本
-  const htmlImageRegex = /<img[^>]*class="markdown-image"[^>]*alt="([^"]*)"[^>]*>/g
-  cleanedText = cleanedText.replace(htmlImageRegex, '[$1]')
 
   // 移除所有HTML标签，只保留文本内容
   cleanedText = cleanedText.replace(/<[^>]*>/g, '')
