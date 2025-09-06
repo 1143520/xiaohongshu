@@ -140,9 +140,9 @@ onMounted(() => {
           <li class="sidebar-footer-item">
             <div class="sidebar-link">
               <span class="sidebar-icon">
-                <SvgIcon :name="menuItems[4].icon" width="24px" height="24px" />
+                <SvgIcon :name="menuItems[5].icon" width="24px" height="24px" />
               </span>
-              <span class="sidebar-label">{{ menuItems[4].label }}</span>
+              <span class="sidebar-label">{{ menuItems[5].label }}</span>
             </div>
           </li>
         </template>
