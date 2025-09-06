@@ -8,16 +8,17 @@ import CrudTable from '@/views/admin/components/CrudTable.vue'
 
 // 分类映射
 const categoryMap = {
-  'study': '学习',
-  'campus': '校园',
-  'emotion': '情感',
-  'interest': '兴趣',
-  'life': '生活',
-  'social': '社交',
-  'help': '求助',
-  'opinion': '观点',
-  'graduation': '毕业',
-  'career': '职场',
+  'all': '全部',
+  'recommend': '推荐',
+  'opensource': '开源项目',
+  'knowledge': '知识碎片',
+  'tinkering': '折腾日常',
+  'wallpaper': '壁纸收集',
+  'weblinks': '网页收集',
+  'aitools': 'AI工具',
+  'selfbuilt': '自建项目',
+  'upfollow': 'up关注',
+  'todo': '待办项目',
   'general': '未知'
 }
 
@@ -48,16 +49,16 @@ const formFields = [
     type: 'select',
     required: true,
     options: [
-      { value: 'study', label: '学习' },
-      { value: 'campus', label: '校园' },
-      { value: 'emotion', label: '情感' },
-      { value: 'interest', label: '兴趣' },
-      { value: 'life', label: '生活' },
-      { value: 'social', label: '社交' },
-      { value: 'help', label: '求助' },
-      { value: 'opinion', label: '观点' },
-      { value: 'graduation', label: '毕业' },
-      { value: 'career', label: '职场' }
+      { value: 'recommend', label: '推荐' },
+      { value: 'opensource', label: '开源项目' },
+      { value: 'knowledge', label: '知识碎片' },
+      { value: 'tinkering', label: '折腾日常' },
+      { value: 'wallpaper', label: '壁纸收集' },
+      { value: 'weblinks', label: '网页收集' },
+      { value: 'aitools', label: 'AI工具' },
+      { value: 'selfbuilt', label: '自建项目' },
+      { value: 'upfollow', label: 'up关注' },
+      { value: 'todo', label: '待办项目' }
     ]
   },
   { key: 'is_draft', label: '草稿', type: 'checkbox', required: false, description: '勾选表示保存为草稿，不勾选表示发布' },
@@ -77,16 +78,16 @@ const searchFields = [
     placeholder: '选择分类',
     options: [
       { value: '', label: '全部分类' },
-      { value: 'study', label: '学习' },
-      { value: 'campus', label: '校园' },
-      { value: 'emotion', label: '情感' },
-      { value: 'interest', label: '兴趣' },
-      { value: 'life', label: '生活' },
-      { value: 'social', label: '社交' },
-      { value: 'help', label: '求助' },
-      { value: 'opinion', label: '观点' },
-      { value: 'graduation', label: '毕业' },
-      { value: 'career', label: '职场' }
+      { value: 'recommend', label: '推荐' },
+      { value: 'opensource', label: '开源项目' },
+      { value: 'knowledge', label: '知识碎片' },
+      { value: 'tinkering', label: '折腾日常' },
+      { value: 'wallpaper', label: '壁纸收集' },
+      { value: 'weblinks', label: '网页收集' },
+      { value: 'aitools', label: 'AI工具' },
+      { value: 'selfbuilt', label: '自建项目' },
+      { value: 'upfollow', label: 'up关注' },
+      { value: 'todo', label: '待办项目' }
     ]
   },
   {
