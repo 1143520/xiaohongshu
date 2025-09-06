@@ -7,7 +7,7 @@ export const useChannelStore = defineStore('channel', () => {
   const channels = CHANNELS
 
   // 当前活跃的频道ID
-  const activeChannelId = ref('recommend')
+  const activeChannelId = ref('all')
 
   // 设置活跃频道
   const setActiveChannel = (channelId) => {

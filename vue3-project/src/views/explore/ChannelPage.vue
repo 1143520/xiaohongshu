@@ -9,7 +9,7 @@ const channelType = computed(() => {
     if (route.params.channel) {
         return route.params.channel
     }
-    return route.name || 'recommend'
+    return route.name || 'all'
 })
 
 // 频道配置映射
