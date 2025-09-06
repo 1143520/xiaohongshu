@@ -1486,7 +1486,7 @@ const handleMentionInput = () => {
 // 内容安全过滤函数
 const sanitizeContent = (content) => {
   if (!content) return "";
-  // 保留mention链接和URL链接，但移除其他危险标签
+  // 保留mention链接、URL链接和换行标签，但移除其他危险标签
   // 先保存mention链接和URL链接
   const preservedLinks = [];
   let processedContent = content.replace(
@@ -1498,14 +1498,28 @@ const sanitizeContent = (content) => {
     }
   );
 
-  // 移除所有其他HTML标签
-  processedContent = processedContent
-    .replace(/<[^>]*>/g, "")
-    .replace(/&nbsp;/g, " ");
+  // 保存<br>标签
+  const preservedBrs = [];
+  processedContent = processedContent.replace(
+    /<br\s*\/?>/gi,
+    (match) => {
+      const placeholder = `__BR_${preservedBrs.length}__`;
+      preservedBrs.push(match);
+      return placeholder;
+    }
+  );
+
+  // 移除所有其他HTML标签，但保留&nbsp;实体
+  processedContent = processedContent.replace(/<[^>]*>/g, "");
 
   // 恢复保留的链接
   preservedLinks.forEach((link, index) => {
     processedContent = processedContent.replace(`__LINK_${index}__`, link);
+  });
+
+  // 恢复<br>标签
+  preservedBrs.forEach((br, index) => {
+    processedContent = processedContent.replace(`__BR_${index}__`, br);
   });
 
   return processedContent.trim();
@@ -2148,6 +2162,7 @@ const onViewerContainerClick = (event) => {
   word-wrap: break-word;
   word-break: break-all;
   overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .note-tags {

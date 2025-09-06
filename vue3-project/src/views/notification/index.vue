@@ -1649,6 +1649,9 @@ watch(isLoggedIn, async (newValue, oldValue) => {
   font-size: 14px;
   line-height: 1.4;
   cursor: pointer;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .replied-comment {
@@ -1664,6 +1667,8 @@ watch(isLoggedIn, async (newValue, oldValue) => {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   transition: border-color 0.2s ease, color 0.2s ease;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 .post-thumbnail {

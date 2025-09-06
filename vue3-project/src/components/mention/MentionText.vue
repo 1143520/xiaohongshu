@@ -44,6 +44,13 @@ const handleMentionClick = (event) => {
 </script>
 
 <style scoped>
+/* 确保文本格式正确显示 */
+span {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 :deep(.mention-link) {
   color: var(--text-color-tag);
   text-decoration: none;

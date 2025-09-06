@@ -73,7 +73,7 @@ const sanitizeContent = (content) => {
   return content.replace(/<[^>]*>/g, '')
 }
 
-// 将HTML格式的mention链接转换为[@nickname:user_id]格式
+// 将HTML格式的mention链接转换为[@nickname:user_id]格式，保留换行符
 const convertMentionLinksToText = (html) => {
   if (!html) return ''
 
@@ -90,8 +90,14 @@ const convertMentionLinksToText = (html) => {
     link.parentNode.replaceChild(mentionText, link)
   })
 
-  // 过滤HTML标签
-  return sanitizeContent(tempDiv.innerHTML)
+  // 先将<br>标签转换为换行符，再过滤其他HTML标签
+  let textContent = tempDiv.innerHTML
+  textContent = textContent.replace(/<br\s*\/?>/gi, '\n')
+  textContent = textContent.replace(/<div><\/div>/gi, '\n')
+  textContent = textContent.replace(/<div>/gi, '\n').replace(/<\/div>/gi, '')
+  
+  // 过滤剩余的HTML标签
+  return textContent.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ')
 }
 
 // 处理输入事件
@@ -634,13 +640,19 @@ defineExpose({
   position: absolute;
 }
 
+[contenteditable] {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 [contenteditable] :deep(p) {
   margin: 0;
   padding: 0;
   line-height: inherit;
 }
 
-/* mention链接样式 */
+/* mention链接和URL链接样式 */
 [contenteditable] :deep(.mention-link) {
   color: var(--text-color-tag);
   text-decoration: none;
@@ -659,6 +671,23 @@ defineExpose({
 }
 
 [contenteditable] :deep(.mention-link:active) {
+  color: var(--text-color-tag);
+  opacity: 0.6;
+}
+
+[contenteditable] :deep(.url-link) {
+  color: var(--text-color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+[contenteditable] :deep(.url-link:hover) {
+  color: var(--text-color-tag);
+  opacity: 0.8;
+}
+
+[contenteditable] :deep(.url-link:active) {
   color: var(--text-color-tag);
   opacity: 0.6;
 }
