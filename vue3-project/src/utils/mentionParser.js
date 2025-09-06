@@ -18,12 +18,6 @@ export function parseMentions(text) {
     return `<a href="/user/${userId}" class="mention-link" data-user-id="${userId}" contenteditable="false">@${nickname}</a>`
   })
 
-  // 处理Markdown图片语法 ![alt](url)
-  const markdownImageRegex = /!\[([^\]]*)\]\(([^)]+)\)/gi
-  processedText = processedText.replace(markdownImageRegex, (match, alt, url) => {
-    return `<img src="${url}" alt="${alt || '图片'}" class="markdown-image" style="max-width: 200px; max-height: 200px; border-radius: 8px; cursor: pointer;" onclick="window.open('${url}', '_blank')" />`
-  })
-
   // 处理URL链接（http://、https://、www.开头的链接）
   const urlRegex = /(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi
   processedText = processedText.replace(urlRegex, (match) => {

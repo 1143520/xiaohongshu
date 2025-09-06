@@ -459,21 +459,6 @@
                       height="24"
                     />
                   </button>
-                  <button class="image-btn" @click="triggerImageUpload" :disabled="isUploadingImage">
-                    <SvgIcon
-                      name="imgNote"
-                      class="image-icon"
-                      width="24"
-                      height="24"
-                    />
-                  </button>
-                  <input
-                    ref="imageInput"
-                    type="file"
-                    accept="image/*"
-                    style="display: none"
-                    @change="handleImageUpload"
-                  />
                 </div>
                 <div class="send-cancel-buttons">
                   <button
@@ -612,7 +597,6 @@ import { commentApi, postApi } from "@/api/index.js";
 import { getPostDetail } from "@/api/posts.js";
 import { useScrollLock } from "@/composables/useScrollLock";
 import { formatTime } from "@/utils/timeFormat";
-import { uploadTo4399, validateImageFile, generateMarkdownImage } from "@/utils/imageUpload4399";
 
 const router = useRouter();
 
@@ -696,10 +680,6 @@ const expandedReplies = ref(new Set());
 
 const showEmojiPanel = ref(false);
 const showMentionPanel = ref(false);
-
-// 图片上传相关
-const imageInput = ref(null);
-const isUploadingImage = ref(false);
 
 const contentSectionWidth = computed(() => {
   if (windowWidth.value <= 768) {
@@ -1502,63 +1482,18 @@ const handleMentionInput = () => {
   }
 };
 
-// 图片上传相关方法
-const triggerImageUpload = () => {
-  if (imageInput.value) {
-    imageInput.value.click();
-  }
-};
-
-const handleImageUpload = async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  try {
-    // 验证文件
-    validateImageFile(file);
-    
-    isUploadingImage.value = true;
-    showMessage("正在上传图片...", "info");
-    
-    // 上传到4399图床
-    const imageUrl = await uploadTo4399(file);
-    
-    // 生成Markdown格式的图片
-    const markdownImage = generateMarkdownImage(imageUrl, file.name.split('.')[0]);
-    
-    // 插入到评论输入框
-    if (focusedInput.value && focusedInput.value.insertText) {
-      focusedInput.value.insertText(markdownImage);
-    } else {
-      commentInput.value += markdownImage;
-    }
-    
-    showMessage("图片上传成功", "success");
-    
-  } catch (error) {
-    console.error('图片上传失败:', error);
-    showMessage(error.message || "图片上传失败", "error");
-  } finally {
-    isUploadingImage.value = false;
-    // 清空文件输入
-    if (imageInput.value) {
-      imageInput.value.value = '';
-    }
-  }
-};
-
 // 处理取消输入
 // 内容安全过滤函数
 const sanitizeContent = (content) => {
   if (!content) return "";
-  // 保留mention链接、URL链接和图片，但移除其他危险标签
-  // 先保存mention链接、URL链接和图片
-  const preservedElements = [];
+  // 保留mention链接和URL链接，但移除其他危险标签
+  // 先保存mention链接和URL链接
+  const preservedLinks = [];
   let processedContent = content.replace(
-    /<(a[^>]*class="(mention-link|url-link)"[^>]*>.*?<\/a>|img[^>]*class="markdown-image"[^>]*\/?>)/g,
+    /<a[^>]*class="(mention-link|url-link)"[^>]*>.*?<\/a>/g,
     (match) => {
-      const placeholder = `__ELEMENT_${preservedElements.length}__`;
-      preservedElements.push(match);
+      const placeholder = `__LINK_${preservedLinks.length}__`;
+      preservedLinks.push(match);
       return placeholder;
     }
   );
@@ -1568,9 +1503,9 @@ const sanitizeContent = (content) => {
     .replace(/<[^>]*>/g, "")
     .replace(/&nbsp;/g, " ");
 
-  // 恢复保留的元素
-  preservedElements.forEach((element, index) => {
-    processedContent = processedContent.replace(`__ELEMENT_${index}__`, element);
+  // 恢复保留的链接
+  preservedLinks.forEach((link, index) => {
+    processedContent = processedContent.replace(`__LINK_${index}__`, link);
   });
 
   return processedContent.trim();
@@ -2719,8 +2654,7 @@ const onViewerContainerClick = (event) => {
 }
 
 .emoji-btn,
-.mention-btn,
-.image-btn {
+.mention-btn {
   background: none;
   border: none;
   padding: 4px;
@@ -2733,26 +2667,18 @@ const onViewerContainerClick = (event) => {
 }
 
 .emoji-btn:hover,
-.mention-btn:hover,
-.image-btn:hover {
+.mention-btn:hover {
   background: var(--bg-color-secondary);
 }
 
-.image-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .emoji-icon,
-.mention-icon,
-.image-icon {
+.mention-icon {
   color: var(--text-color-secondary);
   transition: color 0.2s;
 }
 
 .emoji-btn:hover .emoji-icon,
-.mention-btn:hover .mention-icon,
-.image-btn:hover .image-icon {
+.mention-btn:hover .mention-icon {
   color: var(--text-color-primary);
 }
 

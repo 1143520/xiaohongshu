@@ -86,17 +86,4 @@ const handleMentionClick = (event) => {
   color: var(--text-color-tag);
   opacity: 0.6;
 }
-
-:deep(.markdown-image) {
-  max-width: 200px;
-  max-height: 200px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin: 4px 0;
-  transition: opacity 0.2s ease;
-}
-
-:deep(.markdown-image:hover) {
-  opacity: 0.8;
-}
 </style>
