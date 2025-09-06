@@ -165,16 +165,16 @@ onUnmounted(() => {
 
 const loadCategories = () => {
   categories.value = [
-    { id: 'study', name: '学习' },
-    { id: 'campus', name: '校园' },
-    { id: 'emotion', name: '情感' },
-    { id: 'interest', name: '兴趣' },
-    { id: 'life', name: '生活' },
-    { id: 'social', name: '社交' },
-    { id: 'help', name: '求助' },
-    { id: 'opinion', name: '观点' },
-    { id: 'graduation', name: '毕业' },
-    { id: 'career', name: '职场' }
+    { id: 'opensource', name: '开源项目' },
+    { id: 'knowledge', name: '知识碎片' },
+    { id: 'tinkering', name: '折腾日常' },
+    { id: 'wallpaper', name: '壁纸收集' },
+    { id: 'weblinks', name: '网页收集' },
+    { id: 'repost', name: '转载' },
+    { id: 'aitools', name: 'AI工具' },
+    { id: 'selfbuilt', name: '自建项目' },
+    { id: 'upfollow', name: 'up关注' },
+    { id: 'todo', name: '待办项目' }
   ]
 }
 
