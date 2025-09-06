@@ -38,12 +38,17 @@ const handleMenuClick = (action) => {
     handleLoginClick();
   } else if (action === "changePassword") {
     changePasswordStore.openChangePasswordModal();
+  } else if (action === "admin") {
+    // 直接跳转到后台管理页面
+    window.open('/admin', '_blank');
   }
 };
 </script>
 
 <template>
   <DropdownItem @click="handleMenuClick('about')"> 关于大红薯 </DropdownItem>
+
+  <DropdownItem @click="handleMenuClick('admin')"> 后台管理 </DropdownItem>
 
   <ThemeSwitcherMenuItem />
   <DropdownDivider />

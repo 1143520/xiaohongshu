@@ -24,6 +24,7 @@ const menuItems = ref([
   { label: '发布', icon: 'publish', path: '/publish' },
   { label: '通知', icon: 'notification', path: '/notification' },
   { label: '我', icon: 'avatar', path: '/user' },
+  { label: 'Pinterest', icon: 'pinterest', path: 'https://www.pinterest.com/', external: true },
   { label: '更多', icon: 'menu', path: '' },
 ]);
 
@@ -55,6 +56,11 @@ watch(() => route.path, (newPath, oldPath) => {
 // 登录按钮点击处理
 const handleLoginClick = () => {
   authStore.openLoginModal()
+}
+
+// Pinterest 点击处理
+const handlePinterestClick = () => {
+  window.open('https://www.pinterest.com/', '_blank')
 }
 
 function handleAvatarError(event) {
@@ -101,6 +107,15 @@ onMounted(() => {
         </RouterLink>
       </li>
 
+      <!-- Pinterest 快速入口 -->
+      <li>
+        <div class="sidebar-link" @click="handlePinterestClick">
+          <span class="sidebar-icon">
+            <SvgIcon name="pinterest" width="24px" height="24px" />
+          </span>
+          <span class="sidebar-label">Pinterest</span>
+        </div>
+      </li>
 
       <li v-if="userStore.isLoggedIn">
         <RouterLink :to="menuItems[3].path" class="sidebar-link">
@@ -111,7 +126,6 @@ onMounted(() => {
           <span class="sidebar-label">{{ menuItems[3].label }}</span>
         </RouterLink>
       </li>
-
 
       <li v-else>
         <button class="login-btn" @click="handleLoginClick">

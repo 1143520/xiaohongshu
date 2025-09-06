@@ -24,8 +24,14 @@
           <div class="intro-section">
             <h3>项目简介</h3>
             <p>
-              大红薯校园图文社区是一个面向开发者与学习者的开源示例项目，旨在提供从前端到后端的完整实践范本，帮助大家学习现代
-              Web 应用的架构设计、工程化与业务实现。
+              大红薯是一个基于 Vue 3 + Express.js 的现代化图文社区项目，高度还原小红书的UI设计和交互体验。
+              项目支持用户注册登录、图文发布、社交互动、实时通知等完整功能，采用前后端分离架构，
+              提供 Docker 容器化部署和 GitHub Actions 自动化构建。
+            </p>
+            <p style="margin-top: 12px;">
+              <strong>🚀 一键部署：</strong>支持 GitHub Actions 自动构建和 Docker 一键部署<br>
+              <strong>📱 响应式设计：</strong>完美适配桌面端和移动端设备<br>
+              <strong>🎨 现代化UI：</strong>支持深色/浅色主题切换，精美的用户界面
             </p>
           </div>
           <div class="author-section">
@@ -104,42 +110,69 @@
             </div>
           </div>
           <div class="features-section">
-            <h3>项目亮点</h3>
+            <h3>核心功能</h3>
             <ul class="features-list">
-              <li><strong>前端：</strong>Vue 3+Vite+Pinia+Vue Router</li>
-              <li><strong>后端：</strong>Node.js/Express+MySQL</li>
-              <li>
-                <strong>工程化：</strong
-                >环境配置、代码规范、构建与产物优化的完整流程
-              </li>
-              <li>
-                <strong>业务能力：</strong
-                >鉴权流程、路由守卫、状态管理与接口封装
-              </li>
-              <li>
-                <strong>体验优化：</strong
-                >骨架屏、懒加载、预加载、无障碍与响应式适配
-              </li>
-              <li>
-                <strong>组件与分层：</strong
-                >可复用组件拆分、按领域分组与别名引入
-              </li>
-              <li>
-                <strong>后台管理：</strong
-                >基础CRUD、数据管理与配置面板，支持后续扩展权限与统计
-              </li>
-              <li>
-                <strong>第三方库：</strong>VueUse、Cropper.js、vue3-emoji-picker
-                等的集成与实践
-              </li>
+              <li><strong>用户系统：</strong>注册登录、个人资料、头像上传</li>
+              <li><strong>内容发布：</strong>图文发布、草稿保存、标签分类</li>
+              <li><strong>社交互动：</strong>点赞、评论、关注、收藏</li>
+              <li><strong>实时通知：</strong>点赞通知、评论通知、关注通知</li>
+              <li><strong>搜索功能：</strong>用户搜索、内容搜索、标签搜索</li>
+              <li><strong>管理后台：</strong>用户管理、内容管理、数据统计</li>
+              <li><strong>智能解析：</strong>URL链接识别、@用户提及</li>
+              <li><strong>格式保持：</strong>支持换行符、连续空格、文本格式</li>
             </ul>
           </div>
 
+          <div class="tech-section">
+            <h3>技术架构</h3>
+            <ul class="features-list">
+              <li><strong>前端：</strong>Vue 3 + Vite + Pinia + Vue Router 4</li>
+              <li><strong>后端：</strong>Node.js + Express.js + MySQL 8.0</li>
+              <li><strong>部署：</strong>Docker + Docker Compose + GitHub Actions</li>
+              <li><strong>认证：</strong>JWT Token + SHA256 密码加密</li>
+              <li><strong>文件上传：</strong>Multer + 第三方图床API</li>
+              <li><strong>UI组件：</strong>自研组件库 + 响应式设计</li>
+              <li><strong>性能优化：</strong>懒加载、虚拟滚动、代码分割</li>
+              <li><strong>开发工具：</strong>ESLint + Prettier + Git Hooks</li>
+            </ul>
+          </div>
+
+          <div class="deployment-section">
+            <h3>部署指南</h3>
+            <div class="deployment-content">
+              <h4>🚀 一键部署（推荐）</h4>
+              <div class="code-block">
+                <pre># 1. Fork 项目到你的 GitHub 账号
+# 2. 启用 GitHub Actions 权限
+# 3. 在服务器执行：
+git clone https://github.com/your-username/xiaohongshu.git
+cd xiaohongshu
+cp env.production.example .env
+vim .env  # 配置环境变量
+./deploy.sh</pre>
+              </div>
+              
+              <h4>🔄 更新部署</h4>
+              <div class="code-block">
+                <pre># 在服务器项目目录执行：
+./deploy.sh  # 自动拉取最新代码和镜像</pre>
+              </div>
+
+              <h4>🔧 环境要求</h4>
+              <ul class="requirement-list">
+                <li><strong>操作系统：</strong>Linux (Ubuntu 18.04+ / CentOS 7+)</li>
+                <li><strong>内存：</strong>2GB+ RAM</li>
+                <li><strong>存储：</strong>10GB+ 可用空间</li>
+                <li><strong>软件：</strong>Docker 20.10+ 和 Docker Compose 1.29+</li>
+              </ul>
+            </div>
+          </div>
+
           <div class="api-section">
-            <h3>接口服务</h3>
+            <h3>第三方服务</h3>
             <div class="api-content">
               <p>
-                <strong>图片存储：</strong>灌装的示例图片来自
+                <strong>图片存储：</strong>示例图片来自
                 <a href="https://t.alcy.cc/" target="_blank" class="api-link"
                   ><img
                     :src="liciUrl"
@@ -149,7 +182,7 @@
                 >，提供稳定的图片存储服务。
               </p>
               <p>
-                <strong>图片上传：</strong>用户上传图片使用了
+                <strong>图片上传：</strong>用户上传图片使用
                 <a
                   href="https://api.aa1.cn/doc/xinyew_jdtc.html"
                   target="_blank"
@@ -199,20 +232,49 @@
             </div>
           </div>
 
+          <div class="usage-section">
+            <h3>使用指南</h3>
+            <div class="usage-content">
+              <h4>👨‍💼 管理员账号</h4>
+              <ul class="usage-list">
+                <li><strong>用户名：</strong>admin</li>
+                <li><strong>密码：</strong>admin123</li>
+                <li><strong>管理后台：</strong>http://your-domain.com/admin</li>
+              </ul>
+
+              <h4>📝 文本格式支持</h4>
+              <ul class="usage-list">
+                <li><strong>换行符：</strong>编辑时的换行会完整保留</li>
+                <li><strong>连续空格：</strong>多个空格不会被合并</li>
+                <li><strong>URL链接：</strong>自动识别并转为可点击链接</li>
+                <li><strong>@用户：</strong>支持 @用户名 提及功能</li>
+                <li><strong>表情符号：</strong>支持emoji表情输入</li>
+              </ul>
+
+              <h4>🔧 常见问题</h4>
+              <ul class="usage-list">
+                <li><strong>端口被占用：</strong>修改 .env 文件中的端口配置</li>
+                <li><strong>数据库连接失败：</strong>检查数据库密码和容器状态</li>
+                <li><strong>图片上传失败：</strong>检查上传目录权限</li>
+                <li><strong>更新后功能异常：</strong>清理Docker缓存后重新部署</li>
+              </ul>
+            </div>
+          </div>
+
           <div class="copyright-section">
             <h3>版权声明</h3>
             <div class="copyright-content">
               <p>
                 <strong>设计灵感：</strong
-                >本校园图文社区的UI设计和交互体验参考了大红薯平台，旨在为下载该开源项目的人员提供一个熟悉的项目体验。
+                >本项目的UI设计和交互体验参考了小红书平台，旨在为开发者提供一个熟悉的学习和实践环境。
               </p>
               <p>
                 <strong>开源项目：</strong
-                >本项目仅供学习交流使用，不用于商业用途。所有代码遵循开源协议，欢迎技术交流与讨论。
+                >本项目基于 MIT 协议开源，仅供学习交流使用，不用于商业用途。欢迎提交 Issue 和 Pull Request。
               </p>
               <p>
                 <strong>免责声明：</strong
-                >本项目与大红薯官方无任何关联，所有商标、品牌名称归其各自所有者所有。
+                >本项目与小红书官方无任何关联，所有商标、品牌名称归其各自所有者所有。
               </p>
             </div>
           </div>
@@ -381,6 +443,9 @@ onMounted(() => {
 
 .intro-section h3,
 .features-section h3,
+.tech-section h3,
+.deployment-section h3,
+.usage-section h3,
 .author-section h3,
 .api-section h3,
 .privacy-section h3,
@@ -546,6 +611,61 @@ onMounted(() => {
   margin-right: 6px;
   vertical-align: middle;
   border-radius: 2px;
+}
+
+/* 部署指南样式 */
+.deployment-content h4,
+.usage-content h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color-primary);
+  margin: 16px 0 8px 0;
+}
+
+.deployment-content h4:first-child,
+.usage-content h4:first-child {
+  margin-top: 0;
+}
+
+.code-block {
+  background: var(--bg-color-secondary);
+  border: 1px solid var(--border-color-primary);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  overflow-x: auto;
+}
+
+.code-block pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: var(--text-color-primary);
+  line-height: 1.5;
+}
+
+.requirement-list,
+.usage-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+
+.requirement-list li,
+.usage-list li {
+  font-size: 14px;
+  color: var(--text-color-secondary);
+  padding: 4px 0;
+  border-left: 3px solid var(--bg-color-tertiary);
+  padding-left: 12px;
+  margin-bottom: 6px;
+}
+
+.requirement-list li strong,
+.usage-list li strong {
+  color: var(--text-color-primary);
 }
 
 /* 移动端适配 */
