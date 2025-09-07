@@ -135,7 +135,7 @@
                 class="convert-btn"
                 @click="convertImageLink"
                 :disabled="isConvertDisabled"
-                :title="checkUserLogin() ? '转换为国内可访问链接' : '请先登录后使用转换功能'"
+                :title="isLoggedIn ? '转换为国内可访问链接' : '请先登录后使用转换功能'"
               >
                 <SvgIcon name="reload" width="14" height="14" />
                 转换
@@ -703,6 +703,8 @@ const handleToastClose = () => {
 const showLinkInput = () => {
   showLinkModal.value = true;
   linkInput.value = "";
+  // 检查登录状态
+  checkUserLogin();
 };
 
 // 关闭链接输入模态框
@@ -768,15 +770,20 @@ const convertImageUrl = async (imageUrl) => {
   }
 };
 
+// 响应式的登录状态
+const isLoggedIn = ref(!!localStorage.getItem('access_token'));
+
 // 检查用户登录状态
 const checkUserLogin = () => {
   const token = localStorage.getItem('access_token');
-  return !!token;
+  const loggedIn = !!token;
+  isLoggedIn.value = loggedIn; // 更新响应式状态
+  return loggedIn;
 };
 
 // 计算转换按钮是否可用
 const isConvertDisabled = computed(() => {
-  return isLoadingImage.value || !linkInput.value.trim() || !checkUserLogin();
+  return isLoadingImage.value || !linkInput.value.trim() || !isLoggedIn.value;
 });
 
 // 转换链接按钮点击事件
@@ -808,9 +815,10 @@ const convertImageLink = async () => {
   } catch (error) {
     showMessage(error.message || "图片链接转换失败", "error");
     
-    // 如果是401错误，清除本地token
+    // 如果是401错误，清除本地token并更新状态
     if (error.message.includes('登录已过期')) {
       localStorage.removeItem('access_token');
+      isLoggedIn.value = false;
     }
   } finally {
     isLoadingImage.value = false;
