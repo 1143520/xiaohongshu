@@ -720,29 +720,5 @@ export const adminApi = {
   // 获取单个管理员详情（认证路由）
   getAdminDetailAuth(adminId) {
     return request.get(`/auth/admin/admins/${adminId}`)
-  },
-
-  // ========== 系统设置管理 ==========
-  // 获取公开系统设置（无需权限验证）
-  getPublicSystemSettings() {
-    return request.get('/system/public-settings')
-  },
-
-  // 获取系统设置
-  getSystemSettings() {
-    return request.get('/system/settings')
-  },
-
-  // 更新系统设置
-  updateSystemSettings(data) {
-    return request.put('/system/settings', data)
-  },
-
-  // 测试图床配置
-  testImageHost() {
-    return request.get('/system/test-imagehost')
   }
 }
-
-// 默认导出adminApi，用于管理后台组件
-export default adminApi

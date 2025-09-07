@@ -72,9 +72,6 @@ class DatabaseInitializer {
       // 创建用户会话表
       await this.createUserSessionsTable(connection);
       
-      // 创建系统设置表
-      await this.createSystemSettingsTable(connection);
-      
       console.log('所有数据表创建完成!');
       
     } catch (error) {
@@ -346,43 +343,6 @@ class DatabaseInitializer {
     `;
     await connection.execute(sql);
     console.log('✓ user_sessions 表创建成功');
-  }
-
-  async createSystemSettingsTable(connection) {
-    const sql = `
-      CREATE TABLE IF NOT EXISTS \`system_settings\` (
-        \`id\` int(11) NOT NULL AUTO_INCREMENT COMMENT '设置ID',
-        \`setting_key\` varchar(100) NOT NULL COMMENT '设置键名',
-        \`setting_value\` text NOT NULL COMMENT '设置值',
-        \`description\` varchar(255) DEFAULT NULL COMMENT '设置描述',
-        \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-        \`updated_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-        PRIMARY KEY (\`id\`),
-        UNIQUE KEY \`uk_setting_key\` (\`setting_key\`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统设置表';
-    `;
-    await connection.execute(sql);
-    console.log('✓ system_settings 表创建成功');
-
-    // 插入默认系统设置
-    const defaultSettings = [
-      ['user_registration_enabled', 'true', '是否开启用户注册'],
-      ['maintenance_mode', 'false', '维护模式开关'],
-      ['max_posts_per_day', '20', '用户每日最大发帖数量'],
-      ['max_upload_size', '50', '最大上传文件大小(MB)'],
-      ['site_notice', '', '站点公告'],
-      ['comment_approval_required', 'false', '评论是否需要审核'],
-      ['image_host_type', 'xinyew', '图床类型 (xinyew/4399/nodeimage)'],
-      ['nodeimage_api_key', '', 'NodeImage图床API密钥']
-    ];
-
-    for (const [key, value, description] of defaultSettings) {
-      await connection.execute(
-        'INSERT IGNORE INTO system_settings (setting_key, setting_value, description) VALUES (?, ?, ?)',
-        [key, value, description]
-      );
-    }
-    console.log('✓ 默认系统设置插入完成');
   }
 
   async run() {

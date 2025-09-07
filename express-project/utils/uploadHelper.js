@@ -4,103 +4,13 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * 上传文件到图床（带重试和备用方案）
+ * 上传文件到图床
  * @param {Buffer} fileBuffer - 文件缓冲区
  * @param {string} filename - 文件名
  * @param {string} mimetype - 文件MIME类型
  * @returns {Promise<{success: boolean, url?: string, message?: string}>}
  */
 async function uploadToImageHost(fileBuffer, filename, mimetype) {
-  try {
-    // 直接查询数据库获取图床配置，避免循环依赖
-    const { pool } = require('../config/database');
-    
-    let imageHostType = 'xinyew'; // 默认值
-    let nodeimageApiKey = '';
-    
-    try {
-      const [settings] = await pool.execute(
-        'SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN (?, ?)',
-        ['image_host_type', 'nodeimage_api_key']
-      );
-      
-      settings.forEach(setting => {
-        if (setting.setting_key === 'image_host_type') {
-          imageHostType = setting.setting_value || 'xinyew';
-        } else if (setting.setting_key === 'nodeimage_api_key') {
-          nodeimageApiKey = setting.setting_value || '';
-        }
-      });
-    } catch (dbError) {
-      console.warn('获取图床配置失败，使用默认配置:', dbError.message);
-    }
-    
-    // 定义图床尝试顺序，主图床失败时的备用方案
-    const imageHosts = [imageHostType];
-    
-    // 添加备用图床（避免重复）
-    if (imageHostType !== 'xinyew') imageHosts.push('xinyew');
-    if (imageHostType !== '4399') imageHosts.push('4399');
-    
-    let lastError = null;
-    
-    // 依次尝试图床上传
-    for (const hostType of imageHosts) {
-      try {
-        console.log(`🚀 尝试上传到图床: ${hostType}`);
-        
-        let result;
-        switch (hostType) {
-          case 'xinyew':
-            result = await uploadToXinyew(fileBuffer, filename, mimetype);
-            break;
-          case '4399':
-            result = await uploadTo4399(fileBuffer, filename, mimetype);
-            break;
-          case 'nodeimage':
-            if (nodeimageApiKey) {
-              result = await uploadToNodeImage(fileBuffer, filename, mimetype, nodeimageApiKey);
-            } else {
-              continue; // 跳过没有配置API Key的NodeImage
-            }
-            break;
-          default:
-            continue;
-        }
-        
-        if (result.success) {
-          if (hostType !== imageHostType) {
-            console.log(`✅ 主图床失败，已使用备用图床 ${hostType} 上传成功`);
-          }
-          return result;
-        } else {
-          lastError = result;
-          console.log(`❌ 图床 ${hostType} 上传失败:`, result.message);
-        }
-      } catch (error) {
-        lastError = { success: false, message: error.message };
-        console.log(`❌ 图床 ${hostType} 上传异常:`, error.message);
-      }
-    }
-    
-    // 所有图床都失败
-    return lastError || {
-      success: false,
-      message: '所有图床上传失败'
-    };
-  } catch (error) {
-    console.error('❌ 图床上传失败:', error.message);
-    return {
-      success: false,
-      message: error.message || '图床上传失败'
-    };
-  }
-}
-
-/**
- * 上传到新叶图床
- */
-async function uploadToXinyew(fileBuffer, filename, mimetype) {
   try {
     // 构建multipart/form-data请求体
     const boundary = `----formdata-${Date.now()}`;
@@ -132,126 +42,17 @@ async function uploadToXinyew(fileBuffer, filename, mimetype) {
         url: imageUrl
       };
     } else {
-      console.log('❌ 新叶图床返回错误:', response.data);
+      console.log('❌ 图床返回错误:', response.data);
       return {
         success: false,
-        message: '新叶图床上传失败'
+        message: '图床上传失败'
       };
     }
   } catch (error) {
-    console.error('❌ 新叶图床上传失败:', error.message);
+    console.error('❌ 图床上传失败:', error.message);
     return {
       success: false,
-      message: error.message || '新叶图床上传失败'
-    };
-  }
-}
-
-/**
- * 上传到4399图床
- */
-async function uploadTo4399(fileBuffer, filename, mimetype) {
-  try {
-    // 构建multipart/form-data请求体
-    const boundary = `----formdata-${Date.now()}`;
-
-    const formDataBody = Buffer.concat([
-      Buffer.from(`--${boundary}\r\n`),
-      Buffer.from(`Content-Disposition: form-data; name="file"; filename="${filename}"\r\n`),
-      Buffer.from(`Content-Type: ${mimetype}\r\n\r\n`),
-      fileBuffer,
-      Buffer.from(`\r\n--${boundary}--\r\n`)
-    ]);
-
-    // 上传到4399图床
-    const response = await axios.post('https://api.h5wan.4399sj.com/html5/report/upload', formDataBody, {
-      headers: {
-        'Content-Type': `multipart/form-data; boundary=${boundary}`,
-        'Content-Length': formDataBody.length,
-        'device': 'main_pc'
-      },
-      timeout: 60000,
-      httpsAgent: new https.Agent({
-        rejectUnauthorized: false
-      })
-    });
-
-    if (response.data && response.data.code === 1000 && response.data.data && response.data.data.file) {
-      // 去除URL中的查询参数
-      const imageUrl = response.data.data.file.split('?')[0];
-      return {
-        success: true,
-        url: imageUrl
-      };
-    } else {
-      console.log('❌ 4399图床返回错误:', response.data);
-      return {
-        success: false,
-        message: '4399图床上传失败'
-      };
-    }
-  } catch (error) {
-    console.error('❌ 4399图床上传失败:', error.message);
-    return {
-      success: false,
-      message: error.message || '4399图床上传失败'
-    };
-  }
-}
-
-/**
- * 上传到NodeImage图床
- */
-async function uploadToNodeImage(fileBuffer, filename, mimetype, apiKey) {
-  try {
-    if (!apiKey) {
-      return {
-        success: false,
-        message: 'NodeImage API Key未配置'
-      };
-    }
-
-    // 构建multipart/form-data请求体
-    const boundary = `----formdata-${Date.now()}`;
-
-    const formDataBody = Buffer.concat([
-      Buffer.from(`--${boundary}\r\n`),
-      Buffer.from(`Content-Disposition: form-data; name="image"; filename="${filename}"\r\n`),
-      Buffer.from(`Content-Type: ${mimetype}\r\n\r\n`),
-      fileBuffer,
-      Buffer.from(`\r\n--${boundary}--\r\n`)
-    ]);
-
-    // 上传到NodeImage图床
-    const response = await axios.post('https://api.nodeimage.com/api/upload', formDataBody, {
-      headers: {
-        'Content-Type': `multipart/form-data; boundary=${boundary}`,
-        'Content-Length': formDataBody.length,
-        'X-API-Key': apiKey
-      },
-      timeout: 60000,
-      httpsAgent: new https.Agent({
-        rejectUnauthorized: false
-      })
-    });
-
-    if (response.data && response.data.success && response.data.url) {
-      return {
-        success: true,
-        url: response.data.url
-      };
-    } else {
-      console.log('❌ NodeImage图床返回错误:', response.data);
-      return {
-        success: false,
-        message: response.data?.message || 'NodeImage图床上传失败'
-      };
-    }
-  } catch (error) {
-    console.error('❌ NodeImage图床上传失败:', error.message);
-    return {
-      success: false,
-      message: error.message || 'NodeImage图床上传失败'
+      message: error.message || '图床上传失败'
     };
   }
 }
@@ -345,36 +146,26 @@ async function uploadFileToImageHost(filePath, originalname, mimetype, deleteAft
  * @param {Object} res - 响应对象
  * @param {Function} next - 下一个中间件函数
  */
-async function adminAuth(req, res, next) {
-  try {
-    const { authenticateToken } = require('../middleware/auth');
+function adminAuth(req, res, next) {
+  const { authenticateToken } = require('../middleware/auth');
 
-    // 先进行token验证
-    authenticateToken(req, res, (err) => {
-      if (err) {
-        return res.status(401).json({
-          code: 401,
-          message: '认证失败'
-        });
-      }
+  authenticateToken(req, res, (err) => {
+    if (err) {
+      return res.status(401).json({
+        code: 401,
+        message: '认证失败'
+      });
+    }
 
-      // 检查是否为管理员
-      if (!req.user || !req.user.type || req.user.type !== 'admin') {
-        return res.status(403).json({
-          code: 403,
-          message: '权限不足，需要管理员权限'
-        });
-      }
+    if (!req.user.type || req.user.type !== 'admin') {
+      return res.status(403).json({
+        code: 403,
+        message: '权限不足，需要管理员权限'
+      });
+    }
 
-      next();
-    });
-  } catch (error) {
-    console.error('管理员权限验证失败:', error);
-    return res.status(500).json({
-      code: 500,
-      message: '服务器内部错误'
-    });
-  }
+    next();
+  });
 }
 
 module.exports = {
