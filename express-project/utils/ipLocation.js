@@ -13,24 +13,24 @@ async function getIPLocation(ip) {
     }
 
     // 调用IP属地API
-    const response = await axios.get(`https://api.pearktrue.cn/api/ip/details`, {
+    const response = await axios.get(`https://app.ipdatacloud.com/v2/free_query`, {
       params: {
         ip: ip
       },
       timeout: 10000 // 10秒超时
     });
 
-    if (response.data && response.data.code === 200 && response.data.data) {
+    if (response.data && response.data.code === 0 && response.data.data) {
       const locationData = response.data.data;
       // 根据API返回的数据结构提取省份信息
-      if (locationData.subdivisions) {
-        return locationData.subdivisions.replace('省', '').replace('壮族自治区', '').replace('回族自治区', '').replace('回族自治区', '').replace('特别行政区', '').replace('市', '').replace('维吾尔自治区', '').replace('自治区', '');
-      } else if (locationData.region) {
-        return locationData.region.replace('省', '').replace('壮族自治区', '').replace('回族自治区', '').replace('回族自治区', '').replace('特别行政区', '').replace('市', '').replace('维吾尔自治区', '').replace('自治区', '');
+      if (locationData.region_name) {
+        return locationData.region_name.replace('省', '').replace('壮族自治区', '').replace('回族自治区', '').replace('特别行政区', '').replace('市', '').replace('维吾尔自治区', '').replace('自治区', '');
+      } else if (locationData.province) {
+        return locationData.province.replace('省', '').replace('壮族自治区', '').replace('回族自治区', '').replace('特别行政区', '').replace('市', '').replace('维吾尔自治区', '').replace('自治区', '');
       }
     }
 
-    // 如果主接口返回未知，尝试备用接口
+    // 如果主接口返回未知，尝试备用接口（保留原备用接口作为备份）
     try {
       const backupResponse = await axios.get(`https://api.pearktrue.cn/api/ip/high`, {
         params: {
@@ -40,7 +40,7 @@ async function getIPLocation(ip) {
       });
 
       if (backupResponse.data && backupResponse.data.code === 200 && backupResponse.data.data && backupResponse.data.data.province) {
-        return backupResponse.data.data.province.replace('省', '').replace('壮族自治区', '').replace('回族自治区', '').replace('回族自治区', '').replace('特别行政区', '').replace('市', '').replace('维吾尔自治区', '').replace('自治区', '');
+        return backupResponse.data.data.province.replace('省', '').replace('壮族自治区', '').replace('回族自治区', '').replace('特别行政区', '').replace('市', '').replace('维吾尔自治区', '').replace('自治区', '');
       }
     } catch (backupError) {
       console.error('备用IP属地接口调用失败:', backupError.message);
