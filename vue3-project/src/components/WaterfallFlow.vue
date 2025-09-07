@@ -1035,7 +1035,8 @@ function handleImageError(event) {
   width: 100%;
   position: relative;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 12px;
+  margin-left: 12px;
   box-sizing: border-box;
   /* 确保容器有正确的层级和渲染上下文 */
   isolation: isolate;
@@ -1333,6 +1334,7 @@ function handleImageError(event) {
 @media (max-width: 600px) {
   .waterfall-container {
     padding: 0 12px;
+    margin-left: 12px;
   }
 
   .waterfall-columns {
