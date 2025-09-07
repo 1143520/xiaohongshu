@@ -94,38 +94,51 @@ router.get('/settings', adminAuth, async (req, res) => {
 
 // 更新系统设置
 router.put('/settings', adminAuth, async (req, res) => {
+  const connection = await pool.getConnection();
+  
   try {
     const settings = req.body;
 
     // 开始事务
-    await pool.execute('START TRANSACTION');
+    await connection.beginTransaction();
 
     try {
       for (const [key, data] of Object.entries(settings)) {
         const value = typeof data.value === 'boolean' ? data.value.toString() : data.value.toString();
+        const description = data.description || '';
         
-        // 使用 INSERT ... ON DUPLICATE KEY UPDATE
-        await pool.execute(
-          `INSERT INTO system_settings (setting_key, setting_value, description) 
-           VALUES (?, ?, ?) 
-           ON DUPLICATE KEY UPDATE 
-           setting_value = VALUES(setting_value), 
-           description = VALUES(description)`,
-          [key, value, data.description || '']
+        // 先检查记录是否存在
+        const [existing] = await connection.execute(
+          'SELECT id FROM system_settings WHERE setting_key = ?',
+          [key]
         );
+
+        if (existing.length > 0) {
+          // 记录存在，更新
+          await connection.execute(
+            'UPDATE system_settings SET setting_value = ?, description = ? WHERE setting_key = ?',
+            [value, description, key]
+          );
+        } else {
+          // 记录不存在，插入
+          await connection.execute(
+            'INSERT INTO system_settings (setting_key, setting_value, description) VALUES (?, ?, ?)',
+            [key, value, description]
+          );
+        }
       }
 
-      await pool.execute('COMMIT');
+      await connection.commit();
 
-      console.log(`管理员 ${req.user.id} 更新了系统设置:`, Object.keys(settings));
+      console.log(`管理员 ${req.user.adminId || req.user.id} 更新了系统设置:`, Object.keys(settings));
 
       res.json({
         code: 200,
         message: '系统设置更新成功'
       });
     } catch (error) {
-      await pool.execute('ROLLBACK');
-      console.error('更新系统设置失败:', error);
+      await connection.rollback();
+      console.error('更新系统设置事务失败:', error);
       throw error;
     }
   } catch (error) {
@@ -135,6 +148,8 @@ router.put('/settings', adminAuth, async (req, res) => {
       message: '服务器内部错误',
       error: error.message 
     });
+  } finally {
+    connection.release();
   }
 });
 

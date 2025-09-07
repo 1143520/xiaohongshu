@@ -725,12 +725,12 @@ export const adminApi = {
   // ========== 系统设置管理 ==========
   // 获取系统设置
   getSystemSettings() {
-    return request.get('/admin/settings')
+    return request.get('/system/settings')
   },
 
   // 更新系统设置
   updateSystemSettings(data) {
-    return request.put('/admin/settings', data)
+    return request.put('/system/settings', data)
   }
 }
 
