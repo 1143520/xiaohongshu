@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `post_images` (
 -- 5. 标签表
 CREATE TABLE IF NOT EXISTS `tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '标签ID',
-  `name` varchar(50) NOT NULL COMMENT '标签名',
+  `name` varchar(300) NOT NULL COMMENT '标签名',
   `use_count` int(11) DEFAULT 0 COMMENT '使用次数',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`),

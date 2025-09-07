@@ -2,7 +2,6 @@
   <div class="publish-container">
     <div class="publish-header">
       <div class="header-left">
-
         <h1 class="page-title">发布笔记</h1>
       </div>
       <div class="header-right">
@@ -20,399 +19,481 @@
     <div class="publish-content">
       <form @submit.prevent="handlePublish" class="publish-form">
         <div class="image-upload-section">
-          <MultiImageUpload ref="multiImageUploadRef" v-model="form.images" :max-images="9" :allow-delete-last="true"
-            @error="handleUploadError" />
+          <MultiImageUpload
+            ref="multiImageUploadRef"
+            v-model="form.images"
+            :max-images="9"
+            :allow-delete-last="true"
+            @error="handleUploadError"
+          />
         </div>
 
         <div class="input-section">
-          <input v-model="form.title" type="text" class="title-input" placeholder="请输入标题" maxlength="100"
-            @input="validateForm" />
+          <input
+            v-model="form.title"
+            type="text"
+            class="title-input"
+            placeholder="请输入标题"
+            maxlength="100"
+            @input="validateForm"
+          />
           <div class="char-count">{{ form.title.length }}/100</div>
         </div>
 
         <div class="input-section">
           <div class="content-input-wrapper">
-            <ContentEditableInput ref="contentTextarea" v-model="form.content" :input-class="'content-textarea'"
-              placeholder="填写更全面的描述信息，让更多的人看到你吧!" :enable-mention="true" :mention-users="mentionUsers"
-              @focus="handleContentFocus" @blur="handleContentBlur" @keydown="handleInputKeydown"
-              @mention="handleMentionInput" />
+            <ContentEditableInput
+              ref="contentTextarea"
+              v-model="form.content"
+              :input-class="'content-textarea'"
+              placeholder="填写更全面的描述信息，让更多的人看到你吧!"
+              :enable-mention="true"
+              :mention-users="mentionUsers"
+              @focus="handleContentFocus"
+              @blur="handleContentBlur"
+              @keydown="handleInputKeydown"
+              @mention="handleMentionInput"
+            />
             <div class="content-actions">
-              <button type="button" class="mention-btn" @click="toggleMentionPanel">
-                <SvgIcon name="mention" class="mention-icon" width="20" height="20" />
+              <button
+                type="button"
+                class="mention-btn"
+                @click="toggleMentionPanel"
+              >
+                <SvgIcon
+                  name="mention"
+                  class="mention-icon"
+                  width="20"
+                  height="20"
+                />
               </button>
               <button type="button" class="emoji-btn" @click="toggleEmojiPanel">
-                <SvgIcon name="emoji" class="emoji-icon" width="20" height="20" />
+                <SvgIcon
+                  name="emoji"
+                  class="emoji-icon"
+                  width="20"
+                  height="20"
+                />
               </button>
             </div>
           </div>
           <div class="char-count">{{ form.content.length }}/2000</div>
 
-          <div v-if="showEmojiPanel" class="emoji-panel-overlay" v-click-outside="closeEmojiPanel">
+          <div
+            v-if="showEmojiPanel"
+            class="emoji-panel-overlay"
+            v-click-outside="closeEmojiPanel"
+          >
             <div class="emoji-panel" @click.stop>
               <EmojiPicker @select="handleEmojiSelect" />
             </div>
           </div>
 
-          <MentionModal :visible="showMentionPanel" @close="closeMentionPanel" @select="handleMentionSelect" />
+          <MentionModal
+            :visible="showMentionPanel"
+            @close="closeMentionPanel"
+            @select="handleMentionSelect"
+          />
         </div>
 
         <div class="category-section">
           <div class="section-title">分类</div>
-          <DropdownSelect v-model="form.category" :options="categories" placeholder="请选择分类" label-key="name"
-            value-key="id" max-width="300px" min-width="200px" @change="handleCategoryChange" />
+          <DropdownSelect
+            v-model="form.category"
+            :options="categories"
+            placeholder="请选择分类"
+            label-key="name"
+            value-key="id"
+            max-width="300px"
+            min-width="200px"
+            @change="handleCategoryChange"
+          />
         </div>
 
         <div class="tag-section">
-          <div class="section-title">标签 (最多10个)</div>
-          <TagSelector v-model="form.tags" :max-tags="10" />
+          <div class="section-title">标签 (最多500个)</div>
+          <TagSelector v-model="form.tags" :max-tags="500" />
         </div>
       </form>
 
       <div class="publish-actions">
-        <button class="draft-btn" :disabled="!canSaveDraft || isSavingDraft" @click="handleSaveDraft">
-          {{ isSavingDraft ? '保存中...' : '存草稿' }}
+        <button
+          class="draft-btn"
+          :disabled="!canSaveDraft || isSavingDraft"
+          @click="handleSaveDraft"
+        >
+          {{ isSavingDraft ? "保存中..." : "存草稿" }}
         </button>
-        <button class="publish-btn" :disabled="!canPublish || isPublishing" @click="handlePublish">
-          {{ isPublishing ? '发布中...' : '发布' }}
+        <button
+          class="publish-btn"
+          :disabled="!canPublish || isPublishing"
+          @click="handlePublish"
+        >
+          {{ isPublishing ? "发布中..." : "发布" }}
         </button>
       </div>
     </div>
 
-    <MessageToast v-if="showToast" :message="toastMessage" :type="toastType" @close="handleToastClose" />
+    <MessageToast
+      v-if="showToast"
+      :message="toastMessage"
+      :type="toastType"
+      @close="handleToastClose"
+    />
     <BackToTopButton />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useUserStore } from '@/stores/user'
-import { useNavigationStore } from '@/stores/navigation'
-import { createPost, getPostDetail, updatePost, deletePost } from '@/api/posts'
-import { useScrollLock } from '@/composables/useScrollLock'
-import { hasMentions, cleanMentions } from '@/utils/mentionParser'
+import {
+  ref,
+  reactive,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch,
+  nextTick,
+} from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useUserStore } from "@/stores/user";
+import { useNavigationStore } from "@/stores/navigation";
+import { createPost, getPostDetail, updatePost, deletePost } from "@/api/posts";
+import { useScrollLock } from "@/composables/useScrollLock";
+import { hasMentions, cleanMentions } from "@/utils/mentionParser";
 
-import MultiImageUpload from '@/components/MultiImageUpload.vue'
-import SvgIcon from '@/components/SvgIcon.vue'
-import TagSelector from '@/components/TagSelector.vue'
-import DropdownSelect from '@/components/DropdownSelect.vue'
-import MessageToast from '@/components/MessageToast.vue'
-import EmojiPicker from '@/components/EmojiPicker.vue'
-import MentionModal from '@/components/mention/MentionModal.vue'
-import ContentEditableInput from '@/components/ContentEditableInput.vue'
-import BackToTopButton from '@/components/BackToTopButton.vue'
+import MultiImageUpload from "@/components/MultiImageUpload.vue";
+import SvgIcon from "@/components/SvgIcon.vue";
+import TagSelector from "@/components/TagSelector.vue";
+import DropdownSelect from "@/components/DropdownSelect.vue";
+import MessageToast from "@/components/MessageToast.vue";
+import EmojiPicker from "@/components/EmojiPicker.vue";
+import MentionModal from "@/components/mention/MentionModal.vue";
+import ContentEditableInput from "@/components/ContentEditableInput.vue";
+import BackToTopButton from "@/components/BackToTopButton.vue";
 
-const router = useRouter()
-const route = useRoute()
-const navigationStore = useNavigationStore()
-const { lock, unlock } = useScrollLock()
+const router = useRouter();
+const route = useRoute();
+const navigationStore = useNavigationStore();
+const { lock, unlock } = useScrollLock();
 
-const multiImageUploadRef = ref(null)
-const contentTextarea = ref(null)
+const multiImageUploadRef = ref(null);
+const contentTextarea = ref(null);
 
-const isPublishing = ref(false)
-const isSavingDraft = ref(false)
-const showEmojiPanel = ref(false)
-const showMentionPanel = ref(false)
-const isContentFocused = ref(false)
+const isPublishing = ref(false);
+const isSavingDraft = ref(false);
+const showEmojiPanel = ref(false);
+const showMentionPanel = ref(false);
+const isContentFocused = ref(false);
 
-const showToast = ref(false)
-const toastMessage = ref('')
-const toastType = ref('success')
+const showToast = ref(false);
+const toastMessage = ref("");
+const toastType = ref("success");
 
 const form = reactive({
-  title: '',
-  content: '',
+  title: "",
+  content: "",
   images: [],
   tags: [],
-  category: ''
-})
+  category: "",
+});
 
 // 草稿相关状态
-const currentDraftId = ref(null)
-const isEditMode = ref(false)
+const currentDraftId = ref(null);
+const isEditMode = ref(false);
 
-const categories = ref([])
+const categories = ref([]);
 
 // 提及用户数据（实际使用中应该从 API 获取）
-const mentionUsers = ref([])
+const mentionUsers = ref([]);
 
 const canPublish = computed(() => {
-  return form.title.trim() &&
+  return (
+    form.title.trim() &&
     form.content.trim() &&
     form.images.length > 0 &&
     form.category &&
-    form.category !== 'general'
-})
+    form.category !== "general"
+  );
+});
 
 const canSaveDraft = computed(() => {
-  return form.images.length > 0
-})
+  return form.images.length > 0;
+});
 
 onMounted(async () => {
-  navigationStore.scrollToTop('instant')
-  loadCategories()
+  navigationStore.scrollToTop("instant");
+  loadCategories();
 
   // 检查是否是编辑草稿模式
-  const draftId = route.query.draftId
-  const mode = route.query.mode
+  const draftId = route.query.draftId;
+  const mode = route.query.mode;
 
-  if (draftId && mode === 'edit') {
-    await loadDraftData(draftId)
+  if (draftId && mode === "edit") {
+    await loadDraftData(draftId);
   }
-})
+});
 
-onUnmounted(() => {
-})
+onUnmounted(() => {});
 
 const loadCategories = () => {
   categories.value = [
-    { id: 'opensource', name: '开源项目' },
-    { id: 'knowledge', name: '知识碎片' },
-    { id: 'tinkering', name: '折腾日常' },
-    { id: 'wallpaper', name: '壁纸收集' },
-    { id: 'weblinks', name: '网页收集' },
-    { id: 'aitools', name: 'AI工具' },
-    { id: 'selfbuilt', name: '自建项目' },
-    { id: 'upfollow', name: 'up关注' },
-    { id: 'todo', name: '待办项目' }
-  ]
-}
+    { id: "opensource", name: "开源项目" },
+    { id: "knowledge", name: "知识碎片" },
+    { id: "tinkering", name: "折腾日常" },
+    { id: "wallpaper", name: "壁纸收集" },
+    { id: "weblinks", name: "网页收集" },
+    { id: "aitools", name: "AI工具" },
+    { id: "selfbuilt", name: "自建项目" },
+    { id: "upfollow", name: "up关注" },
+    { id: "todo", name: "待办项目" },
+  ];
+};
 
 const validateForm = () => {
-  return true
-}
+  return true;
+};
 
-const showMessage = (message, type = 'success') => {
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
-}
+const showMessage = (message, type = "success") => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+};
 
 const handleToastClose = () => {
-  showToast.value = false
-}
+  showToast.value = false;
+};
 
 const handleBack = () => {
-  router.back()
-}
+  router.back();
+};
 
 // 跳转到笔记管理页面
 const goToPostManagement = () => {
-  router.push('/post-management')
-}
+  router.push("/post-management");
+};
 
 // 跳转到草稿箱页面
 const goToDraftBox = () => {
-  router.push('/draft-box')
-}
+  router.push("/draft-box");
+};
 
 const handleUploadError = (error) => {
-  showMessage(error, 'error')
-}
+  showMessage(error, "error");
+};
 
 const handleCategoryChange = (data) => {
-  form.category = data.value
-}
+  form.category = data.value;
+};
 
 const handleContentFocus = () => {
-  isContentFocused.value = true
-}
+  isContentFocused.value = true;
+};
 
 const handleContentBlur = () => {
   setTimeout(() => {
-    isContentFocused.value = false
-  }, 100)
-}
+    isContentFocused.value = false;
+  }, 100);
+};
 
 const toggleEmojiPanel = () => {
   if (showEmojiPanel.value) {
-    closeEmojiPanel()
+    closeEmojiPanel();
   } else {
-    showEmojiPanel.value = true
-    lock()
+    showEmojiPanel.value = true;
+    lock();
   }
-}
+};
 
 const closeEmojiPanel = () => {
-  showEmojiPanel.value = false
-  unlock()
-}
+  showEmojiPanel.value = false;
+  unlock();
+};
 
 const toggleMentionPanel = () => {
   // 如果要打开面板，先插入@符号
-  if (!showMentionPanel.value && contentTextarea.value && contentTextarea.value.insertAtSymbol) {
-    contentTextarea.value.insertAtSymbol()
+  if (
+    !showMentionPanel.value &&
+    contentTextarea.value &&
+    contentTextarea.value.insertAtSymbol
+  ) {
+    contentTextarea.value.insertAtSymbol();
   }
-  showMentionPanel.value = !showMentionPanel.value
-}
+  showMentionPanel.value = !showMentionPanel.value;
+};
 
 const closeMentionPanel = () => {
-  showMentionPanel.value = false
-  unlock()
-}
+  showMentionPanel.value = false;
+  unlock();
+};
 
 // 处理@符号输入事件
 const handleMentionInput = () => {
   // 当用户输入@符号时，自动打开mention面板
   if (!showMentionPanel.value) {
-    showMentionPanel.value = true
+    showMentionPanel.value = true;
   }
-}
+};
 
 // 处理表情选择
 const handleEmojiSelect = (emoji) => {
-  const emojiChar = emoji.i
-  const inputElement = contentTextarea.value
+  const emojiChar = emoji.i;
+  const inputElement = contentTextarea.value;
 
   if (inputElement && inputElement.insertEmoji) {
     // 使用ContentEditableInput组件的insertEmoji方法
-    inputElement.insertEmoji(emojiChar)
+    inputElement.insertEmoji(emojiChar);
   } else {
     // 备用方案：直接添加到末尾
-    form.content += emojiChar
+    form.content += emojiChar;
     nextTick(() => {
       if (inputElement) {
-        inputElement.focus()
+        inputElement.focus();
       }
-    })
+    });
   }
 
-  closeEmojiPanel()
-}
+  closeEmojiPanel();
+};
 
 // 处理好友选择
 const handleMentionSelect = (friend) => {
   // 调用ContentEditableInput组件的selectMentionUser方法
   if (contentTextarea.value && contentTextarea.value.selectMentionUser) {
-    contentTextarea.value.selectMentionUser(friend)
+    contentTextarea.value.selectMentionUser(friend);
   }
 
   // 关闭mention面板
-  closeMentionPanel()
-}
+  closeMentionPanel();
+};
 
 // 处理contenteditable输入事件
 // handleContentInput函数已移至ContentEditableInput组件中
 
 // 处理键盘事件，实现mention标签整体删除
 const handleInputKeydown = (event) => {
-  if (event.key === 'Backspace') {
-    const selection = window.getSelection()
+  if (event.key === "Backspace") {
+    const selection = window.getSelection();
     if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0)
+      const range = selection.getRangeAt(0);
 
       // 如果没有选中内容且光标在mention链接后面
       if (range.collapsed) {
-        const container = range.startContainer
-        const offset = range.startOffset
+        const container = range.startContainer;
+        const offset = range.startOffset;
 
         // 检查光标前面的节点是否是mention链接
-        let prevNode = null
+        let prevNode = null;
         if (container.nodeType === Node.TEXT_NODE && offset === 0) {
-          prevNode = container.previousSibling
+          prevNode = container.previousSibling;
         } else if (container.nodeType === Node.ELEMENT_NODE && offset > 0) {
-          prevNode = container.childNodes[offset - 1]
+          prevNode = container.childNodes[offset - 1];
         }
 
         // 如果前面的节点是mention链接，删除整个链接
-        if (prevNode && prevNode.nodeType === Node.ELEMENT_NODE &&
-          prevNode.classList && prevNode.classList.contains('mention-link')) {
-          event.preventDefault()
-          prevNode.remove()
+        if (
+          prevNode &&
+          prevNode.nodeType === Node.ELEMENT_NODE &&
+          prevNode.classList &&
+          prevNode.classList.contains("mention-link")
+        ) {
+          event.preventDefault();
+          prevNode.remove();
 
           // 更新form.content
-          form.content = event.target.innerHTML
-          return
+          form.content = event.target.innerHTML;
+          return;
         }
       }
     }
   }
-}
+};
 
 // 内容安全过滤函数
 const sanitizeContent = (content) => {
-  if (!content) return ''
+  if (!content) return "";
 
   // 保留mention链接、URL链接和换行标签，但移除其他危险标签
   // 先保存mention链接和URL链接
-  const preservedLinks = []
-  let processedContent = content.replace(/<a[^>]*class="(mention-link|url-link)"[^>]*>.*?<\/a>/g, (match) => {
-    const placeholder = `__LINK_${preservedLinks.length}__`
-    preservedLinks.push(match)
-    return placeholder
-  })
+  const preservedLinks = [];
+  let processedContent = content.replace(
+    /<a[^>]*class="(mention-link|url-link)"[^>]*>.*?<\/a>/g,
+    (match) => {
+      const placeholder = `__LINK_${preservedLinks.length}__`;
+      preservedLinks.push(match);
+      return placeholder;
+    }
+  );
 
   // 保存<br>标签
-  const preservedBrs = []
+  const preservedBrs = [];
   processedContent = processedContent.replace(/<br\s*\/?>/gi, (match) => {
-    const placeholder = `__BR_${preservedBrs.length}__`
-    preservedBrs.push(match)
-    return placeholder
-  })
+    const placeholder = `__BR_${preservedBrs.length}__`;
+    preservedBrs.push(match);
+    return placeholder;
+  });
 
   // 移除所有其他HTML标签，但保留&nbsp;实体
-  processedContent = processedContent.replace(/<[^>]*>/g, '')
+  processedContent = processedContent.replace(/<[^>]*>/g, "");
 
   // 恢复保留的链接
   preservedLinks.forEach((link, index) => {
-    processedContent = processedContent.replace(`__LINK_${index}__`, link)
-  })
+    processedContent = processedContent.replace(`__LINK_${index}__`, link);
+  });
 
   // 恢复<br>标签
   preservedBrs.forEach((br, index) => {
-    processedContent = processedContent.replace(`__BR_${index}__`, br)
-  })
+    processedContent = processedContent.replace(`__BR_${index}__`, br);
+  });
 
-  return processedContent.trim()
-}
+  return processedContent.trim();
+};
 
 const handlePublish = async () => {
   // 使用与canPublish相同的验证逻辑
   if (!form.title.trim()) {
-    showMessage('请输入标题', 'error')
-    return
+    showMessage("请输入标题", "error");
+    return;
   }
 
   if (!form.content.trim()) {
-    showMessage('请输入内容', 'error')
-    return
+    showMessage("请输入内容", "error");
+    return;
   }
 
   if (form.images.length === 0) {
-    showMessage('请至少上传一张图片', 'error')
-    return
+    showMessage("请至少上传一张图片", "error");
+    return;
   }
 
-  if (!form.category || form.category === '未知分类') {
-    showMessage('请选择分类', 'error')
-    return
+  if (!form.category || form.category === "未知分类") {
+    showMessage("请选择分类", "error");
+    return;
   }
 
-  const imageComponent = multiImageUploadRef.value
+  const imageComponent = multiImageUploadRef.value;
   if (!imageComponent) {
-    showMessage('图片组件未初始化', 'error')
-    return
+    showMessage("图片组件未初始化", "error");
+    return;
   }
 
-  isPublishing.value = true
+  isPublishing.value = true;
 
   try {
     // 处理图片上传
     if (imageComponent.getImageCount() > 0) {
-      showMessage('正在上传图片...', 'info')
-      const uploadedImages = await imageComponent.uploadAllImages()
+      showMessage("正在上传图片...", "info");
+      const uploadedImages = await imageComponent.uploadAllImages();
 
       if (uploadedImages.length === 0) {
-        showMessage('图片上传失败', 'error')
-        return
+        showMessage("图片上传失败", "error");
+        return;
       }
 
-      form.images = uploadedImages
+      form.images = uploadedImages;
     }
 
     // 对内容进行安全过滤
-    const sanitizedContent = sanitizeContent(form.content)
+    const sanitizedContent = sanitizeContent(form.content);
 
     const postData = {
       title: form.title.trim(),
@@ -420,172 +501,174 @@ const handlePublish = async () => {
       images: form.images,
       tags: form.tags,
       category: form.category,
-      is_draft: false // 发布状态
-    }
+      is_draft: false, // 发布状态
+    };
 
-    showMessage('正在发布笔记...', 'info')
+    showMessage("正在发布笔记...", "info");
 
-    let response
+    let response;
     if (isEditMode.value && currentDraftId.value) {
-      response = await updatePost(currentDraftId.value, postData)
+      response = await updatePost(currentDraftId.value, postData);
     } else {
       // 普通发布
-      response = await createPost(postData)
+      response = await createPost(postData);
     }
 
     if (response.success) {
-      showMessage('发布成功！', 'success')
-      form.title = ''
-      form.content = ''
-      form.images = []
-      form.tags = []
-      form.category = ''
-      imageComponent.reset()
+      showMessage("发布成功！", "success");
+      form.title = "";
+      form.content = "";
+      form.images = [];
+      form.tags = [];
+      form.category = "";
+      imageComponent.reset();
 
       setTimeout(() => {
-        router.push('/post-management')
-      }, 1500)
+        router.push("/post-management");
+      }, 1500);
     } else {
-      showMessage(response.message || '发布失败', 'error')
+      showMessage(response.message || "发布失败", "error");
     }
   } catch (err) {
-    console.error('发布失败:', err)
-    showMessage('发布失败，请重试', 'error')
+    console.error("发布失败:", err);
+    showMessage("发布失败，请重试", "error");
   } finally {
-    isPublishing.value = false
+    isPublishing.value = false;
   }
-}
+};
 
 // 加载草稿数据
 const loadDraftData = async (draftId) => {
   try {
-    const response = await getPostDetail(draftId)
+    const response = await getPostDetail(draftId);
     if (response && response.originalData) {
-      const draft = response.originalData
+      const draft = response.originalData;
 
       // 初始化表单数据
-      form.title = response.title || ''
-      form.content = draft.content || ''
-      form.images = draft.images || []
-      form.tags = draft.tags || []
-      form.category = response.category || ''
+      form.title = response.title || "";
+      form.content = draft.content || "";
+      form.images = draft.images || [];
+      form.tags = draft.tags || [];
+      form.category = response.category || "";
 
       // 设置编辑模式
-      currentDraftId.value = draftId
-      isEditMode.value = true
+      currentDraftId.value = draftId;
+      isEditMode.value = true;
 
       // 初始化图片组件
       if (form.images.length > 0 && multiImageUploadRef.value) {
-        await nextTick()
+        await nextTick();
         // 将图片数据转换为URL字符串数组
-        const imageUrls = form.images.map(img => {
-          if (typeof img === 'string') {
-            return img
-          } else if (img && img.url) {
-            return img.url
-          } else if (img && img.preview) {
-            return img.preview
-          }
-          return null
-        }).filter(url => url)
-        multiImageUploadRef.value.syncWithUrls(imageUrls)
+        const imageUrls = form.images
+          .map((img) => {
+            if (typeof img === "string") {
+              return img;
+            } else if (img && img.url) {
+              return img.url;
+            } else if (img && img.preview) {
+              return img.preview;
+            }
+            return null;
+          })
+          .filter((url) => url);
+        multiImageUploadRef.value.syncWithUrls(imageUrls);
       }
 
-      showMessage('草稿加载成功', 'success')
+      showMessage("草稿加载成功", "success");
     } else {
-      showMessage('草稿不存在或已被删除', 'error')
-      router.push('/draft-box')
+      showMessage("草稿不存在或已被删除", "error");
+      router.push("/draft-box");
     }
   } catch (error) {
-    console.error('加载草稿失败:', error)
-    showMessage('加载草稿失败', 'error')
-    router.push('/draft-box')
+    console.error("加载草稿失败:", error);
+    showMessage("加载草稿失败", "error");
+    router.push("/draft-box");
   }
-}
+};
 
 const handleSaveDraft = async () => {
   if (form.images.length === 0) {
-    showMessage('请至少上传一张图片', 'error')
-    return
+    showMessage("请至少上传一张图片", "error");
+    return;
   }
 
-  isSavingDraft.value = true
+  isSavingDraft.value = true;
 
   try {
     // 如果有图片，先上传图片
-    let uploadedImages = []
-    const imageComponent = multiImageUploadRef.value
+    let uploadedImages = [];
+    const imageComponent = multiImageUploadRef.value;
     if (imageComponent && imageComponent.getImageCount() > 0) {
-      showMessage('正在上传图片...', 'info')
-      uploadedImages = await imageComponent.uploadAllImages()
-      form.images = uploadedImages
+      showMessage("正在上传图片...", "info");
+      uploadedImages = await imageComponent.uploadAllImages();
+      form.images = uploadedImages;
     }
 
     // 对内容进行安全过滤
-    const rawContent = form.content || ''
-    const sanitizedContent = sanitizeContent(rawContent)
+    const rawContent = form.content || "";
+    const sanitizedContent = sanitizeContent(rawContent);
 
     const draftData = {
-      title: form.title.trim() || '',
+      title: form.title.trim() || "",
       content: sanitizedContent,
       images: uploadedImages,
       tags: form.tags || [],
-      category: form.category || '',
-      is_draft: true
-    }
+      category: form.category || "",
+      is_draft: true,
+    };
 
-    showMessage('正在保存草稿...', 'info')
+    showMessage("正在保存草稿...", "info");
 
-    let response
+    let response;
     if (isEditMode.value && currentDraftId.value) {
       // 更新现有草稿
-      response = await updatePost(currentDraftId.value, draftData)
+      response = await updatePost(currentDraftId.value, draftData);
     } else {
       // 创建新草稿
-      response = await createPost(draftData)
+      response = await createPost(draftData);
       if (response.success && response.data) {
-        currentDraftId.value = response.data.id
-        isEditMode.value = true
+        currentDraftId.value = response.data.id;
+        isEditMode.value = true;
       }
     }
 
     if (response.success) {
-      showMessage('草稿保存成功！', 'success')
+      showMessage("草稿保存成功！", "success");
 
       // 清空表单
-      form.title = ''
-      form.content = ''
-      form.images = []
-      form.tags = []
-      form.category = ''
+      form.title = "";
+      form.content = "";
+      form.images = [];
+      form.tags = [];
+      form.category = "";
 
       // 重置编辑状态（在跳转前重置，避免影响当前保存逻辑）
-      const shouldResetEditState = true
+      const shouldResetEditState = true;
       if (shouldResetEditState) {
-        currentDraftId.value = null
-        isEditMode.value = false
+        currentDraftId.value = null;
+        isEditMode.value = false;
       }
 
       // 重置图片组件
-      const imageComponent = multiImageUploadRef.value
+      const imageComponent = multiImageUploadRef.value;
       if (imageComponent) {
-        imageComponent.reset()
+        imageComponent.reset();
       }
 
       // 跳转到草稿箱页面
       setTimeout(() => {
-        router.push('/draft-box')
-      }, 1500)
+        router.push("/draft-box");
+      }, 1500);
     } else {
-      showMessage(response.message || '草稿保存失败', 'error')
+      showMessage(response.message || "草稿保存失败", "error");
     }
   } catch (err) {
-    console.error('草稿保存失败:', err)
-    showMessage('草稿保存失败，请重试', 'error')
+    console.error("草稿保存失败:", err);
+    showMessage("草稿保存失败，请重试", "error");
   } finally {
-    isSavingDraft.value = false
+    isSavingDraft.value = false;
   }
-}
+};
 </script>
 
 <style scoped>
@@ -595,7 +678,6 @@ const handleSaveDraft = async () => {
   color: var(--text-color-primary);
   margin-top: 72px;
   transition: background 0.2s ease;
-
 }
 
 .publish-header {
@@ -913,7 +995,6 @@ const handleSaveDraft = async () => {
   transition: background-color 0.2s ease;
 }
 
-
 .section-title {
   font-size: 0.9rem;
   font-weight: 500;
@@ -1109,8 +1190,6 @@ const handleSaveDraft = async () => {
   margin-bottom: 1rem;
 }
 
-
-
 .publish-actions {
   display: flex;
   justify-content: center;
@@ -1134,8 +1213,6 @@ const handleSaveDraft = async () => {
   min-width: 100px;
 }
 
-
-
 .publish-actions .loading-icon {
   animation: spin 1s linear infinite;
 }
@@ -1150,8 +1227,6 @@ const handleSaveDraft = async () => {
   }
 }
 
-
-
 /* 响应式设计 */
 @media (max-width: 768px) {
   .publish-header {
@@ -1161,8 +1236,6 @@ const handleSaveDraft = async () => {
   .page-title {
     font-size: 1.1rem;
   }
-
-
 
   .publish-content {
     padding: 0.75rem;
@@ -1216,7 +1289,6 @@ const handleSaveDraft = async () => {
   .publish-content {
     padding: 0.5rem;
   }
-
 
   .tag-input {
     min-width: 60px;
