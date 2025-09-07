@@ -35,49 +35,58 @@
         </div>
       </div>
 
-      <div v-if="imageList.length < maxImages" class="upload-options">
-        <div
-          class="upload-item"
-          @click="!isUploading && triggerFileInput()"
-          :class="{ 'drag-over': isDragOver, uploading: isUploading }"
-          @dragover.prevent="!isUploading && (isDragOver = true)"
-          @dragleave.prevent="isDragOver = false"
-          @drop.prevent="!isUploading && handleFileDrop($event)"
-        >
-          <input
-            ref="fileInput"
-            type="file"
-            accept="image/*"
-            multiple
-            @change="handleFileSelect"
-            style="display: none"
-            :disabled="isUploading"
+      <div
+        v-if="imageList.length < maxImages"
+        class="upload-item"
+        @click="!isUploading && triggerFileInput()"
+        :class="{ 'drag-over': isDragOver, uploading: isUploading }"
+        @dragover.prevent="!isUploading && (isDragOver = true)"
+        @dragleave.prevent="isDragOver = false"
+        @drop.prevent="!isUploading && handleFileDrop($event)"
+      >
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/*"
+          multiple
+          @change="handleFileSelect"
+          style="display: none"
+          :disabled="isUploading"
+        />
+
+        <div class="upload-placeholder">
+          <SvgIcon
+            name="publish"
+            class="upload-icon"
+            :class="{ uploading: isUploading }"
           />
-
-          <div class="upload-placeholder">
-            <SvgIcon
-              name="publish"
-              class="upload-icon"
-              :class="{ uploading: isUploading }"
-            />
-            <p>{{ isUploading ? "上传中..." : "上传图片" }}</p>
-            <p class="upload-hint">{{ imageList.length }}/{{ maxImages }}</p>
-            <p v-if="!isUploading" class="drag-hint">或拖拽图片到此处</p>
-          </div>
-        </div>
-
-        <div
-          class="link-item"
-          @click="!isUploading && showLinkInput()"
-          :class="{ uploading: isUploading }"
-        >
-          <div class="link-placeholder">
-            <SvgIcon name="hash" class="link-icon" />
-            <p>添加链接</p>
-            <p class="link-hint">输入图片URL</p>
-          </div>
+          <p>{{ isUploading ? "上传中..." : "上传图片" }}</p>
+          <p class="upload-hint">{{ imageList.length }}/{{ maxImages }}</p>
+          <p v-if="!isUploading" class="drag-hint">或拖拽图片到此处</p>
         </div>
       </div>
+    </div>
+
+    <!-- 独立的操作按钮区域 -->
+    <div v-if="imageList.length < maxImages" class="upload-actions">
+      <button 
+        class="action-button upload-button"
+        @click="!isUploading && triggerFileInput()"
+        :disabled="isUploading"
+      >
+        <SvgIcon name="publish" width="16" height="16" />
+        上传图片
+      </button>
+      
+      <button 
+        class="action-button link-button"
+        @click="!isUploading && showLinkInput()"
+        :disabled="isUploading"
+      >
+        <SvgIcon name="hash" width="16" height="16" />
+        添加链接
+      </button>
+    </div>
     </div>
 
     <div v-if="error" class="error-message">
@@ -86,9 +95,8 @@
 
     <div class="upload-tips">
       <p>• 最多上传{{ maxImages }}张图片</p>
-      <p>• 支持 JPG、PNG 格式</p>
-      <p>• 单张图片不超过50MB</p>
-      <p>• 支持本地上传或添加图片链接</p>
+      <p>• 支持 JPG、PNG 格式，单张不超过50MB</p>
+      <p>• 支持本地上传或添加网络图片链接</p>
       <p>• 拖拽图片可调整顺序</p>
     </div>
 
@@ -991,62 +999,51 @@ defineExpose({
   justify-content: center;
 }
 
-/* 上传选项容器 */
-.upload-options {
+/* 操作按钮区域 */
+.upload-actions {
   display: flex;
-  gap: 10px;
-}
-
-.link-item {
-  aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-  flex: 1;
-}
-
-/* 链接上传项 */
-.link-item {
-  border: 2px dashed var(--border-color-secondary);
-  background: var(--bg-color-secondary);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.link-item:hover {
-  border-color: var(--primary-color);
-  background: var(--bg-color-tertiary);
-}
-
-.link-item.uploading {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.link-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
   justify-content: center;
-  height: 100%;
-  padding: 10px;
-  text-align: center;
 }
 
-.link-icon {
-  color: var(--text-color-secondary);
-  margin-bottom: 8px;
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 2px solid var(--border-color-primary);
+  border-radius: 8px;
+  background: var(--bg-color-primary);
+  color: var(--text-color-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  justify-content: center;
 }
 
-.link-placeholder p {
-  margin: 2px 0;
-  font-size: 12px;
-  color: var(--text-color-secondary);
+.action-button:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  background: var(--bg-color-secondary);
+  transform: translateY(-1px);
 }
 
-.link-hint {
-  font-size: 10px !important;
-  color: var(--text-color-tertiary) !important;
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.upload-button:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.link-button:hover:not(:disabled) {
+  border-color: #10b981;
+  color: #10b981;
 }
 
 /* 链接输入模态框 */
@@ -1200,8 +1197,14 @@ defineExpose({
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .upload-options {
+  .upload-actions {
     flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .action-button {
+    min-width: auto;
+    width: 100%;
   }
   
   .link-modal {
