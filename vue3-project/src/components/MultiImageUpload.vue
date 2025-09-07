@@ -713,50 +713,35 @@ const isPinterestUrl = (url) => {
   return url.includes('pinimg.com') || url.includes('pinterest.com');
 };
 
-// 从Pinterest URL下载图片并上传
+// 通过后端处理Pinterest图片
 const downloadAndUploadPinterestImage = async (pinterestUrl) => {
   try {
     showMessage("正在从Pinterest下载图片...", "info");
     
-    // 创建一个临时的canvas来下载图片
-    const img = new Image();
-    img.crossOrigin = 'anonymous'; // 尝试跨域下载
-    
-    await new Promise((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = () => reject(new Error("图片下载失败"));
-      img.src = pinterestUrl;
-      
-      // 设置超时
-      setTimeout(() => reject(new Error("图片下载超时")), 15000);
+    // 调用后端接口处理Pinterest图片
+    const response = await fetch('/api/upload/pinterest', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+      },
+      body: JSON.stringify({
+        url: pinterestUrl
+      })
     });
     
-    // 创建canvas并绘制图片
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    ctx.drawImage(img, 0, 0);
-    
-    // 转换为Blob
-    const blob = await new Promise(resolve => {
-      canvas.toBlob(resolve, 'image/jpeg', 0.9);
-    });
-    
-    if (!blob) {
-      throw new Error("图片转换失败");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `服务器错误: ${response.status}`);
     }
     
-    // 创建File对象
-    const fileName = `pinterest_${Date.now()}.jpg`;
-    const file = new File([blob], fileName, { type: 'image/jpeg' });
+    const data = await response.json();
     
-    showMessage("正在上传图片到图床...", "info");
+    if (!data.success) {
+      throw new Error(data.message || 'Pinterest图片处理失败');
+    }
     
-    // 使用原有的上传接口上传
-    const uploadedUrl = await imageUploadApi(file);
-    
-    return uploadedUrl;
+    return data.url;
     
   } catch (error) {
     console.error("Pinterest图片处理失败:", error);

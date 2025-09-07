@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const https = require('https');
+const http = require('http');
+const { URL } = require('url');
 const { authenticateToken } = require('../middleware/auth');
 const { uploadToImageHost, uploadBase64ToImageHost } = require('../utils/uploadHelper');
 
@@ -169,5 +172,128 @@ router.use((error, req, res, next) => {
   console.error('文件上传错误:', error);
   res.status(500).json({ code: 500, message: '文件上传失败' });
 });
+
+// Pinterest图片处理接口
+router.post('/pinterest', authenticateToken, async (req, res) => {
+  try {
+    const { url } = req.body;
+    
+    if (!url) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '缺少图片链接' 
+      });
+    }
+    
+    // 验证是否为Pinterest链接
+    if (!url.includes('pinimg.com') && !url.includes('pinterest.com')) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '只支持Pinterest图片链接' 
+      });
+    }
+    
+    console.log(`开始处理Pinterest图片 - 用户ID: ${req.user.id}, URL: ${url}`);
+    
+    // 下载图片
+    const imageBuffer = await downloadImage(url);
+    
+    // 获取文件扩展名
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    const ext = pathname.split('.').pop() || 'jpg';
+    const fileName = `pinterest_${Date.now()}.${ext}`;
+    
+    // 确定MIME类型
+    const mimeType = getMimeType(ext);
+    
+    // 上传到图床
+    const result = await uploadToImageHost(imageBuffer, fileName, mimeType);
+    
+    if (result.success) {
+      console.log(`Pinterest图片处理成功 - 用户ID: ${req.user.id}, 原URL: ${url}, 新URL: ${result.url}`);
+      
+      res.json({
+        success: true,
+        message: 'Pinterest图片处理成功',
+        url: result.url
+      });
+    } else {
+      throw new Error(result.message || '图片上传失败');
+    }
+    
+  } catch (error) {
+    console.error('Pinterest图片处理失败:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Pinterest图片处理失败' 
+    });
+  }
+});
+
+// 下载图片的辅助函数
+function downloadImage(url) {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const client = urlObj.protocol === 'https:' ? https : http;
+    
+    const options = {
+      hostname: urlObj.hostname,
+      port: urlObj.port,
+      path: urlObj.pathname + urlObj.search,
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Referer': 'https://www.pinterest.com/',
+        'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8'
+      },
+      timeout: 30000
+    };
+    
+    const req = client.request(options, (res) => {
+      if (res.statusCode !== 200) {
+        reject(new Error(`图片下载失败: HTTP ${res.statusCode}`));
+        return;
+      }
+      
+      const chunks = [];
+      
+      res.on('data', (chunk) => {
+        chunks.push(chunk);
+      });
+      
+      res.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        resolve(buffer);
+      });
+    });
+    
+    req.on('error', (error) => {
+      reject(new Error(`网络请求失败: ${error.message}`));
+    });
+    
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('图片下载超时'));
+    });
+    
+    req.end();
+  });
+}
+
+// 根据文件扩展名获取MIME类型
+function getMimeType(ext) {
+  const mimeTypes = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'webp': 'image/webp',
+    'bmp': 'image/bmp',
+    'svg': 'image/svg+xml'
+  };
+  
+  return mimeTypes[ext.toLowerCase()] || 'image/jpeg';
+}
 
 module.exports = router;
