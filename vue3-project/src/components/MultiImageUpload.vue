@@ -87,7 +87,6 @@
         添加链接
       </button>
     </div>
-    </div>
 
     <div v-if="error" class="error-message">
       {{ error }}
