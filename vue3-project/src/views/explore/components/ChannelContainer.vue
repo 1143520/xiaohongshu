@@ -101,16 +101,26 @@ function startChannelSwitch(item) {
 
 // 组件挂载时检查当前路由
 // 监听滚动状态变化，当固定容器显示时强制更新滑块
-watch(scrollY, (newScrollY) => {
+watch(scrollY, (newScrollY, oldScrollY) => {
     // 当滚动到100px时，固定容器从隐藏变为显示
-    if (newScrollY >= 100 && fixedTabContainer.value) {
-        // 延迟一帧确保DOM更新完成
+    if (newScrollY >= 100 && oldScrollY < 100 && fixedTabContainer.value) {
+        // 延迟确保DOM完全更新完成
         nextTick(() => {
-            // 触发固定容器内TabContainer的滑块更新
             const tabContainer = fixedTabContainer.value
             if (tabContainer && tabContainer.updateSlider) {
+                // 多次尝试更新，确保滑块位置正确
+                setTimeout(() => tabContainer.updateSlider(), 10)
                 setTimeout(() => tabContainer.updateSlider(), 50)
+                setTimeout(() => tabContainer.updateSlider(), 100)
+                setTimeout(() => tabContainer.updateSlider(), 200)
             }
+        })
+    }
+    
+    // 当滚动回到100px以下时，也确保普通容器的滑块位置正确
+    if (newScrollY < 100 && oldScrollY >= 100) {
+        nextTick(() => {
+            // 这里可以触发普通容器的更新，但通常不需要
         })
     }
 })

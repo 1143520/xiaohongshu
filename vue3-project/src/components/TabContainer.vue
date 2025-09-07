@@ -51,21 +51,24 @@ const updateSlider = () => {
             return
         }
 
-        const tabRect = tabItems.value[activeIndex].getBoundingClientRect()
-        const containerRect = containerRef.value.getBoundingClientRect()
+        // 等待一个动画帧，确保样式完全应用
+        requestAnimationFrame(() => {
+            const tabRect = tabItems.value[activeIndex].getBoundingClientRect()
+            const containerRect = containerRef.value.getBoundingClientRect()
 
-        // 计算滑块相对于容器的位置
-        const calculatedLeft = tabRect.left - containerRect.left + containerRef.value.scrollLeft
-        const calculatedWidth = tabRect.width
+            // 计算滑块相对于容器的位置
+            const calculatedLeft = tabRect.left - containerRect.left + containerRef.value.scrollLeft
+            const calculatedWidth = tabRect.width
 
-        // 确保计算结果有效（宽度大于0且容器可见）
-        if (calculatedWidth > 0 && containerRect.width > 0) {
-            sliderLeft.value = calculatedLeft
-            sliderWidth.value = calculatedWidth
-        } else {
-            // 如果计算结果无效，延迟重试
-            setTimeout(() => updateSlider(), 100)
-        }
+            // 确保计算结果有效（宽度大于0且容器可见）
+            if (calculatedWidth > 0 && containerRect.width > 0 && tabRect.left !== 0) {
+                sliderLeft.value = calculatedLeft
+                sliderWidth.value = calculatedWidth
+            } else {
+                // 如果计算结果无效，延迟重试
+                setTimeout(() => updateSlider(), 100)
+            }
+        })
     })
 }
 
