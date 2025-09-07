@@ -28,38 +28,54 @@
               </button>
             </div>
             <div class="image-index">{{ index + 1 }}</div>
+            <div v-if="imageItem.isLink" class="image-source-badge">
+              <SvgIcon name="hash" width="12" height="12" />
+            </div>
           </div>
         </div>
       </div>
 
-      <div
-        v-if="imageList.length < maxImages"
-        class="upload-item"
-        @click="!isUploading && triggerFileInput()"
-        :class="{ 'drag-over': isDragOver, uploading: isUploading }"
-        @dragover.prevent="!isUploading && (isDragOver = true)"
-        @dragleave.prevent="isDragOver = false"
-        @drop.prevent="!isUploading && handleFileDrop($event)"
-      >
-        <input
-          ref="fileInput"
-          type="file"
-          accept="image/*"
-          multiple
-          @change="handleFileSelect"
-          style="display: none"
-          :disabled="isUploading"
-        />
-
-        <div class="upload-placeholder">
-          <SvgIcon
-            name="publish"
-            class="upload-icon"
-            :class="{ uploading: isUploading }"
+      <div v-if="imageList.length < maxImages" class="upload-options">
+        <div
+          class="upload-item"
+          @click="!isUploading && triggerFileInput()"
+          :class="{ 'drag-over': isDragOver, uploading: isUploading }"
+          @dragover.prevent="!isUploading && (isDragOver = true)"
+          @dragleave.prevent="isDragOver = false"
+          @drop.prevent="!isUploading && handleFileDrop($event)"
+        >
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            multiple
+            @change="handleFileSelect"
+            style="display: none"
+            :disabled="isUploading"
           />
-          <p>{{ isUploading ? "上传中..." : "添加图片" }}</p>
-          <p class="upload-hint">{{ imageList.length }}/{{ maxImages }}</p>
-          <p v-if="!isUploading" class="drag-hint">或拖拽图片到此处</p>
+
+          <div class="upload-placeholder">
+            <SvgIcon
+              name="publish"
+              class="upload-icon"
+              :class="{ uploading: isUploading }"
+            />
+            <p>{{ isUploading ? "上传中..." : "上传图片" }}</p>
+            <p class="upload-hint">{{ imageList.length }}/{{ maxImages }}</p>
+            <p v-if="!isUploading" class="drag-hint">或拖拽图片到此处</p>
+          </div>
+        </div>
+
+        <div
+          class="link-item"
+          @click="!isUploading && showLinkInput()"
+          :class="{ uploading: isUploading }"
+        >
+          <div class="link-placeholder">
+            <SvgIcon name="hash" class="link-icon" />
+            <p>添加链接</p>
+            <p class="link-hint">输入图片URL</p>
+          </div>
         </div>
       </div>
     </div>
@@ -72,6 +88,7 @@
       <p>• 最多上传{{ maxImages }}张图片</p>
       <p>• 支持 JPG、PNG 格式</p>
       <p>• 单张图片不超过50MB</p>
+      <p>• 支持本地上传或添加图片链接</p>
       <p>• 拖拽图片可调整顺序</p>
     </div>
 
@@ -81,6 +98,49 @@
       :type="toastType"
       @close="handleToastClose"
     />
+
+    <!-- 链接输入模态框 -->
+    <div v-if="showLinkModal" class="link-modal-overlay" @click="closeLinkModal">
+      <div class="link-modal" @click.stop>
+        <div class="modal-header">
+          <h3>添加图片链接</h3>
+          <button class="close-btn" @click="closeLinkModal">
+            <SvgIcon name="close" />
+          </button>
+        </div>
+        <div class="modal-content">
+          <div class="input-group">
+            <label for="image-url">图片链接</label>
+            <input
+              id="image-url"
+              v-model="linkInput"
+              type="url"
+              placeholder="请输入图片链接 (https://example.com/image.jpg)"
+              class="url-input"
+              @keyup.enter="addImageLink"
+              :disabled="isLoadingImage"
+            />
+          </div>
+          <div class="modal-tips">
+            <p>• 支持 JPG、PNG、GIF、WebP 等格式</p>
+            <p>• 请确保图片链接可以正常访问</p>
+            <p>• 建议使用 HTTPS 链接</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn" @click="closeLinkModal" :disabled="isLoadingImage">
+            取消
+          </button>
+          <button 
+            class="confirm-btn" 
+            @click="addImageLink" 
+            :disabled="isLoadingImage || !linkInput.trim()"
+          >
+            {{ isLoadingImage ? "验证中..." : "添加" }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -121,6 +181,11 @@ const toastType = ref("success");
 // 拖拽相关状态
 const dragIndex = ref(-1);
 const dragOverIndex = ref(-1);
+
+// 链接输入相关状态
+const showLinkModal = ref(false);
+const linkInput = ref("");
+const isLoadingImage = ref(false);
 
 // 生成唯一ID
 const generateId = () => Date.now() + Math.random().toString(36).substr(2, 9);
@@ -611,6 +676,83 @@ const handleToastClose = () => {
   showToast.value = false;
 };
 
+// 显示链接输入模态框
+const showLinkInput = () => {
+  showLinkModal.value = true;
+  linkInput.value = "";
+};
+
+// 关闭链接输入模态框
+const closeLinkModal = () => {
+  showLinkModal.value = false;
+  linkInput.value = "";
+  isLoadingImage.value = false;
+};
+
+// 验证图片链接
+const validateImageUrl = (url) => {
+  // 基本URL格式验证
+  const urlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i;
+  return urlPattern.test(url);
+};
+
+// 添加图片链接
+const addImageLink = async () => {
+  const url = linkInput.value.trim();
+  
+  if (!url) {
+    showMessage("请输入图片链接", "error");
+    return;
+  }
+  
+  if (!validateImageUrl(url)) {
+    showMessage("请输入有效的图片链接（支持jpg、png、gif等格式）", "error");
+    return;
+  }
+  
+  // 检查数量限制
+  if (imageList.value.length >= props.maxImages) {
+    showMessage(`最多只能添加${props.maxImages}张图片`, "error");
+    return;
+  }
+  
+  isLoadingImage.value = true;
+  
+  try {
+    // 验证图片是否可以加载
+    await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error("图片加载失败"));
+      img.src = url;
+      
+      // 设置超时
+      setTimeout(() => reject(new Error("图片加载超时")), 10000);
+    });
+    
+    // 添加到图片列表
+    const newImage = {
+      id: generateId(),
+      file: null,
+      preview: url,
+      uploaded: true,
+      url: url,
+      isLink: true // 标记为链接添加的图片
+    };
+    
+    imageList.value.push(newImage);
+    
+    showMessage("图片链接添加成功", "success");
+    closeLinkModal();
+    
+  } catch (error) {
+    console.error("图片链接验证失败:", error);
+    showMessage("图片链接无效或无法访问", "error");
+  } finally {
+    isLoadingImage.value = false;
+  }
+};
+
 // 暴露方法和属性给父组件
 defineExpose({
   uploadAllImages,
@@ -832,5 +974,244 @@ defineExpose({
 
 .upload-tips p {
   margin: 2px 0;
+}
+
+/* 图片来源徽章 */
+.image-source-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 上传选项容器 */
+.upload-options {
+  display: flex;
+  gap: 10px;
+}
+
+.link-item {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  flex: 1;
+}
+
+/* 链接上传项 */
+.link-item {
+  border: 2px dashed var(--border-color-secondary);
+  background: var(--bg-color-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.link-item:hover {
+  border-color: var(--primary-color);
+  background: var(--bg-color-tertiary);
+}
+
+.link-item.uploading {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.link-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 10px;
+  text-align: center;
+}
+
+.link-icon {
+  color: var(--text-color-secondary);
+  margin-bottom: 8px;
+}
+
+.link-placeholder p {
+  margin: 2px 0;
+  font-size: 12px;
+  color: var(--text-color-secondary);
+}
+
+.link-hint {
+  font-size: 10px !important;
+  color: var(--text-color-tertiary) !important;
+}
+
+/* 链接输入模态框 */
+.link-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.link-modal {
+  background: var(--bg-color-primary);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color-primary);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color-primary);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--text-color-secondary);
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: var(--bg-color-secondary);
+  color: var(--text-color-primary);
+}
+
+.modal-content {
+  padding: 24px;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-color-primary);
+}
+
+.url-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-color-primary);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-color-primary);
+  background: var(--bg-color-primary);
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.url-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.url-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modal-tips {
+  background: var(--bg-color-secondary);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.modal-tips p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: var(--text-color-secondary);
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid var(--border-color-primary);
+  background: var(--bg-color-secondary);
+}
+
+.cancel-btn,
+.confirm-btn {
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn {
+  background: var(--bg-color-primary);
+  color: var(--text-color-secondary);
+  border: 1px solid var(--border-color-primary);
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: var(--bg-color-tertiary);
+  color: var(--text-color-primary);
+}
+
+.confirm-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background: var(--primary-color-dark, #ff6b35);
+}
+
+.confirm-btn:disabled,
+.cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .upload-options {
+    flex-direction: column;
+  }
+  
+  .link-modal {
+    width: 95%;
+  }
+  
+  .modal-header,
+  .modal-content,
+  .modal-footer {
+    padding: 16px;
+  }
 }
 </style>
