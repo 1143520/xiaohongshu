@@ -1,187 +1,110 @@
 <script setup>
-import SvgIcon from "@/components/SvgIcon.vue";
-import DropdownMenu from "@/components/menu/DropdownMenu.vue";
-import CommonMenu from "@/components/menu/CommonMenu.vue";
-import { ref, computed, onMounted, watch } from "vue";
-import { useRouteUtils } from "@/composables/useRouteUtils";
-import { useUserStore } from "@/stores/user.js";
-import { useNotificationStore } from "@/stores/notification";
-import { useAuthStore } from "@/stores/auth";
+import SvgIcon from '@/components/SvgIcon.vue'
+import DropdownMenu from '@/components/menu/DropdownMenu.vue'
+import CommonMenu from '@/components/menu/CommonMenu.vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouteUtils } from '@/composables/useRouteUtils'
+import { useUserStore } from '@/stores/user.js'
+import { useNotificationStore } from '@/stores/notification'
+import { useAuthStore } from '@/stores/auth'
 
-const { route, handleExploreClick } = useRouteUtils();
-const userStore = useUserStore();
-const notificationStore = useNotificationStore();
-const authStore = useAuthStore();
+const { route, handleExploreClick } = useRouteUtils()
+const userStore = useUserStore()
+const notificationStore = useNotificationStore()
+const authStore = useAuthStore()
 
-const defaultAvatar = new URL("@/assets/imgs/avatar.png", import.meta.url).href;
+const defaultAvatar = new URL('@/assets/imgs/avatar.png', import.meta.url).href
 
 // 从store获取未读通知数量
-const unreadCount = computed(() => notificationStore.unreadCount);
+const unreadCount = computed(() => notificationStore.unreadCount)
 
 // 菜单项配置
 const menuItems = ref([
-  { label: "发现", icon: "home", path: "/explore" },
-  { label: "发布", icon: "publish", path: "/publish" },
-  { label: "通知", icon: "notification", path: "/notification" },
-  { label: "我", icon: "avatar", path: "/user" },
-  {
-    label: "Pinterest",
-    icon: "pinterest",
-    path: "https://www.pinterest.com/",
-    external: true,
-  },
-  { label: "更多", icon: "menu", path: "" },
+  { label: '发现', icon: 'home', path: '/explore' },
+  { label: '发布', icon: 'publish', path: '/publish' },
+  { label: '通知', icon: 'notification', path: '/notification' },
+  { label: '我', icon: 'avatar', path: '/user' },
+  { label: 'Pinterest', icon: 'pinterest', path: 'https://www.pinterest.com/', external: true },
+  { label: '更多', icon: 'menu', path: '' },
 ]);
 
+
+
+
+
 // 监听登录状态变化
-watch(
-  () => userStore.isLoggedIn,
-  (newValue) => {
-    if (newValue) {
-      notificationStore.fetchUnreadCount();
-      console.log("登录状态已改变");
-    } else {
-      console.log("未登录");
-      notificationStore.clearUnreadCount();
-    }
-  },
-  { immediate: true }
-);
+watch(() => userStore.isLoggedIn, (newValue) => {
+  if (newValue) {
+    notificationStore.fetchUnreadCount()
+    console.log('登录状态已改变')
+  } else {
+    console.log('未登录')
+    notificationStore.clearUnreadCount()
+  }
+}, { immediate: true })
 
 // 监听路由变化，当从通知页面离开时刷新未读数量
-watch(
-  () => route.path,
-  (newPath, oldPath) => {
-    if (
-      oldPath === "/notification" &&
-      newPath !== "/notification" &&
-      userStore.isLoggedIn
-    ) {
-      // 延迟一下再获取，确保通知已被标记为已读
-      setTimeout(() => {
-        notificationStore.fetchUnreadCount();
-      }, 500);
-    }
+watch(() => route.path, (newPath, oldPath) => {
+  if (oldPath === '/notification' && newPath !== '/notification' && userStore.isLoggedIn) {
+    // 延迟一下再获取，确保通知已被标记为已读
+    setTimeout(() => {
+      notificationStore.fetchUnreadCount()
+    }, 500)
   }
-);
+})
 
 // 登录按钮点击处理
 const handleLoginClick = () => {
-  authStore.openLoginModal();
-};
+  authStore.openLoginModal()
+}
 
 // Pinterest 点击处理
 const handlePinterestClick = () => {
-  window.open("https://www.pinterest.com/", "_blank");
-};
-
-// 图床 点击处理
-const handleImageHostClick = () => {
-  window.open("https://www.nodeimage.com/", "_blank");
-};
-
-// 博客 点击处理
-const handleBlogClick = () => {
-  window.open("https://r.1143520.xyz/", "_blank");
-};
-
-// 音乐 点击处理
-const handleMusicClick = () => {
-  window.open("https://kugou.1143520.xyz/", "_blank");
-};
+  window.open('https://www.pinterest.com/', '_blank')
+}
 
 function handleAvatarError(event) {
-  import("@/assets/imgs/avatar.png").then((module) => {
-    event.target.src = module.default;
-  });
+  import('@/assets/imgs/avatar.png').then(module => {
+    event.target.src = module.default
+  })
 }
 
 // 初始化用户信息
 onMounted(() => {
-  userStore.initUserInfo();
+  userStore.initUserInfo()
   if (userStore.isLoggedIn) {
-    notificationStore.fetchUnreadCount();
+    notificationStore.fetchUnreadCount()
   }
-});
+})
 </script>
 
 <template>
   <nav class="sidebar">
     <ul class="sidebar-menu">
+
       <li>
-        <div
-          class="sidebar-link"
-          @click="handleExploreClick"
-          :class="{ 'active-link': route.path.startsWith('/explore') }"
-        >
+        <div class="sidebar-link" @click="handleExploreClick"
+          :class="{ 'active-link': route.path.startsWith('/explore') }">
           <span class="sidebar-icon">
-            <SvgIcon
-              :name="menuItems[0].icon"
-              width="24px"
-              height="24px"
-              :class="{ active: route.path.startsWith('/explore') }"
-            />
+            <SvgIcon :name="menuItems[0].icon" width="24px" height="24px"
+              :class="{ active: route.path.startsWith('/explore') }" />
           </span>
           <span class="sidebar-label">{{ menuItems[0].label }}</span>
         </div>
       </li>
 
-      <li
-        v-for="item in menuItems.slice(1, 3)"
-        :key="item.label"
-        :class="{ 'notification-item': item.icon === 'notification' }"
-      >
+      <li v-for="item in menuItems.slice(1, 3)" :key="item.label"
+        :class="{ 'notification-item': item.icon === 'notification' }">
         <RouterLink :to="item.path" class="sidebar-link">
           <span v-if="item.icon" class="sidebar-icon">
-            <SvgIcon
-              :name="item.icon"
-              width="24px"
-              height="24px"
-              :class="{ active: route.path === item.path }"
-            />
+            <SvgIcon :name="item.icon" width="24px" height="24px" :class="{ active: route.path === item.path }" />
           </span>
-          <span v-else-if="item.emoji" class="sidebar-icon">{{
-            item.emoji
-          }}</span>
+          <span v-else-if="item.emoji" class="sidebar-icon">{{ item.emoji }}</span>
           <span class="sidebar-label">{{ item.label }}</span>
 
-          <div
-            v-if="item.icon === 'notification' && unreadCount > 0"
-            class="count"
-          >
-            {{ unreadCount > 99 ? "···" : unreadCount }}
-          </div>
+          <div v-if="item.icon === 'notification' && unreadCount > 0" class="count">{{ unreadCount > 99 ? '···' :
+            unreadCount }}</div>
         </RouterLink>
-      </li>
-
-      <!-- 图床 快速入口 -->
-      <li>
-        <div class="sidebar-link" @click="handleImageHostClick">
-          <span class="sidebar-icon">
-            <SvgIcon name="imgNote" width="24px" height="24px" />
-          </span>
-          <span class="sidebar-label">图床</span>
-        </div>
-      </li>
-
-      <!-- 博客 快速入口 -->
-      <li>
-        <div class="sidebar-link" @click="handleBlogClick">
-          <span class="sidebar-icon">
-            <SvgIcon name="blog" width="24px" height="24px" />
-          </span>
-          <span class="sidebar-label">博客</span>
-        </div>
-      </li>
-
-      <!-- 音乐 快速入口 -->
-      <li>
-        <div class="sidebar-link" @click="handleMusicClick">
-          <span class="sidebar-icon">
-            <SvgIcon name="music" width="24px" height="24px" />
-          </span>
-          <span class="sidebar-label">音乐</span>
-        </div>
       </li>
 
       <!-- Pinterest 快速入口 -->
@@ -197,19 +120,17 @@ onMounted(() => {
       <li v-if="userStore.isLoggedIn">
         <RouterLink :to="menuItems[3].path" class="sidebar-link">
           <span class="sidebar-icon">
-            <img
-              :src="userStore.userInfo?.avatar || defaultAvatar"
-              :alt="userStore.userInfo?.nickname || '用户头像'"
-              class="avatar-icon"
-              @error="handleAvatarError"
-            />
+            <img :src="userStore.userInfo?.avatar || defaultAvatar" :alt="userStore.userInfo?.nickname || '用户头像'"
+              class="avatar-icon" @error="handleAvatarError" />
           </span>
           <span class="sidebar-label">{{ menuItems[3].label }}</span>
         </RouterLink>
       </li>
 
       <li v-else>
-        <button class="login-btn" @click="handleLoginClick">登录</button>
+        <button class="login-btn" @click="handleLoginClick">
+          登录
+        </button>
       </li>
     </ul>
 
@@ -230,6 +151,8 @@ onMounted(() => {
         </template>
       </DropdownMenu>
     </div>
+
+
   </nav>
 </template>
 
@@ -241,7 +164,7 @@ onMounted(() => {
   background: var(--bg-color-primary);
   position: fixed;
   z-index: 100;
-  left: 0;
+  left: max(calc(50% - 750px), 0px);
   top: 72px;
   height: calc(100vh - 72px);
   overflow-y: auto;
