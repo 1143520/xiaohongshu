@@ -167,15 +167,15 @@ onUnmounted(() => {
 .fixed-channel-container {
     position: fixed;
     top: 72px;
-    left: 0;
+    left: 12px; /* 对应普通状态TabContainer的margin-left */
     right: 0;
     z-index: 999;
     background: var(--bg-color-primary);
 }
 
-/* 确保固定状态下TabContainer的margin-left保持不变 */
+/* 固定状态下TabContainer不需要额外的margin-left，因为容器本身已经有定位 */
 .fixed-channel-container :deep(.tab-container) {
-    margin-left: 12px !important;
+    margin-left: 0 !important;
 }
 
 .hidden {
@@ -184,13 +184,13 @@ onUnmounted(() => {
 
 @media (min-width: 961px) {
     .fixed-channel-container {
-        /* 侧边栏位置：动态计算，最小240px（228px侧边栏 + 12px间距） */
-        left: max(calc(50% - 750px + 228px), 228px);
+        /* 侧边栏右边缘 + 对齐偏移：max(calc(50% - 750px), 0px) + 228px + 12px */
+        left: max(calc(50% - 750px + 240px), 240px);
     }
     
-    /* 大屏模式下也确保TabContainer的margin-left保持12px */
+    /* 大屏模式下TabContainer也不需要额外margin-left */
     .fixed-channel-container :deep(.tab-container) {
-        margin-left: 12px !important;
+        margin-left: 0 !important;
     }
 }
 </style>
