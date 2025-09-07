@@ -70,6 +70,7 @@
     <!-- 独立的操作按钮区域 -->
     <div v-if="imageList.length < maxImages" class="upload-actions">
       <button 
+        type="button"
         class="action-button upload-button"
         @click="!isUploading && triggerFileInput()"
         :disabled="isUploading"
@@ -79,6 +80,7 @@
       </button>
       
       <button 
+        type="button"
         class="action-button link-button"
         @click="!isUploading && showLinkInput()"
         :disabled="isUploading"
@@ -111,7 +113,7 @@
       <div class="link-modal" @click.stop>
         <div class="modal-header">
           <h3>添加图片链接</h3>
-          <button class="close-btn" @click="closeLinkModal">
+          <button type="button" class="close-btn" @click="closeLinkModal">
             <SvgIcon name="close" width="16" height="16" />
           </button>
         </div>
@@ -135,10 +137,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="cancel-btn" @click="closeLinkModal" :disabled="isLoadingImage">
+          <button type="button" class="cancel-btn" @click="closeLinkModal" :disabled="isLoadingImage">
             取消
           </button>
           <button 
+            type="button"
             class="confirm-btn" 
             @click="addImageLink" 
             :disabled="isLoadingImage || !linkInput.trim()"
