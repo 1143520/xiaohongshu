@@ -8,23 +8,7 @@
     <div class="settings-container" v-if="!loading">
       <!-- 用户功能设置 -->
       <div class="settings-section">
-        <// 获取系统设置
-const fetchSettings = async () => {
-  try {
-    loading.value = true;
-    const response = await api.getSystemSettings();
-    if (response.success) {
-      settings.value = initializeSettings(response.data);
-    } else {
-      // 如果获取失败，使用默认设置
-      settings.value = { ...defaultSettings };
-      showMessage("获取系统设置失败，使用默认配置", "warning");
-    }
-  } catch (error) {
-    console.error("获取系统设置失败:", error);
-    // 如果出错，使用默认设置
-    settings.value = { ...defaultSettings };
-    showMessage("获取系统设置失败，使用默认配置", "error");>
+        <h3>用户功能管理</h3>
         <div class="setting-item">
           <div class="setting-info">
             <label>用户注册功能</label>
@@ -251,27 +235,30 @@ const settings = ref({});
 
 // 默认设置值
 const defaultSettings = {
-  user_registration_enabled: { value: true, description: '是否开启用户注册' },
-  maintenance_mode: { value: false, description: '维护模式开关' },
-  max_posts_per_day: { value: 20, description: '用户每日最大发帖数量' },
-  max_upload_size: { value: 50, description: '最大上传文件大小(MB)' },
-  site_notice: { value: '', description: '站点公告' },
-  comment_approval_required: { value: false, description: '评论是否需要审核' },
-  image_host_type: { value: 'xinyew', description: '图床类型 (xinyew/4399/nodeimage)' },
-  nodeimage_api_key: { value: '', description: 'NodeImage图床API密钥' }
+  user_registration_enabled: { value: true, description: "是否开启用户注册" },
+  maintenance_mode: { value: false, description: "维护模式开关" },
+  max_posts_per_day: { value: 20, description: "用户每日最大发帖数量" },
+  max_upload_size: { value: 50, description: "最大上传文件大小(MB)" },
+  site_notice: { value: "", description: "站点公告" },
+  comment_approval_required: { value: false, description: "评论是否需要审核" },
+  image_host_type: {
+    value: "xinyew",
+    description: "图床类型 (xinyew/4399/nodeimage)",
+  },
+  nodeimage_api_key: { value: "", description: "NodeImage图床API密钥" },
 };
 
 // 初始化设置，确保所有字段都存在
 const initializeSettings = (fetchedSettings) => {
   const initializedSettings = { ...defaultSettings };
-  
+
   // 合并获取到的设置
-  Object.keys(fetchedSettings).forEach(key => {
+  Object.keys(fetchedSettings).forEach((key) => {
     if (initializedSettings[key]) {
       initializedSettings[key] = fetchedSettings[key];
     }
   });
-  
+
   return initializedSettings;
 };
 
@@ -319,7 +306,7 @@ const toggleSetting = async (key) => {
     const updateData = {
       [key]: {
         value: newValue,
-        description: settings.value[key]?.description || '',
+        description: settings.value[key]?.description || "",
       },
     };
 
@@ -354,7 +341,7 @@ const updateNumberSetting = async (key) => {
     const updateData = {
       [key]: {
         value: settings.value[key]?.value,
-        description: settings.value[key]?.description || '',
+        description: settings.value[key]?.description || "",
       },
     };
 
@@ -376,7 +363,7 @@ const updateTextSetting = async (key) => {
     const updateData = {
       [key]: {
         value: settings.value[key]?.value,
-        description: settings.value[key]?.description || '',
+        description: settings.value[key]?.description || "",
       },
     };
 
@@ -444,9 +431,9 @@ const resetSettings = async () => {
 
   try {
     // 重置为默认值
-    const response = await api.updateSystemSettings(defaultSettings);
+    const response = await api.updateSystemSettings({ ...defaultSettings });
     if (response.success) {
-      settings.value = defaultSettings;
+      settings.value = { ...defaultSettings };
       showMessage("设置已重置为默认值");
     } else {
       showMessage("重置失败", "error");
