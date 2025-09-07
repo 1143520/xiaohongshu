@@ -725,7 +725,7 @@ const convertImageUrl = async (imageUrl) => {
     showMessage("正在转换图片链接...", "info");
     
     // 获取token
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('请先登录后再使用转换功能');
     }
@@ -770,7 +770,7 @@ const convertImageUrl = async (imageUrl) => {
 
 // 检查用户登录状态
 const checkUserLogin = () => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('token');
   return !!token;
 };
 
@@ -811,7 +811,7 @@ const convertImageLink = async () => {
     
     // 如果是401错误，清除本地token
     if (error.message.includes('登录已过期')) {
-      localStorage.removeItem('access_token');
+      localStorage.removeItem('token');
     }
   } finally {
     isLoadingImage.value = false;
