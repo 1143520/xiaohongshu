@@ -12,7 +12,7 @@
             <img :src="logoUrl" alt="大红薯" class="about-logo" />
             <h2 class="about-title">关于大红薯</h2>
           </div>
-          <p class="version">v1.0.1</p>
+          <p class="version">v1.2.0</p>
         </div>
         <button class="close-btn" @click="closeModal">
           <SvgIcon name="close" />
@@ -24,14 +24,20 @@
           <div class="intro-section">
             <h3>项目简介</h3>
             <p>
-              大红薯是一个基于 Vue 3 + Express.js 的现代化图文社区项目，高度还原小红书的UI设计和交互体验。
+              大红薯是一个基于 Vue 3 + Express.js
+              的现代化图文社区项目，高度还原小红书的UI设计和交互体验。
               项目支持用户注册登录、图文发布、社交互动、实时通知等完整功能，采用前后端分离架构，
-              提供 Docker 容器化部署和 GitHub Actions 自动化构建。
+              提供 Docker 容器化部署和 GitHub Actions
+              自动化构建。集成系统设置管理，支持注册开关、 维护模式等高级功能。
             </p>
-            <p style="margin-top: 12px;">
-              <strong>🚀 一键部署：</strong>支持 GitHub Actions 自动构建和 Docker 一键部署<br>
-              <strong>📱 响应式设计：</strong>完美适配桌面端和移动端设备<br>
-              <strong>🎨 现代化UI：</strong>支持深色/浅色主题切换，精美的用户界面
+            <p style="margin-top: 12px">
+              <strong>🚀 一键部署：</strong>支持 GitHub Actions 自动构建和
+              Docker 一键部署<br />
+              <strong>📱 响应式设计：</strong>完美适配桌面端和移动端设备<br />
+              <strong>🎨 现代化UI：</strong
+              >支持深色/浅色主题切换，精美的用户界面<br />
+              <strong>⚙️ 系统管理：</strong
+              >完整的管理后台，支持用户管理和系统设置
             </p>
           </div>
           <div class="author-section">
@@ -112,23 +118,62 @@
           <div class="features-section">
             <h3>核心功能</h3>
             <ul class="features-list">
-              <li><strong>用户系统：</strong>注册登录、个人资料、头像上传</li>
-              <li><strong>内容发布：</strong>图文发布、草稿保存、标签分类</li>
-              <li><strong>社交互动：</strong>点赞、评论、关注、收藏</li>
-              <li><strong>实时通知：</strong>点赞通知、评论通知、关注通知</li>
-              <li><strong>搜索功能：</strong>用户搜索、内容搜索、标签搜索</li>
-              <li><strong>管理后台：</strong>用户管理、内容管理、数据统计</li>
-              <li><strong>智能解析：</strong>URL链接识别、@用户提及</li>
-              <li><strong>格式保持：</strong>支持换行符、连续空格、文本格式</li>
+              <li>
+                <strong>用户系统：</strong
+                >注册登录、个人资料、头像上传、密码修改
+              </li>
+              <li>
+                <strong>内容发布：</strong
+                >图文发布、草稿保存、标签分类、多图上传
+              </li>
+              <li>
+                <strong>社交互动：</strong>点赞、评论、关注、收藏、互相关注列表
+              </li>
+              <li>
+                <strong>实时通知：</strong
+                >点赞通知、评论通知、关注通知、未读消息提醒
+              </li>
+              <li>
+                <strong>搜索功能：</strong
+                >用户搜索、内容搜索、标签搜索、综合搜索
+              </li>
+              <li>
+                <strong>管理后台：</strong
+                >用户管理、内容管理、数据统计、系统设置
+              </li>
+              <li>
+                <strong>系统设置：</strong
+                >注册开关、维护模式、评论审核、站点公告
+              </li>
+              <li>
+                <strong>智能解析：</strong>URL链接识别、@用户提及、IP属地显示
+              </li>
+              <li>
+                <strong>格式保持：</strong>支持换行符、连续空格、文本格式保持
+              </li>
+              <li>
+                <strong>时区统一：</strong>全站时间统一为中国时区(UTC+8)显示
+              </li>
+              <li>
+                <strong>快捷入口：</strong>Pinterest、NodeImage图床快速访问
+              </li>
+              <li>
+                <strong>Pinterest集成：</strong
+                >直链转换功能，一键将Pinterest图片转为永久可用链接
+              </li>
             </ul>
           </div>
 
           <div class="tech-section">
             <h3>技术架构</h3>
             <ul class="features-list">
-              <li><strong>前端：</strong>Vue 3 + Vite + Pinia + Vue Router 4</li>
+              <li>
+                <strong>前端：</strong>Vue 3 + Vite + Pinia + Vue Router 4
+              </li>
               <li><strong>后端：</strong>Node.js + Express.js + MySQL 8.0</li>
-              <li><strong>部署：</strong>Docker + Docker Compose + GitHub Actions</li>
+              <li>
+                <strong>部署：</strong>Docker + Docker Compose + GitHub Actions
+              </li>
               <li><strong>认证：</strong>JWT Token + SHA256 密码加密</li>
               <li><strong>文件上传：</strong>Multer + 第三方图床API</li>
               <li><strong>UI组件：</strong>自研组件库 + 响应式设计</li>
@@ -142,28 +187,36 @@
             <div class="deployment-content">
               <h4>🚀 一键部署（推荐）</h4>
               <div class="code-block">
-                <pre># 1. Fork 项目到你的 GitHub 账号
+                <pre>
+# 1. Fork 项目到你的 GitHub 账号
 # 2. 启用 GitHub Actions 权限
 # 3. 在服务器执行：
 git clone https://github.com/your-username/xiaohongshu.git
 cd xiaohongshu
 cp env.production.example .env
 vim .env  # 配置环境变量
-./deploy.sh</pre>
+./deploy.sh</pre
+                >
               </div>
-              
+
               <h4>🔄 更新部署</h4>
               <div class="code-block">
-                <pre># 在服务器项目目录执行：
-./deploy.sh  # 自动拉取最新代码和镜像</pre>
+                <pre>
+# 在服务器项目目录执行：
+./deploy.sh  # 自动拉取最新代码和镜像</pre
+                >
               </div>
 
               <h4>🔧 环境要求</h4>
               <ul class="requirement-list">
-                <li><strong>操作系统：</strong>Linux (Ubuntu 18.04+ / CentOS 7+)</li>
+                <li>
+                  <strong>操作系统：</strong>Linux (Ubuntu 18.04+ / CentOS 7+)
+                </li>
                 <li><strong>内存：</strong>2GB+ RAM</li>
                 <li><strong>存储：</strong>10GB+ 可用空间</li>
-                <li><strong>软件：</strong>Docker 20.10+ 和 Docker Compose 1.29+</li>
+                <li>
+                  <strong>软件：</strong>Docker 20.10+ 和 Docker Compose 1.29+
+                </li>
               </ul>
             </div>
           </div>
@@ -173,13 +226,17 @@ vim .env  # 配置环境变量
             <div class="api-content">
               <p>
                 <strong>图片存储：</strong>示例图片来自
-                <a href="https://www.pinterest.com/" target="_blank" class="api-link"
+                <a
+                  href="https://www.pinterest.com/"
+                  target="_blank"
+                  class="api-link"
                   ><img
                     :src="liciUrl"
                     alt="Pinterest"
                     class="api-icon"
                   />Pinterest</a
-                >，提供丰富的图片素材和灵感。
+                >，提供丰富的图片素材和灵感。集成Pinterest直链转换功能，
+                可将Pinterest图片链接转换为永久可用的直链地址。
               </p>
               <p>
                 <strong>图片上传：</strong>用户上传图片使用
@@ -197,15 +254,28 @@ vim .env  # 配置环境变量
               <p>
                 <strong>属地查询：</strong>IP属地查询服务使用
                 <a
-                  href="https://api.pearktrue.cn/dashboard/detail/290"
+                  href="https://app.ipdatacloud.com/"
                   target="_blank"
                   class="api-link"
                   ><img
                     :src="baoLuoUrl"
-                    alt="保罗"
+                    alt="IPDataCloud"
                     class="api-icon"
-                  />保罗API</a
+                  />IPDataCloud</a
                 >，实现精准的IP属地定位功能。
+              </p>
+              <p>
+                <strong>图床服务：</strong>集成
+                <a
+                  href="https://www.nodeimage.com/"
+                  target="_blank"
+                  class="api-link"
+                  ><img
+                    :src="xiaRouUrl"
+                    alt="NodeImage"
+                    class="api-icon"
+                  />NodeImage图床</a
+                >快捷入口，方便用户进行图片管理和外链生成。
               </p>
             </div>
           </div>
@@ -235,11 +305,14 @@ vim .env  # 配置环境变量
           <div class="usage-section">
             <h3>使用指南</h3>
             <div class="usage-content">
-              <h4>👨‍💼 管理员账号</h4>
+              <h4>👨‍💼 管理员功能</h4>
               <ul class="usage-list">
-                <li><strong>用户名：</strong>admin</li>
-                <li><strong>密码：</strong>admin123</li>
+                <li><strong>默认账号：</strong>admin / admin123</li>
                 <li><strong>管理后台：</strong>http://your-domain.com/admin</li>
+                <li><strong>用户管理：</strong>查看、编辑、禁用用户账户</li>
+                <li><strong>内容管理：</strong>帖子审核、删除、标签管理</li>
+                <li><strong>系统设置：</strong>注册开关、维护模式、评论审核</li>
+                <li><strong>数据统计：</strong>用户增长、内容统计分析</li>
               </ul>
 
               <h4>📝 文本格式支持</h4>
@@ -249,14 +322,33 @@ vim .env  # 配置环境变量
                 <li><strong>URL链接：</strong>自动识别并转为可点击链接</li>
                 <li><strong>@用户：</strong>支持 @用户名 提及功能</li>
                 <li><strong>表情符号：</strong>支持emoji表情输入</li>
+                <li><strong>时间显示：</strong>统一使用中国时区(UTC+8)</li>
+                <li><strong>IP属地：</strong>自动显示用户发帖属地信息</li>
+              </ul>
+
+              <h4>🚀 快捷功能</h4>
+              <ul class="usage-list">
+                <li><strong>Pinterest：</strong>侧边栏快捷访问获取图片灵感</li>
+                <li>
+                  <strong>Pinterest转换：</strong
+                  >一键将Pinterest图片转为永久可用直链
+                </li>
+                <li><strong>NodeImage图床：</strong>快速访问图片上传和管理</li>
+                <li><strong>实时通知：</strong>点赞、评论、关注即时提醒</li>
+                <li><strong>搜索发现：</strong>智能搜索用户和内容</li>
+                <li><strong>主题切换：</strong>支持深色和浅色主题</li>
               </ul>
 
               <h4>🔧 常见问题</h4>
               <ul class="usage-list">
                 <li><strong>端口被占用：</strong>修改 .env 文件中的端口配置</li>
-                <li><strong>数据库连接失败：</strong>检查数据库密码和容器状态</li>
+                <li>
+                  <strong>数据库连接失败：</strong>检查数据库密码和容器状态
+                </li>
                 <li><strong>图片上传失败：</strong>检查上传目录权限</li>
-                <li><strong>更新后功能异常：</strong>清理Docker缓存后重新部署</li>
+                <li>
+                  <strong>更新后功能异常：</strong>清理Docker缓存后重新部署
+                </li>
               </ul>
             </div>
           </div>
@@ -269,8 +361,9 @@ vim .env  # 配置环境变量
                 >本项目的UI设计和交互体验参考了小红书平台，旨在为开发者提供一个熟悉的学习和实践环境。
               </p>
               <p>
-                <strong>开源项目：</strong
-                >本项目基于 MIT 协议开源，仅供学习交流使用，不用于商业用途。欢迎提交 Issue 和 Pull Request。
+                <strong>开源项目：</strong>本项目基于 MIT
+                协议开源，仅供学习交流使用，不用于商业用途。欢迎提交 Issue 和
+                Pull Request。
               </p>
               <p>
                 <strong>免责声明：</strong
@@ -633,7 +726,7 @@ onMounted(() => {
   border-radius: 8px;
   padding: 16px;
   margin: 12px 0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 13px;
   overflow-x: auto;
 }
