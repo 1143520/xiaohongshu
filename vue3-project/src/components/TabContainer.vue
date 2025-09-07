@@ -180,7 +180,6 @@ defineExpose({
     padding: 0px 12px;
     box-sizing: border-box;
     width: 100%;
-    max-width: 100vw;
     margin-left: 12px;
     transition: background-color 0.2s ease;
 

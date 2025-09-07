@@ -168,7 +168,7 @@ onUnmounted(() => {
     position: fixed;
     top: 72px;
     left: 12px; /* 对应普通状态TabContainer的margin-left */
-    width: calc(100% - 12px); /* 明确设置宽度，而不是用right:0 */
+    right: 12px; /* 右边也保持12px间距，确保与普通状态宽度一致 */
     z-index: 999;
     background: var(--bg-color-primary);
 }
@@ -186,8 +186,8 @@ onUnmounted(() => {
     .fixed-channel-container {
         /* 侧边栏右边缘 + 对齐偏移：max(calc(50% - 750px), 0px) + 228px + 12px */
         left: max(calc(50% - 750px + 240px), 240px);
-        /* 大屏模式下宽度需要减去左边距 */
-        width: calc(100% - max(calc(50% - 750px + 240px), 240px));
+        /* 右边距保持12px */
+        right: 12px;
     }
     
     /* 大屏模式下TabContainer也不需要额外margin-left */
