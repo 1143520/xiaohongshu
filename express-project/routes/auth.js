@@ -146,8 +146,27 @@ router.post('/login', async (req, res) => {
       [ipLocation, user.id.toString()]
     );
 
-    // 清除旧会话并保存新会话
-    await pool.execute('UPDATE user_sessions SET is_active = 0 WHERE user_id = ?', [user.id.toString()]);
+    // 限制设备数量为3台，清除最早的会话（保留最新的2个）
+    const [cleanupResult] = await pool.execute(`
+      UPDATE user_sessions 
+      SET is_active = 0 
+      WHERE user_id = ? 
+        AND is_active = 1 
+        AND id NOT IN (
+          SELECT * FROM (
+            SELECT id FROM user_sessions 
+            WHERE user_id = ? AND is_active = 1 
+            ORDER BY created_at DESC 
+            LIMIT 2
+          ) AS latest_sessions
+        )
+    `, [user.id.toString(), user.id.toString()]);
+    
+    if (cleanupResult.affectedRows > 0) {
+      console.log(`用户 ${user.user_id} 登录时清理了 ${cleanupResult.affectedRows} 个旧会话`);
+    }
+    
+    // 插入新会话
     await pool.execute(
       'INSERT INTO user_sessions (user_id, token, refresh_token, expires_at, user_agent, is_active) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY), ?, 1)',
       [user.id.toString(), accessToken, refreshToken, userAgent]
@@ -245,6 +264,109 @@ router.post('/refresh', async (req, res) => {
   } catch (error) {
     console.error('刷新令牌失败:', error);
     res.status(401).json({ code: 401, message: '刷新令牌无效' });
+  }
+});
+
+// 获取当前用户的活跃设备列表
+router.get('/devices', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // 获取用户的所有活跃会话
+    const [sessions] = await pool.execute(`
+      SELECT 
+        id,
+        user_agent,
+        expires_at,
+        created_at,
+        CASE WHEN token = ? THEN 1 ELSE 0 END as is_current
+      FROM user_sessions 
+      WHERE user_id = ? AND is_active = 1 AND expires_at > NOW()
+      ORDER BY created_at DESC
+    `, [req.token, userId.toString()]);
+    
+    // 解析User-Agent获取设备信息
+    const devices = sessions.map(session => {
+      const userAgent = session.user_agent || '';
+      let deviceInfo = {
+        id: session.id,
+        deviceName: '未知设备',
+        browser: '未知浏览器',
+        os: '未知系统',
+        loginTime: session.created_at,
+        expiresAt: session.expires_at,
+        isCurrent: session.is_current === 1
+      };
+      
+      // 简单的User-Agent解析
+      if (userAgent.includes('Chrome')) deviceInfo.browser = 'Chrome';
+      else if (userAgent.includes('Firefox')) deviceInfo.browser = 'Firefox';
+      else if (userAgent.includes('Safari')) deviceInfo.browser = 'Safari';
+      else if (userAgent.includes('Edge')) deviceInfo.browser = 'Edge';
+      
+      if (userAgent.includes('Windows')) deviceInfo.os = 'Windows';
+      else if (userAgent.includes('Mac')) deviceInfo.os = 'macOS';
+      else if (userAgent.includes('Linux')) deviceInfo.os = 'Linux';
+      else if (userAgent.includes('Android')) deviceInfo.os = 'Android';
+      else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) deviceInfo.os = 'iOS';
+      
+      deviceInfo.deviceName = `${deviceInfo.browser} on ${deviceInfo.os}`;
+      
+      return deviceInfo;
+    });
+    
+    res.json({
+      code: 200,
+      message: 'success',
+      data: {
+        devices,
+        totalDevices: devices.length,
+        maxDevices: 3
+      }
+    });
+  } catch (error) {
+    console.error('获取设备列表失败:', error);
+    res.status(500).json({ code: 500, message: '服务器内部错误' });
+  }
+});
+
+// 踢出指定设备
+router.delete('/devices/:sessionId', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const sessionId = req.params.sessionId;
+    
+    // 不能踢出当前设备
+    if (req.token) {
+      const [currentSession] = await pool.execute(
+        'SELECT id FROM user_sessions WHERE user_id = ? AND token = ? AND is_active = 1',
+        [userId.toString(), req.token]
+      );
+      
+      if (currentSession.length > 0 && currentSession[0].id.toString() === sessionId) {
+        return res.status(400).json({ code: 400, message: '不能踢出当前设备' });
+      }
+    }
+    
+    // 踢出指定设备
+    const [result] = await pool.execute(
+      'UPDATE user_sessions SET is_active = 0 WHERE id = ? AND user_id = ?',
+      [sessionId, userId.toString()]
+    );
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ code: 404, message: '设备不存在或已离线' });
+    }
+    
+    console.log(`用户 ${userId} 踢出了设备会话 ${sessionId}`);
+    
+    res.json({
+      code: 200,
+      message: '设备已下线'
+    });
+  } catch (error) {
+    console.error('踢出设备失败:', error);
+    res.status(500).json({ code: 500, message: '服务器内部错误' });
   }
 });
 

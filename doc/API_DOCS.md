@@ -196,6 +196,80 @@ Authorization: Bearer <your_jwt_token>
 }
 ```
 
+### 4. 获取用户设备列表
+
+**接口地址**: `GET /api/auth/devices`
+
+**请求头**:
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| Authorization | string | 是 | Bearer {access_token} |
+
+**响应示例**:
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "devices": [
+      {
+        "id": 123,
+        "deviceName": "Chrome on Windows",
+        "browser": "Chrome",
+        "os": "Windows",
+        "loginTime": "2025-01-13T10:30:00.000Z",
+        "expiresAt": "2025-01-20T10:30:00.000Z",
+        "isCurrent": true
+      },
+      {
+        "id": 124,
+        "deviceName": "Safari on iOS",
+        "browser": "Safari",
+        "os": "iOS",
+        "loginTime": "2025-01-12T15:20:00.000Z",
+        "expiresAt": "2025-01-19T15:20:00.000Z",
+        "isCurrent": false
+      }
+    ],
+    "totalDevices": 2,
+    "maxDevices": 3
+  }
+}
+```
+
+### 5. 踢出指定设备
+
+**接口地址**: `DELETE /api/auth/devices/:sessionId`
+
+**请求头**:
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| Authorization | string | 是 | Bearer {access_token} |
+
+**路径参数**:
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| sessionId | int | 是 | 会话 ID |
+
+**响应示例**:
+
+```json
+{
+  "code": 200,
+  "message": "设备已下线"
+}
+```
+
+**错误响应**:
+
+```json
+{
+  "code": 400,
+  "message": "不能踢出当前设备"
+}
+```
+
 ---
 
 ## 用户相关接口
