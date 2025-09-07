@@ -155,14 +155,24 @@ onUnmounted(() => {
     background: var(--bg-color-primary);
 }
 
+/* 确保固定状态下TabContainer的margin-left保持不变 */
+.fixed-channel-container :deep(.tab-container) {
+    margin-left: 12px !important;
+}
+
 .hidden {
     display: none;
 }
 
 @media (min-width: 961px) {
     .fixed-channel-container {
-        /* 动态计算侧边栏位置 + TabContainer的margin-left */
-        left: max(calc(50% - 750px + 228px + 12px), 240px);
+        /* 侧边栏位置：动态计算，最小240px（228px侧边栏 + 12px间距） */
+        left: max(calc(50% - 750px + 228px), 228px);
+    }
+    
+    /* 大屏模式下也确保TabContainer的margin-left保持12px */
+    .fixed-channel-container :deep(.tab-container) {
+        margin-left: 12px !important;
     }
 }
 </style>
