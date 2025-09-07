@@ -45,12 +45,14 @@ app.options('*', cors(corsOptions));  // 显式处理OPTIONS请求
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+const { getChinaCurrentTimeISO } = require('./utils/timeHelper');
+
 // 健康检查路由
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     code: 200, 
     message: 'OK', 
-    timestamp: new Date().toISOString(),
+    timestamp: getChinaCurrentTimeISO(),
     uptime: process.uptime()
   });
 });

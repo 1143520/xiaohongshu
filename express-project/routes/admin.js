@@ -4,6 +4,7 @@ const { pool } = require('../config/database')
 const { createCrudHandlers } = require('../middleware/crudFactory')
 const { recordExists } = require('../utils/dbHelper')
 const { adminAuth, uploadBase64ToImageHost } = require('../utils/uploadHelper')
+const { getChinaFutureTime, getChinaCurrentTimeMySQL } = require('../utils/timeHelper')
 const {
   validateLikeOrFavoriteData,
   validateFollowData,
@@ -1355,8 +1356,7 @@ const sessionsCrudConfig = {
     data.refresh_token = crypto.randomBytes(32).toString('hex')
 
     // 设置过期时间（30天）
-    const expires_at = new Date()
-    expires_at.setDate(expires_at.getDate() + 30)
+    const expires_at = getChinaFutureTime(30);
     data.expires_at = expires_at
 
     // 设置默认值

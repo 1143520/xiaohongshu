@@ -3,6 +3,7 @@ const NotificationHelper = require('../utils/notificationHelper');
 const config = require('../config/config');
 const fs = require('fs');
 const path = require('path');
+const { getChinaCurrentTime, getChinaFutureTime } = require('../utils/timeHelper');
 
 // 数据库配置
 const dbConfig = {
@@ -474,7 +475,7 @@ class DataGenerator {
         fans_count: Math.floor(Math.random() * 1000),
         like_count: Math.floor(Math.random() * 5000),
         is_active: 1, // 添加is_active字段
-        last_login_at: new Date(Date.now() - Math.floor(Math.random() * 30 * 24 * 60 * 60 * 1000)), // 添加last_login_at字段（随机30天内）
+        last_login_at: new Date(getChinaCurrentTime().getTime() - Math.floor(Math.random() * 30 * 24 * 60 * 60 * 1000)), // 添加last_login_at字段（随机30天内）
         // 6大信息字段（70%概率填写，30%概率为空）
         gender: Math.random() > 0.3 ? genders[Math.floor(Math.random() * genders.length)] : null,
         zodiac_sign: Math.random() > 0.3 ? zodiacSigns[Math.floor(Math.random() * zodiacSigns.length)] : null,
@@ -804,9 +805,9 @@ class DataGenerator {
     for (let userId = 1; userId <= userCount; userId++) {
       const session = {
         user_id: userId,
-        token: `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        refresh_token: `refresh_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7天后过期
+        token: `token_${getChinaCurrentTime().getTime()}_${Math.random().toString(36).substr(2, 9)}`,
+        refresh_token: `refresh_${getChinaCurrentTime().getTime()}_${Math.random().toString(36).substr(2, 9)}`,
+        expires_at: getChinaFutureTime(7), // 7天后过期
         user_agent: userAgents[Math.floor(Math.random() * userAgents.length)],
         is_active: Math.random() > 0.2 ? 1 : 0 // 80%活跃
       };

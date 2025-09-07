@@ -4,6 +4,7 @@ const { pool } = require('../config/database');
 const { generateAccessToken, generateRefreshToken, verifyToken } = require('../utils/jwt');
 const { authenticateToken } = require('../middleware/auth');
 const { getIPLocation, getRealIP } = require('../utils/ipLocation');
+const { getChinaFutureTime, getChinaCurrentTimeMySQL } = require('../utils/timeHelper');
 
 // 用户注册
 router.post('/register', async (req, res) => {
@@ -66,9 +67,10 @@ router.post('/register', async (req, res) => {
     const refreshToken = generateRefreshToken({ userId, user_id });
 
     // 保存会话
+    const expiresAt = getChinaFutureTime(7); // 7天后过期
     await pool.execute(
-      'INSERT INTO user_sessions (user_id, token, refresh_token, expires_at, user_agent, is_active) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY), ?, 1)',
-      [userId.toString(), accessToken, refreshToken, userAgent]
+      'INSERT INTO user_sessions (user_id, token, refresh_token, expires_at, user_agent, is_active) VALUES (?, ?, ?, ?, ?, 1)',
+      [userId.toString(), accessToken, refreshToken, expiresAt, userAgent]
     );
 
     // 获取完整用户信息
@@ -167,9 +169,10 @@ router.post('/login', async (req, res) => {
     }
     
     // 插入新会话
+    const expiresAt = getChinaFutureTime(7); // 7天后过期
     await pool.execute(
-      'INSERT INTO user_sessions (user_id, token, refresh_token, expires_at, user_agent, is_active) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY), ?, 1)',
-      [user.id.toString(), accessToken, refreshToken, userAgent]
+      'INSERT INTO user_sessions (user_id, token, refresh_token, expires_at, user_agent, is_active) VALUES (?, ?, ?, ?, ?, 1)',
+      [user.id.toString(), accessToken, refreshToken, expiresAt, userAgent]
     );
 
     // 更新用户对象中的location字段
@@ -222,9 +225,10 @@ router.post('/refresh', async (req, res) => {
     const decoded = verifyToken(refresh_token);
 
     // 检查会话是否有效
+    const currentTime = getChinaCurrentTimeMySQL();
     const [sessionRows] = await pool.execute(
-      'SELECT id FROM user_sessions WHERE user_id = ? AND refresh_token = ? AND is_active = 1 AND expires_at > NOW()',
-      [decoded.userId.toString(), refresh_token]
+      'SELECT id FROM user_sessions WHERE user_id = ? AND refresh_token = ? AND is_active = 1 AND expires_at > ?',
+      [decoded.userId.toString(), refresh_token, currentTime]
     );
 
     if (sessionRows.length === 0) {
@@ -247,9 +251,10 @@ router.post('/refresh', async (req, res) => {
     );
 
     // 更新会话
+    const newExpiresAt = getChinaFutureTime(7); // 7天后过期
     await pool.execute(
-      'UPDATE user_sessions SET token = ?, refresh_token = ?, expires_at = DATE_ADD(NOW(), INTERVAL 7 DAY), user_agent = ? WHERE id = ?',
-      [newAccessToken, newRefreshToken, userAgent, sessionRows[0].id.toString()]
+      'UPDATE user_sessions SET token = ?, refresh_token = ?, expires_at = ?, user_agent = ? WHERE id = ?',
+      [newAccessToken, newRefreshToken, newExpiresAt, userAgent, sessionRows[0].id.toString()]
     );
 
     res.json({
@@ -273,6 +278,7 @@ router.get('/devices', authenticateToken, async (req, res) => {
     const userId = req.user.id;
     
     // 获取用户的所有活跃会话
+    const currentTime = getChinaCurrentTimeMySQL();
     const [sessions] = await pool.execute(`
       SELECT 
         id,
@@ -281,9 +287,9 @@ router.get('/devices', authenticateToken, async (req, res) => {
         created_at,
         CASE WHEN token = ? THEN 1 ELSE 0 END as is_current
       FROM user_sessions 
-      WHERE user_id = ? AND is_active = 1 AND expires_at > NOW()
+      WHERE user_id = ? AND is_active = 1 AND expires_at > ?
       ORDER BY created_at DESC
-    `, [req.token, userId.toString()]);
+    `, [req.token, userId.toString(), currentTime]);
     
     // 解析User-Agent获取设备信息
     const devices = sessions.map(session => {
@@ -612,9 +618,10 @@ router.post('/admin/admins', authenticateToken, async (req, res) => {
     }
 
     // 创建管理员（密码使用SHA2哈希加密）
+    const createdAt = getChinaCurrentTimeMySQL();
     const [result] = await pool.execute(
-      'INSERT INTO admin (username, password, created_at) VALUES (?, SHA2(?, 256), NOW())',
-      [username, password]
+      'INSERT INTO admin (username, password, created_at) VALUES (?, SHA2(?, 256), ?)',
+      [username, password, createdAt]
     );
 
     res.json({
