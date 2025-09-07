@@ -12,21 +12,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import Sidebar from './components/Sidebar.vue'
-import LayoutHeader from './components/LayoutHeader.vue'
-import LayoutFooter from './components/LayoutFooter.vue'
+import { ref, onMounted, onUnmounted } from "vue";
+import Sidebar from "./components/Sidebar.vue";
+import LayoutHeader from "./components/LayoutHeader.vue";
+import LayoutFooter from "./components/LayoutFooter.vue";
 
-const showSidebar = ref(window.innerWidth > 960)
+const showSidebar = ref(window.innerWidth > 960);
 const handleResize = () => {
-  showSidebar.value = window.innerWidth > 960
-}
+  showSidebar.value = window.innerWidth > 960;
+};
 onMounted(() => {
-  window.addEventListener('resize', handleResize)
-})
+  window.addEventListener("resize", handleResize);
+});
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-})
+  window.removeEventListener("resize", handleResize);
+});
 </script>
 
 <style scoped>
@@ -36,13 +36,11 @@ onUnmounted(() => {
   background-color: var(--bg-color-primary);
   min-width: 320px;
   margin: 0 auto;
-  max-width: 1200px;
   width: 100%;
   overflow-x: hidden;
   position: relative;
   box-sizing: border-box;
   transition: background-color 0.2s ease;
-  
 }
 
 .main-content {
@@ -66,7 +64,8 @@ onUnmounted(() => {
   flex: 1;
   margin: auto;
   width: 100%;
-  padding: 0;
+  max-width: 750px;
+  padding: 0 20px;
   box-sizing: border-box;
   padding-bottom: 48px;
   display: flex;
@@ -81,24 +80,28 @@ onUnmounted(() => {
   }
 
   .content-wrapper {
+    padding: 0 15px;
     padding-bottom: 48px;
   }
 }
 
 @media (max-width: 768px) {
   .content-wrapper {
+    padding: 0 12px;
     padding-bottom: 48px;
   }
 }
 
 @media (max-width: 480px) {
   .content-wrapper {
+    padding: 0 8px;
     padding-bottom: 48px;
   }
 }
 
 @media (min-width: 961px) {
   .content-wrapper {
+    padding: 0 20px;
     padding-bottom: 0;
   }
 }

@@ -241,7 +241,7 @@ onMounted(() => {
   background: var(--bg-color-primary);
   position: fixed;
   z-index: 100;
-  left: max(calc(50% - 750px), 0px);
+  left: 0;
   top: 72px;
   height: calc(100vh - 72px);
   overflow-y: auto;
