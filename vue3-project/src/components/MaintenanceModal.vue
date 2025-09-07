@@ -40,11 +40,8 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { useRouter } from "vue-router";
 import SvgIcon from "@/components/SvgIcon.vue";
 import { formatTimeWithTimezone } from "@/utils/timeFormat";
-
-const router = useRouter();
 
 const isMaintenanceMode = ref(false);
 const maintenanceData = ref({});

@@ -723,6 +723,11 @@ export const adminApi = {
   },
 
   // ========== 系统设置管理 ==========
+  // 获取公开系统设置（无需权限验证）
+  getPublicSystemSettings() {
+    return request.get('/system/public-settings')
+  },
+
   // 获取系统设置
   getSystemSettings() {
     return request.get('/system/settings')

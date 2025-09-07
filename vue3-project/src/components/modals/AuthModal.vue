@@ -163,6 +163,7 @@ import { useUserStore } from "@/stores/user.js";
 import { useScrollLock } from "@/composables/useScrollLock";
 import { SITE_CONFIG } from "@/config/site";
 import { adminApi } from "@/api/index.js";
+import { DEFAULT_AVATAR } from "@/utils/assets.js";
 
 const props = defineProps({
   initialMode: {
@@ -361,7 +362,7 @@ const handleSubmit = async () => {
         user_id: formData.user_id,
         nickname: formData.nickname,
         password: formData.password,
-        avatar: new URL("@/assets/imgs/avatar.png", import.meta.url).href,
+        avatar: DEFAULT_AVATAR,
         bio: "用户没有任何简介",
         location: "未知",
       });
@@ -397,7 +398,7 @@ const showToastMessage = (message, type = "success") => {
 // 获取系统设置
 const fetchSystemSettings = async () => {
   try {
-    const result = await adminApi.getSystemSettings();
+    const result = await adminApi.getPublicSystemSettings();
     if (result.success) {
       systemSettings.value = result.data;
       isRegistrationEnabled.value =

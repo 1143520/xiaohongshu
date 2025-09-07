@@ -8,6 +8,53 @@ const router = express.Router();
 const { pool } = require('../config/database');
 const { adminAuth } = require('../utils/uploadHelper');
 
+// 获取公开系统设置（不需要管理员权限）
+router.get('/public-settings', async (req, res) => {
+  try {
+    // 只返回公开的设置项
+    const publicSettings = ['user_registration_enabled', 'maintenance_mode'];
+    
+    const [settings] = await pool.execute(
+      'SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN (?, ?)',
+      publicSettings
+    );
+
+    const settingsObj = {};
+    settings.forEach(setting => {
+      let value = setting.setting_value;
+      if (value === 'true') value = true;
+      else if (value === 'false') value = false;
+      
+      settingsObj[setting.setting_key] = { value };
+    });
+
+    // 如果没有设置，返回默认值
+    if (!settingsObj.user_registration_enabled) {
+      settingsObj.user_registration_enabled = { value: true };
+    }
+    if (!settingsObj.maintenance_mode) {
+      settingsObj.maintenance_mode = { value: false };
+    }
+
+    res.json({
+      code: 200,
+      message: 'success',
+      data: settingsObj
+    });
+  } catch (error) {
+    console.error('获取公开系统设置失败:', error);
+    // 返回默认值，确保功能不中断
+    res.json({
+      code: 200,
+      message: 'success',
+      data: {
+        user_registration_enabled: { value: true },
+        maintenance_mode: { value: false }
+      }
+    });
+  }
+});
+
 // 获取系统设置
 router.get('/settings', adminAuth, async (req, res) => {
   try {
