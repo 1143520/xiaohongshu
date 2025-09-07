@@ -44,7 +44,9 @@ router.get('/settings', adminAuth, async (req, res) => {
         ['max_posts_per_day', '20', '用户每日最大发帖数量'],
         ['max_upload_size', '50', '最大上传文件大小(MB)'],
         ['site_notice', '', '站点公告'],
-        ['comment_approval_required', 'false', '评论是否需要审核']
+        ['comment_approval_required', 'false', '评论是否需要审核'],
+        ['image_host_type', 'xinyew', '图床类型 (xinyew/4399/nodeimage)'],
+        ['nodeimage_api_key', '', 'NodeImage图床API密钥']
       ];
 
       for (const [key, value, description] of defaultSettings) {
@@ -188,6 +190,39 @@ async function isRegistrationEnabled() {
 async function isMaintenanceMode() {
   return await getSystemSetting('maintenance_mode', false);
 }
+
+// 测试图床配置
+router.get('/test-imagehost', adminAuth, async (req, res) => {
+  try {
+    const imageHostType = await getSystemSetting('image_host_type', 'xinyew');
+    const nodeimageApiKey = await getSystemSetting('nodeimage_api_key', '');
+    
+    let status = {
+      type: imageHostType,
+      configured: true,
+      message: '图床配置正常'
+    };
+
+    // 检查NodeImage配置
+    if (imageHostType === 'nodeimage' && !nodeimageApiKey.trim()) {
+      status.configured = false;
+      status.message = 'NodeImage需要配置API密钥';
+    }
+
+    res.json({
+      code: 200,
+      message: 'success',
+      data: status
+    });
+  } catch (error) {
+    console.error('测试图床配置失败:', error);
+    res.status(500).json({ 
+      code: 500, 
+      message: '服务器内部错误',
+      error: error.message 
+    });
+  }
+});
 
 module.exports = {
   router,

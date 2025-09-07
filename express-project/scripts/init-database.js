@@ -371,7 +371,9 @@ class DatabaseInitializer {
       ['max_posts_per_day', '20', '用户每日最大发帖数量'],
       ['max_upload_size', '50', '最大上传文件大小(MB)'],
       ['site_notice', '', '站点公告'],
-      ['comment_approval_required', 'false', '评论是否需要审核']
+      ['comment_approval_required', 'false', '评论是否需要审核'],
+      ['image_host_type', 'xinyew', '图床类型 (xinyew/4399/nodeimage)'],
+      ['nodeimage_api_key', '', 'NodeImage图床API密钥']
     ];
 
     for (const [key, value, description] of defaultSettings) {

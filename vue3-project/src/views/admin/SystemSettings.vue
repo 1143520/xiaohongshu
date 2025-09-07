@@ -142,6 +142,65 @@
         </div>
       </div>
 
+      <!-- 图床设置 -->
+      <div class="settings-section">
+        <h3>图床设置</h3>
+        <div class="setting-item">
+          <div class="setting-info">
+            <label>图床类型</label>
+            <span class="setting-desc">选择图片上传使用的图床服务</span>
+          </div>
+          <div class="setting-control">
+            <select
+              v-model="settings.image_host_type.value"
+              @change="updateImageHostType"
+              class="select-input"
+            >
+              <option value="xinyew">新叶图床 (默认)</option>
+              <option value="4399">4399图床 (免费)</option>
+              <option value="nodeimage">NodeImage (需要API密钥)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- NodeImage API Key 配置 -->
+        <div
+          v-if="settings.image_host_type?.value === 'nodeimage'"
+          class="setting-item"
+        >
+          <div class="setting-info">
+            <label>NodeImage API密钥</label>
+            <span class="setting-desc">请输入您的NodeImage API密钥</span>
+          </div>
+          <div class="setting-control">
+            <input
+              type="password"
+              v-model="settings.nodeimage_api_key.value"
+              @blur="updateTextSetting('nodeimage_api_key')"
+              placeholder="请输入NodeImage API密钥"
+              class="text-input"
+            />
+          </div>
+        </div>
+
+        <!-- 图床状态显示 -->
+        <div class="setting-item">
+          <div class="setting-info">
+            <label>当前图床状态</label>
+            <span class="setting-desc">显示当前选择图床的配置状态</span>
+          </div>
+          <div class="setting-control">
+            <span class="status-badge" :class="getImageHostStatus().class">
+              {{ getImageHostStatus().text }}
+            </span>
+            <button @click="testImageHost" class="test-btn" :disabled="testing">
+              <span v-if="testing">测试中...</span>
+              <span v-else>测试图床</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- 操作按钮 -->
       <div class="actions">
         <button @click="saveAllSettings" :disabled="saving" class="save-btn">
@@ -171,6 +230,7 @@ import api from "@/api";
 // 数据状态
 const loading = ref(true);
 const saving = ref(false);
+const testing = ref(false);
 const settings = ref({});
 
 // 消息提示
@@ -280,13 +340,39 @@ const updateTextSetting = async (key) => {
 
     const response = await api.updateSystemSettings(updateData);
     if (response.success) {
-      showMessage("公告内容已更新");
+      if (key === "nodeimage_api_key") {
+        showMessage("API密钥已更新");
+      } else {
+        showMessage("设置已更新");
+      }
     } else {
       showMessage("设置更新失败", "error");
     }
   } catch (error) {
     console.error("更新文本设置失败:", error);
     showMessage("设置更新失败", "error");
+  }
+};
+
+// 更新图床类型
+const updateImageHostType = async () => {
+  try {
+    const updateData = {
+      image_host_type: {
+        value: settings.value.image_host_type.value,
+        description: settings.value.image_host_type.description,
+      },
+    };
+
+    const response = await api.updateSystemSettings(updateData);
+    if (response.success) {
+      showMessage("图床类型已更新");
+    } else {
+      showMessage("图床类型更新失败", "error");
+    }
+  } catch (error) {
+    console.error("更新图床类型失败:", error);
+    showMessage("图床类型更新失败", "error");
   }
 };
 
@@ -329,6 +415,14 @@ const resetSettings = async () => {
         value: false,
         description: "评论是否需要审核",
       },
+      image_host_type: {
+        value: "xinyew",
+        description: "图床类型",
+      },
+      nodeimage_api_key: {
+        value: "",
+        description: "NodeImage API密钥",
+      },
     };
 
     const response = await api.updateSystemSettings(defaultSettings);
@@ -341,6 +435,55 @@ const resetSettings = async () => {
   } catch (error) {
     console.error("重置设置失败:", error);
     showMessage("重置失败", "error");
+  }
+};
+
+// 获取图床状态
+const getImageHostStatus = () => {
+  if (!settings.value.image_host_type) {
+    return { text: "未配置", class: "warning" };
+  }
+
+  const hostType = settings.value.image_host_type.value;
+
+  switch (hostType) {
+    case "xinyew":
+      return { text: "新叶图床 - 正常可用", class: "success" };
+    case "4399":
+      return { text: "4399图床 - 正常可用", class: "success" };
+    case "nodeimage":
+      const hasApiKey = settings.value.nodeimage_api_key?.value?.trim();
+      if (hasApiKey) {
+        return { text: "NodeImage - 已配置API密钥", class: "success" };
+      } else {
+        return { text: "NodeImage - 需要配置API密钥", class: "warning" };
+      }
+    default:
+      return { text: "未知图床类型", class: "error" };
+  }
+};
+
+// 测试图床配置
+const testImageHost = async () => {
+  try {
+    testing.value = true;
+    const response = await api.testImageHost();
+
+    if (response.success) {
+      const { configured, message, type } = response.data;
+      if (configured) {
+        showMessage(`${type}图床配置正常，可以正常使用`);
+      } else {
+        showMessage(message, "warning");
+      }
+    } else {
+      showMessage("图床测试失败", "error");
+    }
+  } catch (error) {
+    console.error("测试图床失败:", error);
+    showMessage("图床测试失败", "error");
+  } finally {
+    testing.value = false;
   }
 };
 
@@ -482,31 +625,99 @@ onMounted(() => {
   min-width: 60px;
 }
 
-/* 输入框 */
+/* 输入控件样式 */
+.number-input,
+.text-input,
+.select-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color-primary);
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  background: var(--background-color-primary);
+  color: var(--text-color-primary);
+}
+
+.number-input:focus,
+.text-input:focus,
+.select-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
 .number-input {
   width: 80px;
-  padding: 6px 8px;
-  border: 1px solid var(--border-color-primary);
-  border-radius: 4px;
-  background: var(--bg-color-primary);
-  color: var(--text-color-primary);
   text-align: center;
 }
 
 .text-input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid var(--border-color-primary);
-  border-radius: 4px;
-  background: var(--bg-color-primary);
-  color: var(--text-color-primary);
+  min-width: 300px;
   resize: vertical;
-  font-family: inherit;
+}
+
+.select-input {
+  min-width: 200px;
+  cursor: pointer;
 }
 
 .unit {
+  margin-left: 8px;
   color: var(--text-color-secondary);
   font-size: 13px;
+}
+
+/* 状态徽章 */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 12px;
+}
+
+.status-badge.success {
+  background: rgba(72, 187, 120, 0.1);
+  color: #38a169;
+  border: 1px solid rgba(72, 187, 120, 0.2);
+}
+
+.status-badge.warning {
+  background: rgba(237, 137, 54, 0.1);
+  color: #dd6b20;
+  border: 1px solid rgba(237, 137, 54, 0.2);
+}
+
+.status-badge.error {
+  background: rgba(245, 101, 101, 0.1);
+  color: #e53e3e;
+  border: 1px solid rgba(245, 101, 101, 0.2);
+}
+
+/* 测试按钮 */
+.test-btn {
+  padding: 6px 16px;
+  border: 1px solid var(--primary-color);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--primary-color);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.test-btn:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: white;
+}
+
+.test-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* 操作按钮 */

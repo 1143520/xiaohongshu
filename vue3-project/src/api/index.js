@@ -731,6 +731,11 @@ export const adminApi = {
   // 更新系统设置
   updateSystemSettings(data) {
     return request.put('/system/settings', data)
+  },
+
+  // 测试图床配置
+  testImageHost() {
+    return request.get('/system/test-imagehost')
   }
 }
 
