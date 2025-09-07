@@ -112,7 +112,7 @@
         <div class="modal-header">
           <h3>添加图片链接</h3>
           <button class="close-btn" @click="closeLinkModal">
-            <SvgIcon name="close" />
+            <SvgIcon name="close" width="16" height="16" />
           </button>
         </div>
         <div class="modal-content">
@@ -1117,19 +1117,21 @@ defineExpose({
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 6px;
+  border-radius: 6px;
   color: var(--text-color-secondary);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 32px;
+  height: 32px;
 }
 
 .close-btn:hover {
   background: var(--bg-color-secondary);
   color: var(--text-color-primary);
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .modal-content {
