@@ -155,8 +155,7 @@
                 <strong>时区统一：</strong>全站时间统一为中国时区(UTC+8)显示
               </li>
               <li>
-                <strong>快捷入口：</strong
-                >Pinterest、NodeImage图床、博客、音乐快速访问
+                <strong>快捷入口：</strong>Pinterest、NodeImage图床快速访问
               </li>
               <li>
                 <strong>Pinterest集成：</strong
@@ -278,32 +277,6 @@ vim .env  # 配置环境变量
                   />NodeImage图床</a
                 >快捷入口，方便用户进行图片管理和外链生成。
               </p>
-              <p>
-                <strong>博客链接：</strong>提供
-                <a
-                  href="https://r.1143520.xyz/"
-                  target="_blank"
-                  class="api-link"
-                  ><img
-                    :src="ztmyoUrl"
-                    alt="博客"
-                    class="api-icon"
-                  />开发者博客</a
-                >快捷入口，分享技术文章和项目开发心得。
-              </p>
-              <p>
-                <strong>音乐服务：</strong>集成
-                <a
-                  href="https://kugou.1143520.xyz/#/"
-                  target="_blank"
-                  class="api-link"
-                  ><img
-                    :src="xiaRouUrl"
-                    alt="音乐"
-                    class="api-icon"
-                  />在线音乐</a
-                >快捷入口，提供便捷的音乐播放和收听体验。
-              </p>
             </div>
           </div>
 
@@ -361,8 +334,6 @@ vim .env  # 配置环境变量
                   >一键将Pinterest图片转为永久可用直链
                 </li>
                 <li><strong>NodeImage图床：</strong>快速访问图片上传和管理</li>
-                <li><strong>博客：</strong>快速访问开发者博客和技术文章</li>
-                <li><strong>音乐：</strong>快速访问在线音乐播放服务</li>
                 <li><strong>实时通知：</strong>点赞、评论、关注即时提醒</li>
                 <li><strong>搜索发现：</strong>智能搜索用户和内容</li>
                 <li><strong>主题切换：</strong>支持深色和浅色主题</li>
