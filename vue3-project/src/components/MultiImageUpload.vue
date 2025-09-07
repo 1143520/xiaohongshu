@@ -134,8 +134,8 @@
                 type="button"
                 class="convert-btn"
                 @click="convertImageLink"
-                :disabled="isConvertDisabled"
-                :title="isLoggedIn ? '转换为国内可访问链接' : '请先登录后使用转换功能'"
+                :disabled="!linkInput.trim()"
+                title="转换为国内可访问链接"
               >
                 <SvgIcon name="reload" width="14" height="14" />
                 转换
@@ -168,7 +168,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, computed, onMounted } from "vue";
+import { ref, watch, nextTick, computed } from "vue";
 import SvgIcon from "@/components/SvgIcon.vue";
 import MessageToast from "@/components/MessageToast.vue";
 import { imageUploadApi } from "@/api/index.js";
@@ -248,50 +248,14 @@ watch(
   (newValue) => {
     if (isInternalUpdate) return; // 如果是内部更新触发的，跳过
 
-    if (newValue && newValue.length > 0) {
+  if (newValue && newValue.length > 0) {
       imageList.value = initializeImageList(newValue);
-    } else {
+  } else {
       imageList.value = [];
-    }
+  }
   },
   { immediate: true }
 );
-
-// 监听登录状态变化
-watch(isLoggedIn, (newValue, oldValue) => {
-  console.log('登录状态变化:', { oldValue, newValue });
-});
-
-// 强制刷新登录状态
-const refreshLoginStatus = () => {
-  const token = localStorage.getItem('access_token');
-  const loggedIn = !!token;
-  console.log('强制刷新登录状态:', { token: token ? '存在' : '不存在', loggedIn });
-  isLoggedIn.value = loggedIn;
-};
-
-// 组件挂载时检查登录状态
-onMounted(() => {
-  console.log('组件挂载，检查登录状态');
-  refreshLoginStatus();
-  
-  // 监听localStorage变化
-  const handleStorageChange = (e) => {
-    if (e.key === 'access_token') {
-      console.log('检测到access_token变化:', e.newValue ? '已登录' : '已退出');
-      refreshLoginStatus();
-    }
-  };
-  
-  window.addEventListener('storage', handleStorageChange);
-  
-  // 清理事件监听器
-  const cleanup = () => {
-    window.removeEventListener('storage', handleStorageChange);
-  };
-  
-  return cleanup;
-});
 
 // 监听内部数组变化，同步到外部
 watch(
@@ -301,18 +265,18 @@ watch(
 
     isInternalUpdate = true;
 
-    // 将内部格式转换为外部格式
+  // 将内部格式转换为外部格式
     const externalValue = newValue.map((item) => ({
-      id: item.id,
-      file: item.file,
-      preview: item.preview,
-      uploaded: item.uploaded,
+    id: item.id,
+    file: item.file,
+    preview: item.preview,
+    uploaded: item.uploaded,
       url: item.url,
     }));
     emit("update:modelValue", externalValue);
 
-    // 在下一个tick重置标志
-    nextTick(() => {
+  // 在下一个tick重置标志
+  nextTick(() => {
       isInternalUpdate = false;
     });
   },
@@ -739,9 +703,6 @@ const handleToastClose = () => {
 const showLinkInput = () => {
   showLinkModal.value = true;
   linkInput.value = "";
-  // 强制刷新登录状态
-  console.log('打开模态框，刷新登录状态');
-  refreshLoginStatus();
 };
 
 // 关闭链接输入模态框
@@ -807,32 +768,20 @@ const convertImageUrl = async (imageUrl) => {
   }
 };
 
-// 响应式的登录状态
-const isLoggedIn = ref(!!localStorage.getItem('access_token'));
-
 // 检查用户登录状态
 const checkUserLogin = () => {
   const token = localStorage.getItem('access_token');
-  const loggedIn = !!token;
-  console.log('检查登录状态:', { token: token ? '存在' : '不存在', loggedIn, currentState: isLoggedIn.value });
-  isLoggedIn.value = loggedIn; // 更新响应式状态
-  return loggedIn;
+  return !!token;
 };
-
-// 计算转换按钮是否可用
-const isConvertDisabled = computed(() => {
-  const disabled = isLoadingImage.value || !linkInput.value.trim() || !isLoggedIn.value;
-  console.log('转换按钮状态:', {
-    isLoadingImage: isLoadingImage.value,
-    hasInput: !!linkInput.value.trim(),
-    isLoggedIn: isLoggedIn.value,
-    disabled
-  });
-  return disabled;
-});
 
 // 转换链接按钮点击事件
 const convertImageLink = async () => {
+  console.log('点击转换按钮');
+  console.log('isLoadingImage:', isLoadingImage.value);
+  console.log('linkInput:', linkInput.value);
+  console.log('linkInput.trim():', linkInput.value.trim());
+  console.log('checkUserLogin():', checkUserLogin());
+  
   const url = linkInput.value.trim();
   
   if (!url) {
@@ -860,10 +809,9 @@ const convertImageLink = async () => {
   } catch (error) {
     showMessage(error.message || "图片链接转换失败", "error");
     
-    // 如果是401错误，清除本地token并更新状态
+    // 如果是401错误，清除本地token
     if (error.message.includes('登录已过期')) {
       localStorage.removeItem('access_token');
-      isLoggedIn.value = false;
     }
   } finally {
     isLoadingImage.value = false;

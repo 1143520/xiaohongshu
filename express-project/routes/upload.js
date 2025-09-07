@@ -6,7 +6,6 @@ const http = require('http');
 const { URL } = require('url');
 const { authenticateToken } = require('../middleware/auth');
 const { uploadToImageHost, uploadBase64ToImageHost } = require('../utils/uploadHelper');
-const { uploadToMultipleHosts, getEnabledImageHosts, updateImageHostConfig, addImageHostConfig, deleteImageHostConfig } = require('../utils/multiImageHostUploader');
 
 // 配置 multer 内存存储（用于云端图床）
 const storage = multer.memoryStorage();
@@ -37,8 +36,8 @@ router.post('/single', authenticateToken, upload.single('file'), async (req, res
       return res.status(400).json({ code: 400, message: '没有上传文件' });
     }
 
-    // 使用多图床上传（按优先级依次尝试）
-    const result = await uploadToMultipleHosts(
+    // 直接使用图床上传函数（传入buffer数据）
+    const result = await uploadToImageHost(
       req.file.buffer,
       req.file.originalname,
       req.file.mimetype
@@ -76,7 +75,7 @@ router.post('/multiple', authenticateToken, upload.array('files', 9), async (req
     const uploadResults = [];
     
     for (const file of req.files) {
-      const result = await uploadToMultipleHosts(
+      const result = await uploadToImageHost(
         file.buffer,
         file.originalname,
         file.mimetype
@@ -210,8 +209,8 @@ router.post('/convert-link', authenticateToken, async (req, res) => {
     // 确定MIME类型
     const mimeType = getMimeType(ext);
     
-    // 使用多图床上传
-    const result = await uploadToMultipleHosts(imageBuffer, fileName, mimeType);
+    // 上传到图床
+    const result = await uploadToImageHost(imageBuffer, fileName, mimeType);
     
     if (result.success) {
       console.log(`图片链接转换成功 - 用户ID: ${req.user.id}, 原URL: ${url}, 新URL: ${result.url}`);
@@ -298,194 +297,5 @@ function getMimeType(ext) {
   
   return mimeTypes[ext.toLowerCase()] || 'image/jpeg';
 }
-
-// 图床管理接口
-
-// 获取所有图床配置
-router.get('/image-hosts', authenticateToken, async (req, res) => {
-  try {
-    // 检查是否为管理员
-    if (req.user.type !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: '需要管理员权限'
-      });
-    }
-    
-    const imageHosts = await getEnabledImageHosts();
-    // 获取所有图床（包括禁用的）
-    const { pool } = require('../config/database');
-    const [allHosts] = await pool.execute(
-      'SELECT * FROM image_hosts ORDER BY priority DESC, id ASC'
-    );
-    
-    res.json({
-      success: true,
-      data: allHosts
-    });
-    
-  } catch (error) {
-    console.error('获取图床配置失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '获取图床配置失败'
-    });
-  }
-});
-
-// 更新图床配置
-router.put('/image-hosts/:id', authenticateToken, async (req, res) => {
-  try {
-    // 检查是否为管理员
-    if (req.user.type !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: '需要管理员权限'
-      });
-    }
-    
-    const hostId = req.params.id;
-    const config = req.body;
-    
-    const success = await updateImageHostConfig(hostId, config);
-    
-    if (success) {
-      res.json({
-        success: true,
-        message: '图床配置更新成功'
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: '图床配置更新失败'
-      });
-    }
-    
-  } catch (error) {
-    console.error('更新图床配置失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '更新图床配置失败'
-    });
-  }
-});
-
-// 添加新图床配置
-router.post('/image-hosts', authenticateToken, async (req, res) => {
-  try {
-    // 检查是否为管理员
-    if (req.user.type !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: '需要管理员权限'
-      });
-    }
-    
-    const config = req.body;
-    const hostId = await addImageHostConfig(config);
-    
-    if (hostId) {
-      res.json({
-        success: true,
-        message: '图床配置添加成功',
-        id: hostId
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: '图床配置添加失败'
-      });
-    }
-    
-  } catch (error) {
-    console.error('添加图床配置失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '添加图床配置失败'
-    });
-  }
-});
-
-// 删除图床配置
-router.delete('/image-hosts/:id', authenticateToken, async (req, res) => {
-  try {
-    // 检查是否为管理员
-    if (req.user.type !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: '需要管理员权限'
-      });
-    }
-    
-    const hostId = req.params.id;
-    const success = await deleteImageHostConfig(hostId);
-    
-    if (success) {
-      res.json({
-        success: true,
-        message: '图床配置删除成功'
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: '图床配置删除失败'
-      });
-    }
-    
-  } catch (error) {
-    console.error('删除图床配置失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '删除图床配置失败'
-    });
-  }
-});
-
-// 测试图床配置
-router.post('/image-hosts/:id/test', authenticateToken, async (req, res) => {
-  try {
-    // 检查是否为管理员
-    if (req.user.type !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: '需要管理员权限'
-      });
-    }
-    
-    const hostId = req.params.id;
-    const { pool } = require('../config/database');
-    const [hosts] = await pool.execute('SELECT * FROM image_hosts WHERE id = ?', [hostId]);
-    
-    if (hosts.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: '图床配置不存在'
-      });
-    }
-    
-    const hostConfig = hosts[0];
-    
-    // 创建一个测试用的1x1像素透明PNG
-    const testImageBuffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9jU77ygAAAABJRU5ErkJggg==', 'base64');
-    
-    const { uploadToHost } = require('../utils/multiImageHostUploader');
-    const result = await uploadToHost(testImageBuffer, 'test.png', 'image/png', hostConfig);
-    
-    res.json({
-      success: result.success,
-      message: result.success ? '图床测试成功' : '图床测试失败',
-      url: result.url,
-      error: result.error
-    });
-    
-  } catch (error) {
-    console.error('测试图床配置失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '测试图床配置失败',
-      error: error.message
-    });
-  }
-});
 
 module.exports = router;

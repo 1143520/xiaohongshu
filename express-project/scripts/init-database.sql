@@ -42,30 +42,6 @@ CREATE TABLE IF NOT EXISTS `admin` (
   KEY `idx_admin_username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员表';
 
--- 2.1 图床配置表
-CREATE TABLE IF NOT EXISTS `image_hosts` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '图床配置ID',
-  `name` varchar(50) NOT NULL COMMENT '图床名称',
-  `url` varchar(500) NOT NULL COMMENT '上传接口URL',
-  `method` varchar(10) DEFAULT 'POST' COMMENT '请求方法',
-  `headers` json DEFAULT NULL COMMENT '请求头配置（JSON格式）',
-  `form_field` varchar(50) DEFAULT 'file' COMMENT '文件字段名',
-  `api_key` varchar(500) DEFAULT NULL COMMENT 'API密钥',
-  `response_url_path` varchar(100) DEFAULT NULL COMMENT '响应中URL字段路径（如：data.url）',
-  `success_code` varchar(20) DEFAULT '200' COMMENT '成功状态码',
-  `success_field` varchar(100) DEFAULT NULL COMMENT '成功判断字段路径（如：code）',
-  `success_value` varchar(50) DEFAULT NULL COMMENT '成功判断值',
-  `is_enabled` tinyint(1) DEFAULT 1 COMMENT '是否启用',
-  `priority` int(11) DEFAULT 0 COMMENT '优先级（数字越大优先级越高）',
-  `timeout` int(11) DEFAULT 30000 COMMENT '超时时间（毫秒）',
-  `max_file_size` bigint(20) DEFAULT 52428800 COMMENT '最大文件大小（字节，默认50MB）',
-  `description` text DEFAULT NULL COMMENT '描述信息',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  KEY `idx_enabled_priority` (`is_enabled`, `priority` DESC)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='图床配置表';
-
 -- 3. 帖子表
 CREATE TABLE IF NOT EXISTS `posts` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '帖子ID',
@@ -233,17 +209,6 @@ CREATE TABLE IF NOT EXISTS `user_sessions` (
 -- 插入默认管理员账号（密码: admin123，使用SHA2哈希加密）
 INSERT INTO `admin` (`username`, `password`) VALUES 
 ('admin', SHA2('admin123', 256));
-
--- 插入默认图床配置
-INSERT INTO `image_hosts` (`name`, `url`, `method`, `headers`, `form_field`, `response_url_path`, `success_code`, `success_field`, `success_value`, `is_enabled`, `priority`, `description`) VALUES 
--- 夏柔图床（默认）
-('夏柔图床', 'https://api.xinyew.cn/api/jdtc', 'POST', NULL, 'file', 'data.url', '200', 'code', '200', 1, 100, '稳定的图片存储服务'),
-
--- 4399图床
-('4399图床', 'https://api.h5wan.4399sj.com/html5/report/upload', 'POST', '{"device": "main_pc"}', 'file', 'data.file', '200', 'code', '1000', 1, 90, '4399游戏平台图床服务'),
-
--- NodeSeek图床（需要配置API Key）
-('NodeSeek图床', 'https://api.nodeimage.com/api/upload', 'POST', NULL, 'image', 'data.url', '200', 'success', 'true', 0, 80, 'NodeSeek社区图床服务，需要配置API Key');
 
 -- 数据库初始化完成
 SELECT '数据库初始化完成！' AS message;
