@@ -159,9 +159,10 @@ onUnmounted(() => {
     display: none;
 }
 
-@media (min-width: 901px) {
+@media (min-width: 961px) {
     .fixed-channel-container {
-        left: 262px; /* 250px (侧边栏) + 12px (对齐普通状态的margin-left) */
+        /* 动态计算侧边栏位置 + TabContainer的margin-left */
+        left: max(calc(50% - 750px + 228px + 12px), 240px);
     }
 }
 </style>
