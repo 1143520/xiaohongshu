@@ -1,4 +1,4 @@
-const CACHE_NAME = 'xiaohongshu-v1.2.0';
+const CACHE_NAME = 'xiaohongshu-v1.3.0';
 const urlsToCache = [
   '/',
   '/explore',
@@ -8,7 +8,8 @@ const urlsToCache = [
   '/static/js/app.js',
   '/static/css/app.css',
   '/logo.ico',
-  '/manifest.json'
+  '/manifest.json',
+  '/src/utils/statusBar.js'
 ];
 
 // 安装事件 - 缓存资源

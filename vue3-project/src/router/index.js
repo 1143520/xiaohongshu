@@ -243,4 +243,14 @@ const router = createRouter({
   ],
 })
 
+// 导入状态栏工具
+import { setStatusBarColorForRoute } from '@/utils/statusBar'
+
+// 路由守卫：更新状态栏颜色
+router.beforeEach((to, from, next) => {
+  // 根据路由更新状态栏颜色
+  setStatusBarColorForRoute(to.path)
+  next()
+})
+
 export default router

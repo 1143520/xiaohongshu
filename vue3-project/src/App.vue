@@ -56,10 +56,37 @@ onMounted(() => {
   position: relative;
   overflow-x: hidden;
   transition: background 0.2s ease;
+
+  /* 支持安全区域（刘海屏、状态栏等） */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 body {
   margin: 0;
   padding: 0;
+}
+
+/* PWA 沉浸式状态栏支持 */
+@supports (padding: max(0px)) {
+  .app-container {
+    padding-top: max(env(safe-area-inset-top), 0px);
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+    padding-left: max(env(safe-area-inset-left), 0px);
+    padding-right: max(env(safe-area-inset-right), 0px);
+  }
+}
+
+/* Android PWA 状态栏样式 */
+@media (display-mode: standalone) {
+  .app-container {
+    /* 确保在独立模式下正确处理状态栏 */
+    min-height: 100vh;
+    min-height: calc(
+      100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+    );
+  }
 }
 </style>

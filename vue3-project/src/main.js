@@ -26,12 +26,17 @@ import { install as messageInstall } from '@/utils/messageManager'
 import { useUserStore } from '@/stores/user'
 // 导入PWA管理器
 import { pwaManager } from '@/utils/pwa'
+// 导入状态栏工具
+import { initStatusBar } from '@/utils/statusBar'
 
 // 初始化主题系统（在应用创建之前）
 initTheme()
 
 // 初始化PWA
 pwaManager.init()
+
+// 初始化状态栏
+initStatusBar()
 
 const app = createApp(App)
 const pinia = createPinia()

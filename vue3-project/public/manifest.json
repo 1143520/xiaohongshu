@@ -5,7 +5,11 @@
   "theme_color": "#ff5f5f",
   "background_color": "#ffffff",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait",
+  "edge_side_panel": {
+    "preferred_width": 480
+  },
   "scope": "/",
   "start_url": "/",
   "lang": "zh-CN",
