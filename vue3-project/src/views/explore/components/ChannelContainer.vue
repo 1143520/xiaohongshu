@@ -14,7 +14,7 @@ const route = useRoute()
 const { y: scrollY } = useScroll(window)
 
 // 固定容器引用
-const fixedTabContainer = ref(null)
+// 移除了固定容器的引用，现在只使用单一容器
 
 // 使用频道 store 和导航 store
 const channelStore = useChannelStore()
@@ -100,30 +100,7 @@ function startChannelSwitch(item) {
 
 
 // 组件挂载时检查当前路由
-// 监听滚动状态变化，当固定容器显示时强制更新滑块
-watch(scrollY, (newScrollY, oldScrollY) => {
-    // 当滚动到100px时，固定容器从隐藏变为显示
-    if (newScrollY >= 100 && oldScrollY < 100 && fixedTabContainer.value) {
-        // 延迟确保DOM完全更新完成
-        nextTick(() => {
-            const tabContainer = fixedTabContainer.value
-            if (tabContainer && tabContainer.updateSlider) {
-                // 多次尝试更新，确保滑块位置正确
-                setTimeout(() => tabContainer.updateSlider(), 10)
-                setTimeout(() => tabContainer.updateSlider(), 50)
-                setTimeout(() => tabContainer.updateSlider(), 100)
-                setTimeout(() => tabContainer.updateSlider(), 200)
-            }
-        })
-    }
-    
-    // 当滚动回到100px以下时，也确保普通容器的滑块位置正确
-    if (newScrollY < 100 && oldScrollY >= 100) {
-        nextTick(() => {
-            // 这里可以触发普通容器的更新，但通常不需要
-        })
-    }
-})
+// 不再需要监听滚动状态来切换容器，只是简单的显示/隐藏
 
 onMounted(() => {
     // 如果当前路由是 /explore，重定向到当前选中的频道
@@ -149,16 +126,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-
-    <div class="channel-container">
+    <div class="channel-container" :class="{ hidden: scrollY >= 100 }">
         <TabContainer :tabs="channelStore.channels" :activeTab="channelStore.activeChannelId" :enableDrag="true"
             @tab-change="handleTabChange" />
-    </div>
-
-
-    <div class="fixed-channel-container" :class="{ hidden: scrollY < 100 }">
-        <TabContainer :tabs="channelStore.channels" :activeTab="channelStore.activeChannelId" :enableDrag="true"
-            @tab-change="handleTabChange" ref="fixedTabContainer" />
     </div>
 </template>
 
@@ -167,42 +137,17 @@ onUnmounted(() => {
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-/* 普通的频道容器 */
+/* 频道容器 */
 .channel-container {
     width: 100%;
     background: var(--bg-color-primary);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* 固定的频道容器 - 吸顶效果 */
-.fixed-channel-container {
-    position: fixed;
-    top: 72px;
-    left: 12px; /* 对应普通状态TabContainer的margin-left */
-    right: 12px; /* 右边也保持12px间距，确保与普通状态宽度一致 */
-    z-index: 999;
-    background: var(--bg-color-primary);
-}
-
-/* 固定状态下TabContainer不需要额外的margin-left，因为容器本身已经有定位 */
-.fixed-channel-container :deep(.tab-container) {
-    margin-left: 0 !important;
-}
-
-.hidden {
-    display: none;
-}
-
-@media (min-width: 961px) {
-    .fixed-channel-container {
-        /* 侧边栏右边缘 + 对齐偏移：max(calc(50% - 750px), 0px) + 228px + 12px */
-        left: max(calc(50% - 750px + 240px), 240px);
-        /* 右边距保持12px */
-        right: 12px;
-    }
-    
-    /* 大屏模式下TabContainer也不需要额外margin-left */
-    .fixed-channel-container :deep(.tab-container) {
-        margin-left: 0 !important;
-    }
+/* 隐藏状态 */
+.channel-container.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
 }
 </style>
