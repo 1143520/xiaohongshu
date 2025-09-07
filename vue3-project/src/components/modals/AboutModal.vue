@@ -161,6 +161,10 @@
                 <strong>Pinterest集成：</strong
                 >直链转换功能，一键将Pinterest图片转为永久可用链接
               </li>
+              <li>
+                <strong>PWA支持：</strong
+                >支持安装到主屏幕，离线访问，推送通知功能
+              </li>
             </ul>
           </div>
 

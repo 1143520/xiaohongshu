@@ -30,6 +30,17 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  build: {
+    // PWA 构建优化
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['vue', 'vue-router', 'pinia'],
+          'utils': ['axios']
+        }
+      }
+    }
+  },
   server: {
     proxy: {
       '/api': {

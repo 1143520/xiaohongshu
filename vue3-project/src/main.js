@@ -24,9 +24,14 @@ import { initTheme } from '@/utils/themeUtils'
 import { install as messageInstall } from '@/utils/messageManager'
 // 导入用户store
 import { useUserStore } from '@/stores/user'
+// 导入PWA管理器
+import { pwaManager } from '@/utils/pwa'
 
 // 初始化主题系统（在应用创建之前）
 initTheme()
+
+// 初始化PWA
+pwaManager.init()
 
 const app = createApp(App)
 const pinia = createPinia()
