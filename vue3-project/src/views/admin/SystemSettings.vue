@@ -93,7 +93,7 @@
           <div class="setting-control">
             <input
               type="number"
-              v-model="settings.max_posts_per_day?.value"
+              v-model="settings.max_posts_per_day.value"
               @change="updateNumberSetting('max_posts_per_day')"
               min="1"
               max="100"
@@ -111,7 +111,7 @@
           <div class="setting-control">
             <input
               type="number"
-              v-model="settings.max_upload_size?.value"
+              v-model="settings.max_upload_size.value"
               @change="updateNumberSetting('max_upload_size')"
               min="1"
               max="200"
@@ -132,7 +132,7 @@
           </div>
           <div class="setting-control">
             <textarea
-              v-model="settings.site_notice?.value"
+              v-model="settings.site_notice.value"
               @blur="updateTextSetting('site_notice')"
               placeholder="请输入站点公告内容，留空则不显示公告"
               class="text-input"
@@ -152,7 +152,7 @@
           </div>
           <div class="setting-control">
             <select
-              v-model="settings.image_host_type?.value"
+              v-model="settings.image_host_type.value"
               @change="updateImageHostType"
               class="select-input"
             >
@@ -175,7 +175,7 @@
           <div class="setting-control">
             <input
               type="password"
-              v-model="settings.nodeimage_api_key?.value"
+              v-model="settings.nodeimage_api_key.value"
               @blur="updateTextSetting('nodeimage_api_key')"
               placeholder="请输入NodeImage API密钥"
               class="text-input"
@@ -340,8 +340,8 @@ const updateNumberSetting = async (key) => {
   try {
     const updateData = {
       [key]: {
-        value: settings.value[key]?.value,
-        description: settings.value[key]?.description || "",
+        value: settings.value[key].value,
+        description: settings.value[key].description,
       },
     };
 
@@ -362,8 +362,8 @@ const updateTextSetting = async (key) => {
   try {
     const updateData = {
       [key]: {
-        value: settings.value[key]?.value,
-        description: settings.value[key]?.description || "",
+        value: settings.value[key].value,
+        description: settings.value[key].description,
       },
     };
 
@@ -388,8 +388,8 @@ const updateImageHostType = async () => {
   try {
     const updateData = {
       image_host_type: {
-        value: settings.value.image_host_type?.value,
-        description: settings.value.image_host_type?.description,
+        value: settings.value.image_host_type.value,
+        description: settings.value.image_host_type.description,
       },
     };
 

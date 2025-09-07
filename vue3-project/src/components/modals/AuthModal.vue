@@ -121,13 +121,27 @@
           </button>
         </form>
 
-        <div class="auth-switch">
+        <div
+          class="auth-switch"
+          v-if="isLoginMode || (!isLoginMode && isRegistrationEnabled)"
+        >
           <span class="switch-text">
             {{ isLoginMode ? "还没有账号？" : "已有账号？" }}
           </span>
-          <button type="button" class="switch-btn" @click="toggleMode">
+          <button
+            type="button"
+            class="switch-btn"
+            @click="toggleMode"
+            v-if="isLoginMode ? isRegistrationEnabled : true"
+          >
             {{ isLoginMode ? "立即注册" : "立即登录" }}
           </button>
+          <span
+            v-if="isLoginMode && !isRegistrationEnabled"
+            class="registration-disabled-text"
+          >
+            注册功能暂时关闭
+          </span>
         </div>
       </div>
     </div>
@@ -148,6 +162,7 @@ import MessageToast from "@/components/MessageToast.vue";
 import { useUserStore } from "@/stores/user.js";
 import { useScrollLock } from "@/composables/useScrollLock";
 import { SITE_CONFIG } from "@/config/site";
+import { adminApi } from "@/api/index.js";
 
 const props = defineProps({
   initialMode: {
@@ -162,6 +177,10 @@ const emit = defineEmits(["close", "success"]);
 const userStore = useUserStore();
 
 const { lock, unlock } = useScrollLock();
+
+// 系统设置相关
+const systemSettings = ref({});
+const isRegistrationEnabled = ref(true);
 
 const isAnimating = ref(false);
 const isLoginMode = ref(props.initialMode === "login");
@@ -271,6 +290,12 @@ const resetForm = () => {
 };
 
 const toggleMode = () => {
+  // 如果要切换到注册模式，先检查注册是否被禁用
+  if (isLoginMode.value && !isRegistrationEnabled.value) {
+    unifiedMessage.value = "注册功能暂时关闭，请联系管理员";
+    return;
+  }
+
   isLoginMode.value = !isLoginMode.value;
   Object.keys(formData).forEach((key) => {
     formData[key] = "";
@@ -306,6 +331,12 @@ const handleSubmit = async () => {
       return;
     }
   } else {
+    // 注册模式，先检查注册是否被禁用
+    if (!isRegistrationEnabled.value) {
+      unifiedMessage.value = "注册功能暂时关闭，请联系管理员";
+      return;
+    }
+
     validateUserId();
     validatePassword();
     validateNickname();
@@ -363,6 +394,21 @@ const showToastMessage = (message, type = "success") => {
   showToast.value = true;
 };
 
+// 获取系统设置
+const fetchSystemSettings = async () => {
+  try {
+    const result = await adminApi.getSystemSettings();
+    if (result.success) {
+      systemSettings.value = result.data;
+      isRegistrationEnabled.value =
+        result.data.user_registration_enabled?.value !== false;
+    }
+  } catch (error) {
+    console.warn("获取系统设置失败，使用默认配置:", error);
+    isRegistrationEnabled.value = true;
+  }
+};
+
 const handleToastClose = () => {
   showToast.value = false;
 };
@@ -375,9 +421,15 @@ const closeModal = () => {
   }, 200);
 };
 
-onMounted(() => {
+onMounted(async () => {
   lock();
   isAnimating.value = true;
+  await fetchSystemSettings();
+
+  // 如果注册被禁用且当前是注册模式，则切换到登录模式
+  if (!isRegistrationEnabled.value && !isLoginMode.value) {
+    isLoginMode.value = true;
+  }
 });
 </script>
 
@@ -602,6 +654,12 @@ onMounted(() => {
 
 .switch-btn:hover {
   opacity: 0.8;
+}
+
+.registration-disabled-text {
+  font-size: 14px;
+  color: var(--text-color-muted);
+  font-style: italic;
 }
 
 /* 响应式设计 */

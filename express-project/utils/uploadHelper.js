@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * 上传文件到图床
+ * 上传文件到图床（带重试和备用方案）
  * @param {Buffer} fileBuffer - 文件缓冲区
  * @param {string} filename - 文件名
  * @param {string} mimetype - 文件MIME类型
@@ -35,16 +35,59 @@ async function uploadToImageHost(fileBuffer, filename, mimetype) {
       console.warn('获取图床配置失败，使用默认配置:', dbError.message);
     }
     
-    switch (imageHostType) {
-      case 'xinyew':
-        return await uploadToXinyew(fileBuffer, filename, mimetype);
-      case '4399':
-        return await uploadTo4399(fileBuffer, filename, mimetype);
-      case 'nodeimage':
-        return await uploadToNodeImage(fileBuffer, filename, mimetype, nodeimageApiKey);
-      default:
-        return await uploadToXinyew(fileBuffer, filename, mimetype);
+    // 定义图床尝试顺序，主图床失败时的备用方案
+    const imageHosts = [imageHostType];
+    
+    // 添加备用图床（避免重复）
+    if (imageHostType !== 'xinyew') imageHosts.push('xinyew');
+    if (imageHostType !== '4399') imageHosts.push('4399');
+    
+    let lastError = null;
+    
+    // 依次尝试图床上传
+    for (const hostType of imageHosts) {
+      try {
+        console.log(`🚀 尝试上传到图床: ${hostType}`);
+        
+        let result;
+        switch (hostType) {
+          case 'xinyew':
+            result = await uploadToXinyew(fileBuffer, filename, mimetype);
+            break;
+          case '4399':
+            result = await uploadTo4399(fileBuffer, filename, mimetype);
+            break;
+          case 'nodeimage':
+            if (nodeimageApiKey) {
+              result = await uploadToNodeImage(fileBuffer, filename, mimetype, nodeimageApiKey);
+            } else {
+              continue; // 跳过没有配置API Key的NodeImage
+            }
+            break;
+          default:
+            continue;
+        }
+        
+        if (result.success) {
+          if (hostType !== imageHostType) {
+            console.log(`✅ 主图床失败，已使用备用图床 ${hostType} 上传成功`);
+          }
+          return result;
+        } else {
+          lastError = result;
+          console.log(`❌ 图床 ${hostType} 上传失败:`, result.message);
+        }
+      } catch (error) {
+        lastError = { success: false, message: error.message };
+        console.log(`❌ 图床 ${hostType} 上传异常:`, error.message);
+      }
     }
+    
+    // 所有图床都失败
+    return lastError || {
+      success: false,
+      message: '所有图床上传失败'
+    };
   } catch (error) {
     console.error('❌ 图床上传失败:', error.message);
     return {
