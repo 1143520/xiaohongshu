@@ -44,6 +44,13 @@ const updateSlider = () => {
             return
         }
 
+        // 检查容器是否隐藏
+        if (!containerRef.value || containerRef.value.offsetParent === null) {
+            // 容器隐藏时，延迟重试
+            setTimeout(() => updateSlider(), 100)
+            return
+        }
+
         const tabRect = tabItems.value[activeIndex].getBoundingClientRect()
         const containerRect = containerRef.value.getBoundingClientRect()
 
@@ -51,10 +58,13 @@ const updateSlider = () => {
         const calculatedLeft = tabRect.left - containerRect.left + containerRef.value.scrollLeft
         const calculatedWidth = tabRect.width
 
-        // 确保计算结果有效
-        if (calculatedWidth > 0) {
+        // 确保计算结果有效（宽度大于0且容器可见）
+        if (calculatedWidth > 0 && containerRect.width > 0) {
             sliderLeft.value = calculatedLeft
             sliderWidth.value = calculatedWidth
+        } else {
+            // 如果计算结果无效，延迟重试
+            setTimeout(() => updateSlider(), 100)
         }
     })
 }
@@ -109,12 +119,31 @@ onMounted(() => {
     if (containerRef.value) {
         containerRef.value.addEventListener('scroll', updateSlider)
     }
+    
+    // 使用 MutationObserver 监听容器可见性变化
+    if (containerRef.value) {
+        const observer = new MutationObserver(() => {
+            // 当DOM发生变化时，延迟更新滑块位置
+            setTimeout(updateSlider, 50)
+        })
+        observer.observe(containerRef.value.parentElement || document.body, {
+            attributes: true,
+            attributeFilter: ['class', 'style']
+        })
+        
+        // 保存observer引用以便清理
+        containerRef.value._observer = observer
+    }
 })
 
 onUnmounted(() => {
     window.removeEventListener('resize', updateSlider)
     if (containerRef.value) {
         containerRef.value.removeEventListener('scroll', updateSlider)
+        // 清理 MutationObserver
+        if (containerRef.value._observer) {
+            containerRef.value._observer.disconnect()
+        }
     }
 })
 </script>
