@@ -134,8 +134,8 @@
                 type="button"
                 class="convert-btn"
                 @click="convertImageLink"
-                :disabled="isLoadingImage || !linkInput.trim()"
-                title="转换为国内可访问链接"
+                :disabled="isConvertDisabled"
+                :title="checkUserLogin() ? '转换为国内可访问链接' : '请先登录后使用转换功能'"
               >
                 <SvgIcon name="reload" width="14" height="14" />
                 转换
@@ -168,7 +168,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from "vue";
+import { ref, watch, nextTick, computed } from "vue";
 import SvgIcon from "@/components/SvgIcon.vue";
 import MessageToast from "@/components/MessageToast.vue";
 import { imageUploadApi } from "@/api/index.js";
@@ -724,17 +724,30 @@ const convertImageUrl = async (imageUrl) => {
   try {
     showMessage("正在转换图片链接...", "info");
     
+    // 获取token
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      throw new Error('请先登录后再使用转换功能');
+    }
+    
+    console.log('调用链接转换接口:', '/api/upload/convert-link');
+    console.log('图片URL:', imageUrl);
+    
     // 调用后端接口转换图片链接
     const response = await fetch('/api/upload/convert-link', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
         url: imageUrl
       })
     });
+    
+    if (response.status === 401) {
+      throw new Error('登录已过期，请重新登录');
+    }
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -755,6 +768,17 @@ const convertImageUrl = async (imageUrl) => {
   }
 };
 
+// 检查用户登录状态
+const checkUserLogin = () => {
+  const token = localStorage.getItem('access_token');
+  return !!token;
+};
+
+// 计算转换按钮是否可用
+const isConvertDisabled = computed(() => {
+  return isLoadingImage.value || !linkInput.value.trim() || !checkUserLogin();
+});
+
 // 转换链接按钮点击事件
 const convertImageLink = async () => {
   const url = linkInput.value.trim();
@@ -769,6 +793,12 @@ const convertImageLink = async () => {
     return;
   }
   
+  // 检查登录状态
+  if (!checkUserLogin()) {
+    showMessage("请先登录后再使用转换功能", "error");
+    return;
+  }
+  
   isLoadingImage.value = true;
   
   try {
@@ -777,6 +807,11 @@ const convertImageLink = async () => {
     showMessage("图片链接转换成功", "success");
   } catch (error) {
     showMessage(error.message || "图片链接转换失败", "error");
+    
+    // 如果是401错误，清除本地token
+    if (error.message.includes('登录已过期')) {
+      localStorage.removeItem('access_token');
+    }
   } finally {
     isLoadingImage.value = false;
   }
