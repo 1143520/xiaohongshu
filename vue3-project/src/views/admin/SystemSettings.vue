@@ -142,6 +142,81 @@
         </div>
       </div>
 
+      <!-- 数据管理 -->
+      <div class="settings-section">
+        <h3>数据管理</h3>
+        <div class="setting-item">
+          <div class="setting-info">
+            <label>数据导出备份</label>
+            <span class="setting-desc"
+              >导出所有数据用于备份，包含用户、帖子、评论等完整数据</span
+            >
+          </div>
+          <div class="setting-control">
+            <button
+              @click="showExportDialog"
+              :disabled="exportLoading"
+              class="export-btn"
+            >
+              <span v-if="exportLoading">导出中...</span>
+              <span v-else>一键导出</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 导出预览 -->
+        <div v-if="exportPreview" class="export-preview">
+          <h4>导出预览</h4>
+          <div class="preview-stats">
+            <div class="stat-item">
+              <span class="stat-label">用户数据:</span>
+              <span class="stat-value">{{ exportPreview.users }} 条</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">帖子数据:</span>
+              <span class="stat-value">{{ exportPreview.posts }} 条</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">评论数据:</span>
+              <span class="stat-value">{{ exportPreview.comments }} 条</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">标签数据:</span>
+              <span class="stat-value">{{ exportPreview.tags }} 条</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">关系数据:</span>
+              <span class="stat-value"
+                >{{
+                  exportPreview.follows +
+                  exportPreview.likes +
+                  exportPreview.collections
+                }}
+                条</span
+              >
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">数据库大小:</span>
+              <span class="stat-value"
+                >{{ exportPreview.database_size_mb }} MB</span
+              >
+            </div>
+          </div>
+          <div class="export-actions">
+            <button
+              @click="confirmExport"
+              :disabled="exportLoading"
+              class="confirm-export-btn"
+            >
+              确认导出
+            </button>
+            <button @click="cancelExport" class="cancel-export-btn">
+              取消
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- 操作按钮 -->
       <div class="actions">
         <button @click="saveAllSettings" :disabled="saving" class="save-btn">
@@ -172,6 +247,10 @@ import api from "@/api";
 const loading = ref(true);
 const saving = ref(false);
 const settings = ref({});
+
+// 导出相关状态
+const exportLoading = ref(false);
+const exportPreview = ref(null);
 
 // 消息提示
 const message = reactive({
@@ -342,6 +421,85 @@ const resetSettings = async () => {
     console.error("重置设置失败:", error);
     showMessage("重置失败", "error");
   }
+};
+
+// 显示导出对话框
+const showExportDialog = async () => {
+  try {
+    exportLoading.value = true;
+
+    // 获取导出预览数据
+    const response = await fetch("/api/export/preview");
+    const result = await response.json();
+
+    if (result.code === 200) {
+      exportPreview.value = {
+        ...result.data.statistics,
+        database_size_mb: result.data.database_size_mb,
+      };
+    } else {
+      showMessage("获取导出预览失败", "error");
+    }
+  } catch (error) {
+    console.error("获取导出预览失败:", error);
+    showMessage("获取导出预览失败", "error");
+  } finally {
+    exportLoading.value = false;
+  }
+};
+
+// 确认导出
+const confirmExport = async () => {
+  try {
+    exportLoading.value = true;
+    showMessage("正在导出数据，请稍候...", "info");
+
+    // 创建下载链接
+    const response = await fetch("/api/export", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      // 获取文件名
+      const contentDisposition = response.headers.get("Content-Disposition");
+      const filename = contentDisposition
+        ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+        : `xiaoshiliu_backup_${new Date()
+            .toISOString()
+            .slice(0, 19)
+            .replace(/[:.]/g, "-")}.json`;
+
+      // 下载文件
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      showMessage("数据导出成功！", "success");
+      exportPreview.value = null;
+    } else {
+      const errorData = await response.json();
+      showMessage(`导出失败: ${errorData.message}`, "error");
+    }
+  } catch (error) {
+    console.error("导出失败:", error);
+    showMessage("导出失败，请重试", "error");
+  } finally {
+    exportLoading.value = false;
+  }
+};
+
+// 取消导出
+const cancelExport = () => {
+  exportPreview.value = null;
 };
 
 // 页面加载
@@ -628,5 +786,114 @@ onMounted(() => {
   .actions {
     flex-direction: column;
   }
+}
+
+/* 导出功能样式 */
+.export-btn {
+  padding: 8px 16px;
+  background: #4299e1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.export-btn:hover:not(:disabled) {
+  background: #3182ce;
+}
+
+.export-btn:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.export-preview {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--bg-color-primary);
+  border: 1px solid var(--border-color-secondary);
+  border-radius: 6px;
+}
+
+.export-preview h4 {
+  margin: 0 0 12px 0;
+  color: var(--text-color-primary);
+  font-size: 16px;
+}
+
+.preview-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color-secondary);
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: var(--text-color-secondary);
+  font-size: 14px;
+}
+
+.stat-value {
+  color: var(--text-color-primary);
+  font-weight: 500;
+}
+
+.export-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.confirm-export-btn {
+  padding: 8px 16px;
+  background: #48bb78;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.confirm-export-btn:hover:not(:disabled) {
+  background: #38a169;
+}
+
+.confirm-export-btn:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.cancel-export-btn {
+  padding: 8px 16px;
+  background: #e2e8f0;
+  color: var(--text-color-primary);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.cancel-export-btn:hover {
+  background: #cbd5e0;
+}
+
+.message.info {
+  background: #4299e1;
 }
 </style>
