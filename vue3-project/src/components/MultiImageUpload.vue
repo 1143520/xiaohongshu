@@ -1052,29 +1052,50 @@ defineExpose({
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
 }
 
 .link-modal {
   background: var(--bg-color-primary);
-  border-radius: 12px;
+  border-radius: 16px;
   width: 90%;
-  max-width: 500px;
+  max-width: 480px;
   max-height: 90vh;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color-primary);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 24px 28px 20px;
   border-bottom: 1px solid var(--border-color-primary);
+  background: var(--bg-color-primary);
 }
 
 .modal-header h3 {
@@ -1082,53 +1103,70 @@ defineExpose({
   font-size: 18px;
   font-weight: 600;
   color: var(--text-color-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-header h3:before {
+  content: "🔗";
+  font-size: 16px;
 }
 
 .close-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 8px;
+  border-radius: 8px;
   color: var(--text-color-secondary);
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .close-btn:hover {
   background: var(--bg-color-secondary);
   color: var(--text-color-primary);
+  transform: scale(1.1);
 }
 
 .modal-content {
-  padding: 24px;
+  padding: 28px;
+  background: var(--bg-color-primary);
 }
 
 .input-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .input-group label {
   display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
+  margin-bottom: 12px;
+  font-weight: 600;
   color: var(--text-color-primary);
+  font-size: 15px;
 }
 
 .url-input {
   width: 100%;
-  padding: 12px 16px;
+  padding: 16px 20px;
   border: 2px solid var(--border-color-primary);
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 12px;
+  font-size: 15px;
   color: var(--text-color-primary);
   background: var(--bg-color-primary);
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
   box-sizing: border-box;
+  font-family: inherit;
 }
 
 .url-input:focus {
   outline: none;
   border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+  transform: translateY(-1px);
 }
 
 .url-input:disabled {
@@ -1136,22 +1174,47 @@ defineExpose({
   cursor: not-allowed;
 }
 
+.url-input::placeholder {
+  color: var(--text-color-tertiary);
+  font-size: 14px;
+}
+
 .modal-tips {
   background: var(--bg-color-secondary);
-  border-radius: 6px;
-  padding: 12px;
+  border-radius: 12px;
+  padding: 16px 20px;
+  border: 1px solid var(--border-color-primary);
+  position: relative;
+}
+
+.modal-tips:before {
+  content: "💡";
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  font-size: 16px;
 }
 
 .modal-tips p {
-  margin: 4px 0;
-  font-size: 12px;
+  margin: 6px 0;
+  margin-left: 28px;
+  font-size: 13px;
   color: var(--text-color-secondary);
+  line-height: 1.5;
+}
+
+.modal-tips p:first-child {
+  margin-top: 0;
+}
+
+.modal-tips p:last-child {
+  margin-bottom: 0;
 }
 
 .modal-footer {
   display: flex;
-  gap: 12px;
-  padding: 20px 24px;
+  gap: 16px;
+  padding: 24px 28px;
   border-top: 1px solid var(--border-color-primary);
   background: var(--bg-color-secondary);
 }
@@ -1159,39 +1222,51 @@ defineExpose({
 .cancel-btn,
 .confirm-btn {
   flex: 1;
-  padding: 10px 20px;
+  padding: 14px 24px;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
 }
 
 .cancel-btn {
   background: var(--bg-color-primary);
   color: var(--text-color-secondary);
-  border: 1px solid var(--border-color-primary);
+  border: 2px solid var(--border-color-primary);
 }
 
 .cancel-btn:hover:not(:disabled) {
   background: var(--bg-color-tertiary);
   color: var(--text-color-primary);
+  border-color: var(--text-color-tertiary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .confirm-btn {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #ff8c42 100%);
   color: white;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 .confirm-btn:hover:not(:disabled) {
-  background: var(--primary-color-dark, #ff6b35);
+  background: linear-gradient(135deg, #ff6b35 0%, #ff7a3d 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
 }
 
 .confirm-btn:disabled,
 .cancel-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* 响应式设计 */
@@ -1208,12 +1283,35 @@ defineExpose({
   
   .link-modal {
     width: 95%;
+    margin: 20px;
   }
   
-  .modal-header,
-  .modal-content,
+  .modal-header {
+    padding: 20px 20px 16px;
+  }
+  
+  .modal-content {
+    padding: 20px;
+  }
+  
   .modal-footer {
-    padding: 16px;
+    padding: 16px 20px 20px;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .cancel-btn,
+  .confirm-btn {
+    width: 100%;
+  }
+  
+  .modal-tips:before {
+    top: 12px;
+    left: 16px;
+  }
+  
+  .modal-tips p {
+    margin-left: 24px;
   }
 }
 </style>
