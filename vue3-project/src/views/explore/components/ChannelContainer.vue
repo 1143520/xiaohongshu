@@ -1,7 +1,7 @@
 <script setup>
 import router from '@/router'
 import TabContainer from '@/components/TabContainer.vue'
-import { onMounted, watch, ref } from 'vue'
+import { onMounted, watch, ref, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useScroll } from '@vueuse/core'
 import { useChannelStore } from '@/stores/channel'
@@ -12,6 +12,9 @@ const route = useRoute()
 
 // 获取滚动信息
 const { y: scrollY } = useScroll(window)
+
+// 固定容器引用
+const fixedTabContainer = ref(null)
 
 // 使用频道 store 和导航 store
 const channelStore = useChannelStore()
@@ -97,6 +100,21 @@ function startChannelSwitch(item) {
 
 
 // 组件挂载时检查当前路由
+// 监听滚动状态变化，当固定容器显示时强制更新滑块
+watch(scrollY, (newScrollY) => {
+    // 当滚动到100px时，固定容器从隐藏变为显示
+    if (newScrollY >= 100 && fixedTabContainer.value) {
+        // 延迟一帧确保DOM更新完成
+        nextTick(() => {
+            // 触发固定容器内TabContainer的滑块更新
+            const tabContainer = fixedTabContainer.value
+            if (tabContainer && tabContainer.updateSlider) {
+                setTimeout(() => tabContainer.updateSlider(), 50)
+            }
+        })
+    }
+})
+
 onMounted(() => {
     // 如果当前路由是 /explore，重定向到当前选中的频道
     if (route.path === '/explore') {
@@ -130,7 +148,7 @@ onUnmounted(() => {
 
     <div class="fixed-channel-container" :class="{ hidden: scrollY < 100 }">
         <TabContainer :tabs="channelStore.channels" :activeTab="channelStore.activeChannelId" :enableDrag="true"
-            @tab-change="handleTabChange" />
+            @tab-change="handleTabChange" ref="fixedTabContainer" />
     </div>
 </template>
 

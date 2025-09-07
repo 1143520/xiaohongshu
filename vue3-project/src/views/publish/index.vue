@@ -79,6 +79,7 @@
     </div>
 
     <MessageToast v-if="showToast" :message="toastMessage" :type="toastType" @close="handleToastClose" />
+    <BackToTopButton />
   </div>
 </template>
 
@@ -99,6 +100,7 @@ import MessageToast from '@/components/MessageToast.vue'
 import EmojiPicker from '@/components/EmojiPicker.vue'
 import MentionModal from '@/components/mention/MentionModal.vue'
 import ContentEditableInput from '@/components/ContentEditableInput.vue'
+import BackToTopButton from '@/components/BackToTopButton.vue'
 
 const router = useRouter()
 const route = useRoute()

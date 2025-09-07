@@ -13,6 +13,7 @@ import NotificationTab from './components/NotificationTab.vue'
 import FollowButton from '@/components/FollowButton.vue'
 import LikeButton from '@/components/LikeButton.vue'
 import DetailCard from '@/components/DetailCard.vue'
+import BackToTopButton from '@/components/BackToTopButton.vue'
 import { getCommentNotifications, getLikeNotifications, getFollowNotifications, getCollectionNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '@/api/notification.js'
 import { getPostDetail } from '@/api/posts.js'
 import { postApi, userApi, commentApi } from '@/api/index.js'
@@ -1347,6 +1348,8 @@ watch(isLoggedIn, async (newValue, oldValue) => {
 
   <MentionModal :visible="!!(showMentionPanel && currentMentionItem)" @close="closeMentionPanel"
     @select="handleMentionSelect" />
+  
+  <BackToTopButton />
 </template>
 
 
