@@ -168,7 +168,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, computed } from "vue";
+import { ref, watch, nextTick, computed, onMounted } from "vue";
 import SvgIcon from "@/components/SvgIcon.vue";
 import MessageToast from "@/components/MessageToast.vue";
 import { imageUploadApi } from "@/api/index.js";
@@ -256,6 +256,42 @@ watch(
   },
   { immediate: true }
 );
+
+// 监听登录状态变化
+watch(isLoggedIn, (newValue, oldValue) => {
+  console.log('登录状态变化:', { oldValue, newValue });
+});
+
+// 强制刷新登录状态
+const refreshLoginStatus = () => {
+  const token = localStorage.getItem('access_token');
+  const loggedIn = !!token;
+  console.log('强制刷新登录状态:', { token: token ? '存在' : '不存在', loggedIn });
+  isLoggedIn.value = loggedIn;
+};
+
+// 组件挂载时检查登录状态
+onMounted(() => {
+  console.log('组件挂载，检查登录状态');
+  refreshLoginStatus();
+  
+  // 监听localStorage变化
+  const handleStorageChange = (e) => {
+    if (e.key === 'access_token') {
+      console.log('检测到access_token变化:', e.newValue ? '已登录' : '已退出');
+      refreshLoginStatus();
+    }
+  };
+  
+  window.addEventListener('storage', handleStorageChange);
+  
+  // 清理事件监听器
+  const cleanup = () => {
+    window.removeEventListener('storage', handleStorageChange);
+  };
+  
+  return cleanup;
+});
 
 // 监听内部数组变化，同步到外部
 watch(
@@ -703,8 +739,9 @@ const handleToastClose = () => {
 const showLinkInput = () => {
   showLinkModal.value = true;
   linkInput.value = "";
-  // 检查登录状态
-  checkUserLogin();
+  // 强制刷新登录状态
+  console.log('打开模态框，刷新登录状态');
+  refreshLoginStatus();
 };
 
 // 关闭链接输入模态框
@@ -777,13 +814,21 @@ const isLoggedIn = ref(!!localStorage.getItem('access_token'));
 const checkUserLogin = () => {
   const token = localStorage.getItem('access_token');
   const loggedIn = !!token;
+  console.log('检查登录状态:', { token: token ? '存在' : '不存在', loggedIn, currentState: isLoggedIn.value });
   isLoggedIn.value = loggedIn; // 更新响应式状态
   return loggedIn;
 };
 
 // 计算转换按钮是否可用
 const isConvertDisabled = computed(() => {
-  return isLoadingImage.value || !linkInput.value.trim() || !isLoggedIn.value;
+  const disabled = isLoadingImage.value || !linkInput.value.trim() || !isLoggedIn.value;
+  console.log('转换按钮状态:', {
+    isLoadingImage: isLoadingImage.value,
+    hasInput: !!linkInput.value.trim(),
+    isLoggedIn: isLoggedIn.value,
+    disabled
+  });
+  return disabled;
 });
 
 // 转换链接按钮点击事件
