@@ -4,6 +4,7 @@ const { pool } = require('../config/database');
 const { optionalAuth, authenticateToken } = require('../middleware/auth');
 const { uploadBase64ToImageHost } = require('../utils/uploadHelper');
 const NotificationHelper = require('../utils/notificationHelper');
+const { getIPLocation, getRealIP } = require('../utils/ipLocation');
 
 // 获取笔记列表
 router.get('/', optionalAuth, async (req, res) => {
@@ -23,7 +24,7 @@ router.get('/', optionalAuth, async (req, res) => {
       const forcedUserId = currentUserId;
       
       let query = `
-        SELECT p.*, u.nickname, u.avatar as user_avatar, u.user_id as author_account, u.id as author_auto_id, u.location
+        SELECT p.*, u.nickname, u.avatar as user_avatar, u.user_id as author_account, u.id as author_auto_id, p.ip_location as location
         FROM posts p
         LEFT JOIN users u ON p.user_id = u.id
         WHERE p.is_draft = ? AND p.user_id = ?
@@ -83,7 +84,7 @@ router.get('/', optionalAuth, async (req, res) => {
     }
 
     let query = `
-      SELECT p.*, u.nickname, u.avatar as user_avatar, u.user_id as author_account, u.id as author_auto_id, u.location
+      SELECT p.*, u.nickname, u.avatar as user_avatar, u.user_id as author_account, u.id as author_auto_id, p.ip_location as location
       FROM posts p
       LEFT JOIN users u ON p.user_id = u.id
       WHERE p.is_draft = ?
@@ -99,7 +100,7 @@ router.get('/', optionalAuth, async (req, res) => {
 
       // 直接获取前20%浏览量的笔记，然后进行分页（只包含指定状态的笔记）
       query = `
-        SELECT p.*, u.nickname, u.avatar as user_avatar, u.user_id as author_account, u.id as author_auto_id, u.location
+        SELECT p.*, u.nickname, u.avatar as user_avatar, u.user_id as author_account, u.id as author_auto_id, p.ip_location as location
         FROM (
           SELECT * FROM posts WHERE is_draft = ? ORDER BY view_count DESC LIMIT ?
         ) p
@@ -233,7 +234,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
 
     // 获取笔记基本信息
     const [rows] = await pool.execute(
-      `SELECT p.*, u.nickname, u.avatar as user_avatar, u.user_id as author_account, u.id as author_auto_id, u.location
+      `SELECT p.*, u.nickname, u.avatar as user_avatar, u.user_id as author_account, u.id as author_auto_id, p.ip_location as location
        FROM posts p
        LEFT JOIN users u ON p.user_id = u.id
        WHERE p.id = ?`,
@@ -302,10 +303,20 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ code: 400, message: '发布时标题和内容不能为空' });
     }
 
+    // 获取发布者IP属地
+    const userIP = getRealIP(req);
+    let ipLocation;
+    try {
+      ipLocation = await getIPLocation(userIP);
+    } catch (error) {
+      console.error('获取IP属地失败:', error);
+      ipLocation = '未知';
+    }
+
     // 插入笔记
     const [result] = await pool.execute(
-      'INSERT INTO posts (user_id, title, content, category, is_draft) VALUES (?, ?, ?, ?, ?)',
-      [userId, title || '', content || '', category || null, is_draft ? 1 : 0]
+      'INSERT INTO posts (user_id, title, content, category, is_draft, ip_location) VALUES (?, ?, ?, ?, ?, ?)',
+      [userId, title || '', content || '', category || null, is_draft ? 1 : 0, ipLocation]
     );
 
     const postId = result.insertId;

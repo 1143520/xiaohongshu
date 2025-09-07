@@ -55,12 +55,14 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `comment_count` int(11) DEFAULT 0 COMMENT '评论数',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
   `is_draft` tinyint(1) DEFAULT 1 COMMENT '是否为草稿：1-草稿，0-已发布',
+  `ip_location` varchar(100) DEFAULT NULL COMMENT '发布时IP属地',
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_category` (`category`),
   KEY `idx_created_at` (`created_at`),
   KEY `idx_like_count` (`like_count`),
   KEY `idx_category_created_at` (`category`, `created_at`),
+  KEY `idx_posts_ip_location` (`ip_location`),
   CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='帖子表';
 
@@ -152,12 +154,14 @@ CREATE TABLE IF NOT EXISTS `comments` (
   `parent_id` bigint(20) DEFAULT NULL COMMENT '父评论ID',
   `content` text NOT NULL COMMENT '评论内容',
   `like_count` int(11) DEFAULT 0 COMMENT '点赞数',
+  `ip_location` varchar(100) DEFAULT NULL COMMENT '评论时IP属地',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '评论时间',
   PRIMARY KEY (`id`),
   KEY `idx_post_id` (`post_id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_parent_id` (`parent_id`),
   KEY `idx_created_at` (`created_at`),
+  KEY `idx_comments_ip_location` (`ip_location`),
   CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE,
   CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `comments_ibfk_3` FOREIGN KEY (`parent_id`) REFERENCES `comments` (`id`) ON DELETE CASCADE

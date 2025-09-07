@@ -151,12 +151,8 @@ router.post('/login', async (req, res) => {
     const userIP = getRealIP(req);
     const userAgent = req.headers['user-agent'] || '';
 
-    // 获取IP地理位置并更新用户location
-    const ipLocation = await getIPLocation(userIP);
-    await pool.execute(
-      'UPDATE users SET location = ? WHERE id = ?',
-      [ipLocation, user.id.toString()]
-    );
+    // 注意：移除了登录时更新用户location的逻辑，IP属地应该保持为注册时的属地
+    // 现在帖子和评论会记录各自发布时的IP属地，而不是用户最后登录的IP属地
 
     // 限制设备数量为3台，清除最早的会话（保留最新的2个）
     const [cleanupResult] = await pool.execute(`
@@ -184,9 +180,6 @@ router.post('/login', async (req, res) => {
       'INSERT INTO user_sessions (user_id, token, refresh_token, expires_at, user_agent, is_active) VALUES (?, ?, ?, ?, ?, 1)',
       [user.id.toString(), accessToken, refreshToken, expiresAt, userAgent]
     );
-
-    // 更新用户对象中的location字段
-    user.location = ipLocation;
 
     // 移除密码字段
     delete user.password;
@@ -253,12 +246,8 @@ router.post('/refresh', async (req, res) => {
     const userIP = getRealIP(req);
     const userAgent = req.headers['user-agent'] || '';
 
-    // 获取IP地理位置并更新用户location
-    const ipLocation = await getIPLocation(userIP);
-    await pool.execute(
-      'UPDATE users SET location = ? WHERE id = ?',
-      [ipLocation, decoded.userId.toString()]
-    );
+    // 注意：移除了刷新令牌时更新用户location的逻辑，IP属地应该保持为注册时的属地
+    // 现在帖子和评论会记录各自发布时的IP属地，而不是用户最后活跃的IP属地
 
     // 更新会话
     const newExpiresAt = getChinaFutureTime(7); // 7天后过期
