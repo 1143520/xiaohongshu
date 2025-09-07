@@ -28,9 +28,8 @@
               </button>
             </div>
             <div class="image-index">{{ index + 1 }}</div>
-            <div v-if="imageItem.isLink" class="image-source-badge" :class="{ pinterest: imageItem.isPinterest }">
-              <SvgIcon v-if="imageItem.isPinterest" name="pinterest" width="12" height="12" />
-              <SvgIcon v-else name="hash" width="12" height="12" />
+            <div v-if="imageItem.isLink" class="image-source-badge">
+              <SvgIcon name="hash" width="12" height="12" />
             </div>
           </div>
         </div>
@@ -121,20 +120,32 @@
         <div class="modal-content">
           <div class="input-group">
             <label for="image-url">图片链接</label>
-            <input
-              id="image-url"
-              v-model="linkInput"
-              type="url"
-              placeholder="请输入图片链接 (https://example.com/image.jpg)"
-              class="url-input"
-              @keyup.enter="addImageLink"
-              :disabled="isLoadingImage"
-            />
+            <div class="input-with-button">
+              <input
+                id="image-url"
+                v-model="linkInput"
+                type="url"
+                placeholder="请输入图片链接 (https://example.com/image.jpg)"
+                class="url-input"
+                @keyup.enter="addImageLink"
+                :disabled="isLoadingImage"
+              />
+              <button
+                type="button"
+                class="convert-btn"
+                @click="convertImageLink"
+                :disabled="isLoadingImage || !linkInput.trim()"
+                title="转换为国内可访问链接"
+              >
+                <SvgIcon name="reload" width="14" height="14" />
+                转换
+              </button>
+            </div>
           </div>
           <div class="modal-tips">
             <p>• 支持 JPG、PNG、GIF、WebP 等格式</p>
-            <p>• Pinterest 链接会自动转换为国内可访问链接</p>
-            <p>• 其他链接请确保可以正常访问</p>
+            <p>• 点击"转换"按钮可将链接转换为国内可访问链接</p>
+            <p>• 请确保图片链接可以正常访问</p>
             <p>• 建议使用 HTTPS 链接</p>
           </div>
         </div>
@@ -708,25 +719,20 @@ const validateImageUrl = (url) => {
   return urlPattern.test(url);
 };
 
-// 检测是否为Pinterest链接
-const isPinterestUrl = (url) => {
-  return url.includes('pinimg.com') || url.includes('pinterest.com');
-};
-
-// 通过后端处理Pinterest图片
-const downloadAndUploadPinterestImage = async (pinterestUrl) => {
+// 通过后端转换图片链接
+const convertImageUrl = async (imageUrl) => {
   try {
-    showMessage("正在从Pinterest下载图片...", "info");
+    showMessage("正在转换图片链接...", "info");
     
-    // 调用后端接口处理Pinterest图片
-    const response = await fetch('/api/upload/pinterest', {
+    // 调用后端接口转换图片链接
+    const response = await fetch('/api/upload/convert-link', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
       },
       body: JSON.stringify({
-        url: pinterestUrl
+        url: imageUrl
       })
     });
     
@@ -738,14 +744,41 @@ const downloadAndUploadPinterestImage = async (pinterestUrl) => {
     const data = await response.json();
     
     if (!data.success) {
-      throw new Error(data.message || 'Pinterest图片处理失败');
+      throw new Error(data.message || '图片链接转换失败');
     }
     
     return data.url;
     
   } catch (error) {
-    console.error("Pinterest图片处理失败:", error);
+    console.error("图片链接转换失败:", error);
     throw error;
+  }
+};
+
+// 转换链接按钮点击事件
+const convertImageLink = async () => {
+  const url = linkInput.value.trim();
+  
+  if (!url) {
+    showMessage("请先输入图片链接", "error");
+    return;
+  }
+  
+  if (!validateImageUrl(url)) {
+    showMessage("请输入有效的图片链接", "error");
+    return;
+  }
+  
+  isLoadingImage.value = true;
+  
+  try {
+    const convertedUrl = await convertImageUrl(url);
+    linkInput.value = convertedUrl;
+    showMessage("图片链接转换成功", "success");
+  } catch (error) {
+    showMessage(error.message || "图片链接转换失败", "error");
+  } finally {
+    isLoadingImage.value = false;
   }
 };
 
@@ -772,44 +805,25 @@ const addImageLink = async () => {
   isLoadingImage.value = true;
   
   try {
-    let finalUrl = url;
-    let isUploaded = false;
-    
-    // 如果是Pinterest链接，先下载并上传
-    if (isPinterestUrl(url)) {
-      try {
-        finalUrl = await downloadAndUploadPinterestImage(url);
-        isUploaded = true;
-        showMessage("Pinterest图片已转换为国内可访问链接", "success");
-      } catch (error) {
-        console.error("Pinterest图片处理失败，尝试直接使用原链接:", error);
-        showMessage("Pinterest图片处理失败，将使用原链接（可能在国内无法访问）", "warning");
-        // 继续使用原链接
-      }
-    }
-    
-    // 如果不是Pinterest链接或Pinterest处理失败，验证图片是否可以加载
-    if (!isUploaded) {
-      await new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve();
-        img.onerror = () => reject(new Error("图片加载失败"));
-        img.src = finalUrl;
-        
-        // 设置超时
-        setTimeout(() => reject(new Error("图片加载超时")), 10000);
-      });
-    }
+    // 验证图片是否可以加载
+    await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error("图片加载失败"));
+      img.src = url;
+      
+      // 设置超时
+      setTimeout(() => reject(new Error("图片加载超时")), 10000);
+    });
     
     // 添加到图片列表
     const newImage = {
       id: generateId(),
       file: null,
-      preview: finalUrl,
+      preview: url,
       uploaded: true,
-      url: finalUrl,
-      isLink: true, // 标记为链接添加的图片
-      isPinterest: isPinterestUrl(url) // 标记是否来自Pinterest
+      url: url,
+      isLink: true // 标记为链接添加的图片
     };
     
     imageList.value.push(newImage);
@@ -1063,11 +1077,6 @@ defineExpose({
   justify-content: center;
 }
 
-.image-source-badge.pinterest {
-  background: linear-gradient(135deg, #e60023 0%, #bd081c 100%);
-  box-shadow: 0 2px 4px rgba(230, 0, 35, 0.3);
-}
-
 /* 操作按钮区域 */
 .upload-actions {
   display: flex;
@@ -1221,8 +1230,14 @@ defineExpose({
   font-size: 15px;
 }
 
+.input-with-button {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
 .url-input {
-  width: 100%;
+  flex: 1;
   padding: 16px 20px;
   border: 2px solid var(--border-color-primary);
   border-radius: 12px;
@@ -1232,6 +1247,37 @@ defineExpose({
   transition: all 0.2s ease;
   box-sizing: border-box;
   font-family: inherit;
+}
+
+.convert-btn {
+  padding: 16px 20px;
+  border: 2px solid var(--border-color-primary);
+  border-radius: 12px;
+  background: var(--bg-color-primary);
+  color: var(--text-color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.convert-btn:hover:not(:disabled) {
+  border-color: #10b981;
+  color: #10b981;
+  background: var(--bg-color-secondary);
+  transform: translateY(-1px);
+}
+
+.convert-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .url-input:focus {
@@ -1384,6 +1430,16 @@ defineExpose({
   
   .modal-tips p {
     margin-left: 24px;
+  }
+  
+  .input-with-button {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .convert-btn {
+    min-width: auto;
+    width: 100%;
   }
 }
 </style>

@@ -173,8 +173,8 @@ router.use((error, req, res, next) => {
   res.status(500).json({ code: 500, message: '文件上传失败' });
 });
 
-// Pinterest图片处理接口
-router.post('/pinterest', authenticateToken, async (req, res) => {
+// 图片链接转换接口
+router.post('/convert-link', authenticateToken, async (req, res) => {
   try {
     const { url } = req.body;
     
@@ -185,15 +185,17 @@ router.post('/pinterest', authenticateToken, async (req, res) => {
       });
     }
     
-    // 验证是否为Pinterest链接
-    if (!url.includes('pinimg.com') && !url.includes('pinterest.com')) {
+    // 验证URL格式
+    try {
+      new URL(url);
+    } catch (e) {
       return res.status(400).json({ 
         success: false, 
-        message: '只支持Pinterest图片链接' 
+        message: '无效的图片链接格式' 
       });
     }
     
-    console.log(`开始处理Pinterest图片 - 用户ID: ${req.user.id}, URL: ${url}`);
+    console.log(`开始转换图片链接 - 用户ID: ${req.user.id}, URL: ${url}`);
     
     // 下载图片
     const imageBuffer = await downloadImage(url);
@@ -202,7 +204,7 @@ router.post('/pinterest', authenticateToken, async (req, res) => {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname;
     const ext = pathname.split('.').pop() || 'jpg';
-    const fileName = `pinterest_${Date.now()}.${ext}`;
+    const fileName = `converted_${Date.now()}.${ext}`;
     
     // 确定MIME类型
     const mimeType = getMimeType(ext);
@@ -211,11 +213,11 @@ router.post('/pinterest', authenticateToken, async (req, res) => {
     const result = await uploadToImageHost(imageBuffer, fileName, mimeType);
     
     if (result.success) {
-      console.log(`Pinterest图片处理成功 - 用户ID: ${req.user.id}, 原URL: ${url}, 新URL: ${result.url}`);
+      console.log(`图片链接转换成功 - 用户ID: ${req.user.id}, 原URL: ${url}, 新URL: ${result.url}`);
       
       res.json({
         success: true,
-        message: 'Pinterest图片处理成功',
+        message: '图片链接转换成功',
         url: result.url
       });
     } else {
@@ -223,10 +225,10 @@ router.post('/pinterest', authenticateToken, async (req, res) => {
     }
     
   } catch (error) {
-    console.error('Pinterest图片处理失败:', error);
+    console.error('图片链接转换失败:', error);
     res.status(500).json({ 
       success: false, 
-      message: error.message || 'Pinterest图片处理失败' 
+      message: error.message || '图片链接转换失败' 
     });
   }
 });
