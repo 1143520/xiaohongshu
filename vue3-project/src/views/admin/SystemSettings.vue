@@ -8,7 +8,23 @@
     <div class="settings-container" v-if="!loading">
       <!-- 用户功能设置 -->
       <div class="settings-section">
-        <h3>用户功能管理</h3>
+        <// 获取系统设置
+const fetchSettings = async () => {
+  try {
+    loading.value = true;
+    const response = await api.getSystemSettings();
+    if (response.success) {
+      settings.value = initializeSettings(response.data);
+    } else {
+      // 如果获取失败，使用默认设置
+      settings.value = { ...defaultSettings };
+      showMessage("获取系统设置失败，使用默认配置", "warning");
+    }
+  } catch (error) {
+    console.error("获取系统设置失败:", error);
+    // 如果出错，使用默认设置
+    settings.value = { ...defaultSettings };
+    showMessage("获取系统设置失败，使用默认配置", "error");>
         <div class="setting-item">
           <div class="setting-info">
             <label>用户注册功能</label>
@@ -93,7 +109,7 @@
           <div class="setting-control">
             <input
               type="number"
-              v-model="settings.max_posts_per_day.value"
+              v-model="settings.max_posts_per_day?.value"
               @change="updateNumberSetting('max_posts_per_day')"
               min="1"
               max="100"
@@ -111,7 +127,7 @@
           <div class="setting-control">
             <input
               type="number"
-              v-model="settings.max_upload_size.value"
+              v-model="settings.max_upload_size?.value"
               @change="updateNumberSetting('max_upload_size')"
               min="1"
               max="200"
@@ -132,7 +148,7 @@
           </div>
           <div class="setting-control">
             <textarea
-              v-model="settings.site_notice.value"
+              v-model="settings.site_notice?.value"
               @blur="updateTextSetting('site_notice')"
               placeholder="请输入站点公告内容，留空则不显示公告"
               class="text-input"
@@ -152,7 +168,7 @@
           </div>
           <div class="setting-control">
             <select
-              v-model="settings.image_host_type.value"
+              v-model="settings.image_host_type?.value"
               @change="updateImageHostType"
               class="select-input"
             >
@@ -175,7 +191,7 @@
           <div class="setting-control">
             <input
               type="password"
-              v-model="settings.nodeimage_api_key.value"
+              v-model="settings.nodeimage_api_key?.value"
               @blur="updateTextSetting('nodeimage_api_key')"
               placeholder="请输入NodeImage API密钥"
               class="text-input"
@@ -233,6 +249,32 @@ const saving = ref(false);
 const testing = ref(false);
 const settings = ref({});
 
+// 默认设置值
+const defaultSettings = {
+  user_registration_enabled: { value: true, description: '是否开启用户注册' },
+  maintenance_mode: { value: false, description: '维护模式开关' },
+  max_posts_per_day: { value: 20, description: '用户每日最大发帖数量' },
+  max_upload_size: { value: 50, description: '最大上传文件大小(MB)' },
+  site_notice: { value: '', description: '站点公告' },
+  comment_approval_required: { value: false, description: '评论是否需要审核' },
+  image_host_type: { value: 'xinyew', description: '图床类型 (xinyew/4399/nodeimage)' },
+  nodeimage_api_key: { value: '', description: 'NodeImage图床API密钥' }
+};
+
+// 初始化设置，确保所有字段都存在
+const initializeSettings = (fetchedSettings) => {
+  const initializedSettings = { ...defaultSettings };
+  
+  // 合并获取到的设置
+  Object.keys(fetchedSettings).forEach(key => {
+    if (initializedSettings[key]) {
+      initializedSettings[key] = fetchedSettings[key];
+    }
+  });
+  
+  return initializedSettings;
+};
+
 // 消息提示
 const message = reactive({
   show: false,
@@ -256,7 +298,7 @@ const fetchSettings = async () => {
     loading.value = true;
     const response = await api.getSystemSettings();
     if (response.success) {
-      settings.value = response.data;
+      settings.value = initializeSettings(response.data);
     } else {
       showMessage("获取系统设置失败", "error");
     }
@@ -277,7 +319,7 @@ const toggleSetting = async (key) => {
     const updateData = {
       [key]: {
         value: newValue,
-        description: settings.value[key].description,
+        description: settings.value[key]?.description || '',
       },
     };
 
@@ -311,8 +353,8 @@ const updateNumberSetting = async (key) => {
   try {
     const updateData = {
       [key]: {
-        value: settings.value[key].value,
-        description: settings.value[key].description,
+        value: settings.value[key]?.value,
+        description: settings.value[key]?.description || '',
       },
     };
 
@@ -333,8 +375,8 @@ const updateTextSetting = async (key) => {
   try {
     const updateData = {
       [key]: {
-        value: settings.value[key].value,
-        description: settings.value[key].description,
+        value: settings.value[key]?.value,
+        description: settings.value[key]?.description || '',
       },
     };
 
@@ -359,8 +401,8 @@ const updateImageHostType = async () => {
   try {
     const updateData = {
       image_host_type: {
-        value: settings.value.image_host_type.value,
-        description: settings.value.image_host_type.description,
+        value: settings.value.image_host_type?.value,
+        description: settings.value.image_host_type?.description,
       },
     };
 
@@ -402,29 +444,6 @@ const resetSettings = async () => {
 
   try {
     // 重置为默认值
-    const defaultSettings = {
-      user_registration_enabled: {
-        value: true,
-        description: "是否开启用户注册",
-      },
-      maintenance_mode: { value: false, description: "维护模式开关" },
-      max_posts_per_day: { value: 20, description: "用户每日最大发帖数量" },
-      max_upload_size: { value: 50, description: "最大上传文件大小(MB)" },
-      site_notice: { value: "", description: "站点公告" },
-      comment_approval_required: {
-        value: false,
-        description: "评论是否需要审核",
-      },
-      image_host_type: {
-        value: "xinyew",
-        description: "图床类型",
-      },
-      nodeimage_api_key: {
-        value: "",
-        description: "NodeImage API密钥",
-      },
-    };
-
     const response = await api.updateSystemSettings(defaultSettings);
     if (response.success) {
       settings.value = defaultSettings;
@@ -444,7 +463,7 @@ const getImageHostStatus = () => {
     return { text: "未配置", class: "warning" };
   }
 
-  const hostType = settings.value.image_host_type.value;
+  const hostType = settings.value.image_host_type?.value;
 
   switch (hostType) {
     case "xinyew":
