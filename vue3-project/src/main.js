@@ -40,8 +40,8 @@ app.use(messageInstall) // 注册消息管理器
 const userStore = useUserStore()
 // 先从localStorage恢复用户信息
 userStore.initUserInfo()
-// 如果有token，则获取最新的用户信息
-if (userStore.token) {
+// 如果有token且不是访问管理后台，则获取最新的用户信息
+if (userStore.token && !window.location.pathname.startsWith('/admin')) {
   userStore.getCurrentUser().catch(error => {
     console.error('获取用户信息失败:', error)
   })

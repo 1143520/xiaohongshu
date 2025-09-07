@@ -11,6 +11,52 @@ const { adminAuth } = require('../utils/uploadHelper');
 // 获取系统设置
 router.get('/settings', adminAuth, async (req, res) => {
   try {
+    // 检查表是否存在
+    const [tableExists] = await pool.execute(`
+      SELECT COUNT(*) as count 
+      FROM information_schema.tables 
+      WHERE table_schema = DATABASE() 
+      AND table_name = 'system_settings'
+    `);
+
+    if (tableExists[0].count === 0) {
+      // 表不存在，创建表和默认数据
+      console.log('system_settings表不存在，正在创建...');
+      
+      // 创建表
+      await pool.execute(`
+        CREATE TABLE IF NOT EXISTS \`system_settings\` (
+          \`id\` int(11) NOT NULL AUTO_INCREMENT COMMENT '设置ID',
+          \`setting_key\` varchar(100) NOT NULL COMMENT '设置键名',
+          \`setting_value\` text NOT NULL COMMENT '设置值',
+          \`description\` varchar(255) DEFAULT NULL COMMENT '设置描述',
+          \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+          \`updated_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+          PRIMARY KEY (\`id\`),
+          UNIQUE KEY \`uk_setting_key\` (\`setting_key\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统设置表'
+      `);
+
+      // 插入默认设置
+      const defaultSettings = [
+        ['user_registration_enabled', 'true', '是否开启用户注册'],
+        ['maintenance_mode', 'false', '维护模式开关'],
+        ['max_posts_per_day', '20', '用户每日最大发帖数量'],
+        ['max_upload_size', '50', '最大上传文件大小(MB)'],
+        ['site_notice', '', '站点公告'],
+        ['comment_approval_required', 'false', '评论是否需要审核']
+      ];
+
+      for (const [key, value, description] of defaultSettings) {
+        await pool.execute(
+          'INSERT IGNORE INTO system_settings (setting_key, setting_value, description) VALUES (?, ?, ?)',
+          [key, value, description]
+        );
+      }
+      
+      console.log('system_settings表创建并初始化完成');
+    }
+
     // 查询所有系统设置
     const [settings] = await pool.execute(
       'SELECT setting_key, setting_value, description FROM system_settings ORDER BY setting_key'
@@ -38,7 +84,11 @@ router.get('/settings', adminAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('获取系统设置失败:', error);
-    res.status(500).json({ code: 500, message: '服务器内部错误' });
+    res.status(500).json({ 
+      code: 500, 
+      message: '服务器内部错误',
+      error: error.message 
+    });
   }
 });
 
@@ -75,11 +125,16 @@ router.put('/settings', adminAuth, async (req, res) => {
       });
     } catch (error) {
       await pool.execute('ROLLBACK');
+      console.error('更新系统设置失败:', error);
       throw error;
     }
   } catch (error) {
     console.error('更新系统设置失败:', error);
-    res.status(500).json({ code: 500, message: '服务器内部错误' });
+    res.status(500).json({ 
+      code: 500, 
+      message: '服务器内部错误',
+      error: error.message 
+    });
   }
 });
 
