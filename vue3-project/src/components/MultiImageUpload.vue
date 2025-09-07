@@ -28,8 +28,9 @@
               </button>
             </div>
             <div class="image-index">{{ index + 1 }}</div>
-            <div v-if="imageItem.isLink" class="image-source-badge">
-              <SvgIcon name="hash" width="12" height="12" />
+            <div v-if="imageItem.isLink" class="image-source-badge" :class="{ pinterest: imageItem.isPinterest }">
+              <SvgIcon v-if="imageItem.isPinterest" name="pinterest" width="12" height="12" />
+              <SvgIcon v-else name="hash" width="12" height="12" />
             </div>
           </div>
         </div>
@@ -132,7 +133,8 @@
           </div>
           <div class="modal-tips">
             <p>• 支持 JPG、PNG、GIF、WebP 等格式</p>
-            <p>• 请确保图片链接可以正常访问</p>
+            <p>• Pinterest 链接会自动转换为国内可访问链接</p>
+            <p>• 其他链接请确保可以正常访问</p>
             <p>• 建议使用 HTTPS 链接</p>
           </div>
         </div>
@@ -706,6 +708,62 @@ const validateImageUrl = (url) => {
   return urlPattern.test(url);
 };
 
+// 检测是否为Pinterest链接
+const isPinterestUrl = (url) => {
+  return url.includes('pinimg.com') || url.includes('pinterest.com');
+};
+
+// 从Pinterest URL下载图片并上传
+const downloadAndUploadPinterestImage = async (pinterestUrl) => {
+  try {
+    showMessage("正在从Pinterest下载图片...", "info");
+    
+    // 创建一个临时的canvas来下载图片
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // 尝试跨域下载
+    
+    await new Promise((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error("图片下载失败"));
+      img.src = pinterestUrl;
+      
+      // 设置超时
+      setTimeout(() => reject(new Error("图片下载超时")), 15000);
+    });
+    
+    // 创建canvas并绘制图片
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+    
+    // 转换为Blob
+    const blob = await new Promise(resolve => {
+      canvas.toBlob(resolve, 'image/jpeg', 0.9);
+    });
+    
+    if (!blob) {
+      throw new Error("图片转换失败");
+    }
+    
+    // 创建File对象
+    const fileName = `pinterest_${Date.now()}.jpg`;
+    const file = new File([blob], fileName, { type: 'image/jpeg' });
+    
+    showMessage("正在上传图片到图床...", "info");
+    
+    // 使用原有的上传接口上传
+    const uploadedUrl = await imageUploadApi(file);
+    
+    return uploadedUrl;
+    
+  } catch (error) {
+    console.error("Pinterest图片处理失败:", error);
+    throw error;
+  }
+};
+
 // 添加图片链接
 const addImageLink = async () => {
   const url = linkInput.value.trim();
@@ -729,25 +787,44 @@ const addImageLink = async () => {
   isLoadingImage.value = true;
   
   try {
-    // 验证图片是否可以加载
-    await new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve();
-      img.onerror = () => reject(new Error("图片加载失败"));
-      img.src = url;
-      
-      // 设置超时
-      setTimeout(() => reject(new Error("图片加载超时")), 10000);
-    });
+    let finalUrl = url;
+    let isUploaded = false;
+    
+    // 如果是Pinterest链接，先下载并上传
+    if (isPinterestUrl(url)) {
+      try {
+        finalUrl = await downloadAndUploadPinterestImage(url);
+        isUploaded = true;
+        showMessage("Pinterest图片已转换为国内可访问链接", "success");
+      } catch (error) {
+        console.error("Pinterest图片处理失败，尝试直接使用原链接:", error);
+        showMessage("Pinterest图片处理失败，将使用原链接（可能在国内无法访问）", "warning");
+        // 继续使用原链接
+      }
+    }
+    
+    // 如果不是Pinterest链接或Pinterest处理失败，验证图片是否可以加载
+    if (!isUploaded) {
+      await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("图片加载失败"));
+        img.src = finalUrl;
+        
+        // 设置超时
+        setTimeout(() => reject(new Error("图片加载超时")), 10000);
+      });
+    }
     
     // 添加到图片列表
     const newImage = {
       id: generateId(),
       file: null,
-      preview: url,
+      preview: finalUrl,
       uploaded: true,
-      url: url,
-      isLink: true // 标记为链接添加的图片
+      url: finalUrl,
+      isLink: true, // 标记为链接添加的图片
+      isPinterest: isPinterestUrl(url) // 标记是否来自Pinterest
     };
     
     imageList.value.push(newImage);
@@ -999,6 +1076,11 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.image-source-badge.pinterest {
+  background: linear-gradient(135deg, #e60023 0%, #bd081c 100%);
+  box-shadow: 0 2px 4px rgba(230, 0, 35, 0.3);
 }
 
 /* 操作按钮区域 */
