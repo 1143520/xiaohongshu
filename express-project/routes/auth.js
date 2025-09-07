@@ -5,10 +5,20 @@ const { generateAccessToken, generateRefreshToken, verifyToken } = require('../u
 const { authenticateToken } = require('../middleware/auth');
 const { getIPLocation, getRealIP } = require('../utils/ipLocation');
 const { getChinaFutureTime, getChinaCurrentTimeMySQL } = require('../utils/timeHelper');
+const { isRegistrationEnabled } = require('./systemSettings');
 
 // 用户注册
 router.post('/register', async (req, res) => {
   try {
+    // 检查注册功能是否开启
+    const registrationEnabled = await isRegistrationEnabled();
+    if (!registrationEnabled) {
+      return res.status(403).json({ 
+        code: 403, 
+        message: '系统暂时关闭了用户注册功能，请稍后再试' 
+      });
+    }
+
     const { user_id, nickname, password } = req.body;
 
     if (!user_id || !nickname || !password) {

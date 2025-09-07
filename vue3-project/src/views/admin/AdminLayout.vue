@@ -1,40 +1,55 @@
 <template>
   <div class="admin-layout">
-
     <template v-if="localLoginSuccess">
-
-      <div class="sidebar" :class="{ collapsed: isCollapsed, expanded: isExpanded }" @mouseenter="handleMouseEnter"
-        @mouseleave="handleMouseLeave">
+      <div
+        class="sidebar"
+        :class="{ collapsed: isCollapsed, expanded: isExpanded }"
+        @mouseenter="handleMouseEnter"
+        @mouseleave="handleMouseLeave"
+      >
         <div class="sidebar-header">
           <div class="logo">
-            <img :src="logoUrl" alt="" style="height: 40px;">
+            <img :src="logoUrl" alt="" style="height: 40px" />
             <h2 class="logo-text">大红薯管理后台</h2>
           </div>
         </div>
         <nav class="sidebar-nav">
-          <router-link v-for="item in menuItems" :key="item.path" :to="item.path" class="nav-item"
-            :class="{ active: $route.path === item.path }" :title="isCollapsed && !isExpanded ? item.title : ''">
+          <router-link
+            v-for="item in menuItems"
+            :key="item.path"
+            :to="item.path"
+            class="nav-item"
+            :class="{ active: $route.path === item.path }"
+            :title="isCollapsed && !isExpanded ? item.title : ''"
+          >
             <SvgIcon :name="item.icon" class="nav-icon" />
             <span class="nav-text">{{ item.title }}</span>
           </router-link>
         </nav>
 
-
         <div class="sidebar-footer">
-
           <div v-if="!isCollapsed || isExpanded" class="admin-theme-switcher">
             <div class="theme-switcher-content">
               <div class="theme-toggle-container">
                 <div class="theme-toggle-track">
+                  <div
+                    class="theme-toggle-indicator"
+                    :style="{ transform: `translateX(${indicatorPosition}px)` }"
+                  ></div>
 
-                  <div class="theme-toggle-indicator" :style="{ transform: `translateX(${indicatorPosition}px)` }">
-                  </div>
-
-
-                  <div v-for="(option, index) in themeStore.themeOptions" :key="option.value"
-                    class="theme-option-wrapper">
-                    <button class="theme-toggle-option" :class="{ 'active': themeStore.currentTheme === option.value }"
-                      @click="themeStore.setTheme(option.value)" :title="option.label">
+                  <div
+                    v-for="(option, index) in themeStore.themeOptions"
+                    :key="option.value"
+                    class="theme-option-wrapper"
+                  >
+                    <button
+                      class="theme-toggle-option"
+                      :class="{
+                        active: themeStore.currentTheme === option.value,
+                      }"
+                      @click="themeStore.setTheme(option.value)"
+                      :title="option.label"
+                    >
                       <SvgIcon :name="option.icon" width="12" height="12" />
                     </button>
                     <div class="tooltip">{{ option.label }}</div>
@@ -50,7 +65,6 @@
           </button>
         </div>
       </div>
-
 
       <div class="main-content">
         <div class="content-header">
@@ -71,219 +85,230 @@
       </div>
     </template>
 
-
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-spinner"></div>
       <p>正在验证登录状态...</p>
     </div>
 
-
-    <ConfirmDialog v-model:visible="confirmState.visible" :title="confirmState.title" :message="confirmState.message"
-      :type="confirmState.type" :confirm-text="confirmState.confirmText" :cancel-text="confirmState.cancelText"
-      :show-cancel="confirmState.showCancel" @confirm="handleConfirm" @cancel="handleCancel" />
+    <ConfirmDialog
+      v-model:visible="confirmState.visible"
+      :title="confirmState.title"
+      :message="confirmState.message"
+      :type="confirmState.type"
+      :confirm-text="confirmState.confirmText"
+      :cancel-text="confirmState.cancelText"
+      :show-cancel="confirmState.showCancel"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import SvgIcon from '@/components/SvgIcon.vue'
-import ConfirmDialog from '../../components/ConfirmDialog.vue'
-import { useAdminStore } from '@/stores/admin'
-import { useThemeStore } from '@/stores/theme'
-import { useConfirm } from './composables/useConfirm'
+import { ref, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import SvgIcon from "@/components/SvgIcon.vue";
+import ConfirmDialog from "../../components/ConfirmDialog.vue";
+import { useAdminStore } from "@/stores/admin";
+import { useThemeStore } from "@/stores/theme";
+import { useConfirm } from "./composables/useConfirm";
 
-const route = useRoute()
-const router = useRouter()
-const adminStore = useAdminStore()
-const themeStore = useThemeStore()
+const route = useRoute();
+const router = useRouter();
+const adminStore = useAdminStore();
+const themeStore = useThemeStore();
 
 // 静态资源URL
-const logoUrl = new URL('@/assets/imgs/logo.ico', import.meta.url).href
+const logoUrl = new URL("@/assets/imgs/logo.ico", import.meta.url).href;
 
 // 确认弹框
-const { confirmState, handleConfirm, handleCancel, confirmLogout } = useConfirm()
+const { confirmState, handleConfirm, handleCancel, confirmLogout } =
+  useConfirm();
 
 // 计算指示器位置
 const indicatorPosition = computed(() => {
-  const index = themeStore.themeOptions.findIndex(option => option.value === themeStore.currentTheme)
-  return index * 24 // 后台管理中按钮尺寸较小，使用24px
-})
+  const index = themeStore.themeOptions.findIndex(
+    (option) => option.value === themeStore.currentTheme
+  );
+  return index * 24; // 后台管理中按钮尺寸较小，使用24px
+});
 
 // 侧边栏状态
-const isCollapsed = ref(true) // 默认收起
-const isExpanded = ref(false) // 鼠标悬停时展开
+const isCollapsed = ref(true); // 默认收起
+const isExpanded = ref(false); // 鼠标悬停时展开
 
 // 登录状态
-const isLoading = ref(true)
-const isLoggedIn = computed(() => adminStore.isLoggedIn)
-const localLoginSuccess = ref(false) // 本地登录成功标记
+const isLoading = ref(true);
+const isLoggedIn = computed(() => adminStore.isLoggedIn);
+const localLoginSuccess = ref(false); // 本地登录成功标记
 
 // 组件挂载时检查登录状态
 onMounted(async () => {
   try {
     // 初始化管理员信息
-    adminStore.initializeAdmin()
+    adminStore.initializeAdmin();
 
     // 检查是否已登录
     if (!adminStore.isLoggedIn) {
       // 重定向到登录页面
-      router.push('/admin/login')
-      return
+      router.push("/admin/login");
+      return;
     }
 
     // 验证token有效性
-    const isValid = await adminStore.checkTokenValidity()
+    const isValid = await adminStore.checkTokenValidity();
     if (!isValid) {
-      showMessage('登录已过期，请重新登录', 'error')
+      showMessage("登录已过期，请重新登录", "error");
       // 重定向到登录页面
-      router.push('/admin/login')
+      router.push("/admin/login");
     } else {
-      localLoginSuccess.value = true
+      localLoginSuccess.value = true;
     }
   } catch (error) {
-    console.error('初始化失败:', error)
+    console.error("初始化失败:", error);
     // 重定向到登录页面
-    router.push('/admin/login')
+    router.push("/admin/login");
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-})
+});
 
 // 消息提示函数
-const showMessage = (message, type = 'success') => {
+const showMessage = (message, type = "success") => {
   // 创建消息元素
-  const messageEl = document.createElement('div')
-  messageEl.className = `message-toast ${type}`
-  messageEl.textContent = message
+  const messageEl = document.createElement("div");
+  messageEl.className = `message-toast ${type}`;
+  messageEl.textContent = message;
 
   // 添加样式
   Object.assign(messageEl.style, {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    padding: '12px 20px',
-    borderRadius: '6px',
-    color: 'white',
-    fontSize: '14px',
-    zIndex: '10000',
-    opacity: '0',
-    transform: 'translateX(100%)',
-    transition: 'all 0.3s ease'
-  })
+    position: "fixed",
+    top: "20px",
+    right: "20px",
+    padding: "12px 20px",
+    borderRadius: "6px",
+    color: "white",
+    fontSize: "14px",
+    zIndex: "10000",
+    opacity: "0",
+    transform: "translateX(100%)",
+    transition: "all 0.3s ease",
+  });
 
   // 根据类型设置背景色
   const colors = {
-    success: '#67C23A',
-    error: '#F56C6C',
-    warning: '#E6A23C',
-    info: '#409EFF'
-  }
-  messageEl.style.backgroundColor = colors[type] || colors.info
+    success: "#67C23A",
+    error: "#F56C6C",
+    warning: "#E6A23C",
+    info: "#409EFF",
+  };
+  messageEl.style.backgroundColor = colors[type] || colors.info;
 
   // 添加到页面
-  document.body.appendChild(messageEl)
+  document.body.appendChild(messageEl);
 
   // 显示动画
   setTimeout(() => {
-    messageEl.style.opacity = '1'
-    messageEl.style.transform = 'translateX(0)'
-  }, 10)
+    messageEl.style.opacity = "1";
+    messageEl.style.transform = "translateX(0)";
+  }, 10);
 
   // 自动移除
   setTimeout(() => {
-    messageEl.style.opacity = '0'
-    messageEl.style.transform = 'translateX(100%)'
+    messageEl.style.opacity = "0";
+    messageEl.style.transform = "translateX(100%)";
     setTimeout(() => {
-      document.body.removeChild(messageEl)
-    }, 300)
-  }, 3000)
-}
+      document.body.removeChild(messageEl);
+    }, 300);
+  }, 3000);
+};
 
 // 菜单项
 const menuItems = [
-  { path: '/admin/api-docs', title: 'API文档', icon: 'data' },
-  { path: '/admin/users', title: '用户管理', icon: 'user' },
-  { path: '/admin/posts', title: '笔记管理', icon: 'note' },
-  { path: '/admin/comments', title: '评论管理', icon: 'chat' },
-  { path: '/admin/tags', title: '标签管理', icon: 'hash' },
-  { path: '/admin/likes', title: '点赞管理', icon: 'like' },
-  { path: '/admin/collections', title: '收藏管理', icon: 'collect' },
-  { path: '/admin/follows', title: '关注管理', icon: 'follow' },
-  { path: '/admin/notifications', title: '通知管理', icon: 'notification' },
-  { path: '/admin/sessions', title: '会话管理', icon: 'setting' },
-  { path: '/admin/admins', title: '管理员管理', icon: 'user' }
-]
+  { path: "/admin/api-docs", title: "API文档", icon: "data" },
+  { path: "/admin/users", title: "用户管理", icon: "user" },
+  { path: "/admin/posts", title: "笔记管理", icon: "note" },
+  { path: "/admin/comments", title: "评论管理", icon: "chat" },
+  { path: "/admin/tags", title: "标签管理", icon: "hash" },
+  { path: "/admin/likes", title: "点赞管理", icon: "like" },
+  { path: "/admin/collections", title: "收藏管理", icon: "collect" },
+  { path: "/admin/follows", title: "关注管理", icon: "follow" },
+  { path: "/admin/notifications", title: "通知管理", icon: "notification" },
+  { path: "/admin/sessions", title: "会话管理", icon: "setting" },
+  { path: "/admin/admins", title: "管理员管理", icon: "user" },
+  { path: "/admin/settings", title: "系统设置", icon: "setting" },
+];
 
 // 当前页面标题
 const currentPageTitle = computed(() => {
-  const currentItem = menuItems.find(item => item.path === route.path)
-  return currentItem?.title
-})
+  const currentItem = menuItems.find((item) => item.path === route.path);
+  return currentItem?.title;
+});
 
 // 当前页面描述
 const currentPageDescription = computed(() => {
   const descriptions = {
-    '/admin/api-docs': '查看和测试API接口文档',
-    '/admin/users': '管理用户账户和权限',
-    '/admin/posts': '管理用户发布的笔记内容',
-    '/admin/comments': '管理用户评论和回复',
-    '/admin/tags': '管理笔记标签分类',
-    '/admin/likes': '管理用户点赞记录',
-    '/admin/collections': '管理用户收藏记录',
-    '/admin/follows': '管理用户关注关系',
-    '/admin/notifications': '管理系统通知消息',
-    '/admin/sessions': '管理用户登录会话',
-    '/admin/admins': '管理系统管理员账号'
-  }
-  return descriptions[route.path]
-})
+    "/admin/api-docs": "查看和测试API接口文档",
+    "/admin/users": "管理用户账户和权限",
+    "/admin/posts": "管理用户发布的笔记内容",
+    "/admin/comments": "管理用户评论和回复",
+    "/admin/tags": "管理笔记标签分类",
+    "/admin/likes": "管理用户点赞记录",
+    "/admin/collections": "管理用户收藏记录",
+    "/admin/follows": "管理用户关注关系",
+    "/admin/notifications": "管理系统通知消息",
+    "/admin/sessions": "管理用户登录会话",
+    "/admin/admins": "管理系统管理员账号",
+    "/admin/settings": "管理系统全局配置和功能开关",
+  };
+  return descriptions[route.path];
+});
 
 // 获取角色文本
 const getRoleText = (role) => {
   const roleMap = {
-    'super_admin': '超级管理员',
-    'admin': '管理员',
-    'moderator': '版主'
-  }
-  return roleMap[role] || '未知角色'
-}
+    super_admin: "超级管理员",
+    admin: "管理员",
+    moderator: "版主",
+  };
+  return roleMap[role] || "未知角色";
+};
 
 // 侧边栏鼠标事件处理
 const handleMouseEnter = () => {
   if (isCollapsed.value) {
-    isExpanded.value = true
+    isExpanded.value = true;
   }
-}
+};
 
 const handleMouseLeave = () => {
-  isExpanded.value = false
-}
+  isExpanded.value = false;
+};
 
 // 退出登录
 const handleLogout = async () => {
   try {
-    await confirmLogout()
+    await confirmLogout();
     // 用户确认退出
     try {
-      await adminStore.logout()
-      localLoginSuccess.value = false
-      showMessage('已退出登录', 'success')
+      await adminStore.logout();
+      localLoginSuccess.value = false;
+      showMessage("已退出登录", "success");
       // 重定向到登录页面
-      router.push('/admin/login')
+      router.push("/admin/login");
     } catch (error) {
-      console.error('退出登录失败:', error)
-      showMessage('退出登录失败', 'error')
+      console.error("退出登录失败:", error);
+      showMessage("退出登录失败", "error");
     }
   } catch (error) {
     // 用户取消退出，不做任何操作
   }
-}
+};
 
 // 返回主站
 const goBack = () => {
-  window.open('/', '_blank')
-}
+  window.open("/", "_blank");
+};
 </script>
 
 <style scoped>
@@ -363,7 +388,8 @@ const goBack = () => {
   font-weight: 600;
   color: var(--text-color-primary);
   opacity: 1;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.collapsed .logo-text {
@@ -376,8 +402,6 @@ const goBack = () => {
   opacity: 1;
   width: auto;
 }
-
-
 
 .sidebar-nav {
   flex: 1;
@@ -541,7 +565,8 @@ const goBack = () => {
   flex: 1;
   min-width: 0;
   opacity: 1;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.collapsed .admin-details {
@@ -613,7 +638,8 @@ const goBack = () => {
 
 .logout-text {
   opacity: 1;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.collapsed .logout-text {
@@ -684,7 +710,8 @@ const goBack = () => {
 
 .nav-text {
   opacity: 1;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.collapsed .nav-text {

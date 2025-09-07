@@ -720,5 +720,16 @@ export const adminApi = {
   // 获取单个管理员详情（认证路由）
   getAdminDetailAuth(adminId) {
     return request.get(`/auth/admin/admins/${adminId}`)
+  },
+
+  // ========== 系统设置管理 ==========
+  // 获取系统设置
+  getSystemSettings() {
+    return request.get('/admin/settings')
+  },
+
+  // 更新系统设置
+  updateSystemSettings(data) {
+    return request.put('/admin/settings', data)
   }
 }

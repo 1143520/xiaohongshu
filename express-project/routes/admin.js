@@ -5,6 +5,7 @@ const { createCrudHandlers } = require('../middleware/crudFactory')
 const { recordExists } = require('../utils/dbHelper')
 const { adminAuth, uploadBase64ToImageHost } = require('../utils/uploadHelper')
 const { getChinaFutureTime, getChinaCurrentTimeMySQL } = require('../utils/timeHelper')
+const systemSettingsRoutes = require('./systemSettings')
 const {
   validateLikeOrFavoriteData,
   validateFollowData,
@@ -1581,5 +1582,8 @@ router.delete('/admins/:id', adminAuth, adminsHandlers.deleteOne)
 router.delete('/admins', adminAuth, adminsHandlers.deleteMany)
 router.get('/admins/:id', adminAuth, adminsHandlers.getOne)
 router.get('/admins', adminAuth, adminsHandlers.getList)
+
+// ===== 系统设置管理 =====
+router.use('/', systemSettingsRoutes.router)
 
 module.exports = router

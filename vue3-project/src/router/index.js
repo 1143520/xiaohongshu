@@ -28,6 +28,7 @@ import FollowManagement from '@/views/admin/FollowManagement.vue'
 import NotificationManagement from '@/views/admin/NotificationManagement.vue'
 import SessionManagement from '@/views/admin/SessionManagement.vue'
 import AdminManagement from '@/views/admin/AdminManagement.vue'
+import SystemSettings from '@/views/admin/SystemSettings.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -231,6 +232,11 @@ const router = createRouter({
           path: 'admins',
           name: 'admin_admins',
           component: AdminManagement
+        },
+        {
+          path: 'settings',
+          name: 'admin_settings',
+          component: SystemSettings
         }
       ]
     }
