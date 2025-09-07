@@ -1,8 +1,45 @@
 <script setup>
 import SvgIcon from "@/components/SvgIcon.vue";
 import DropdownMenu from "@/components/menu/DropdownMenu.vue";
-import CommonMenu from "@/components/menu/CommonMenu.vue";
-import { ref, computed, onMounted, watch } from "vue";
+import CommonMenu from "@/components/men      <!-- 图床 快速入口 -->
+      <li>
+        <div class="sidebar-link" @click="handleImageHostClick">
+          <span class="sidebar-icon">
+            <SvgIcon name="imgNote" width="24px" height="24px" />
+          </span>
+          <span class="sidebar-label">图床</span>
+        </div>
+      </li>
+
+      <!-- 博客 快速入口 -->
+      <li>
+        <div class="sidebar-link" @click="handleBlogClick">
+          <span class="sidebar-icon">
+            <SvgIcon name="note" width="24px" height="24px" />
+          </span>
+          <span class="sidebar-label">博客</span>
+        </div>
+      </li>
+
+      <!-- 音乐 快速入口 -->
+      <li>
+        <div class="sidebar-link" @click="handleMusicClick">
+          <span class="sidebar-icon">
+            <SvgIcon name="music" width="24px" height="24px" />
+          </span>
+          <span class="sidebar-label">音乐</span>
+        </div>
+      </li>
+
+      <!-- Pinterest 快速入口 -->
+      <li>
+        <div class="sidebar-link" @click="handlePinterestClick">
+          <span class="sidebar-icon">
+            <SvgIcon name="pinterest" width="24px" height="24px" />
+          </span>
+          <span class="sidebar-label">Pinterest</span>
+        </div>
+      </li>import { ref, computed, onMounted, watch } from "vue";
 import { useRouteUtils } from "@/composables/useRouteUtils";
 import { useUserStore } from "@/stores/user.js";
 import { useNotificationStore } from "@/stores/notification";
@@ -80,6 +117,16 @@ const handleImageHostClick = () => {
   window.open("https://www.nodeimage.com/", "_blank");
 };
 
+// 博客 点击处理
+const handleBlogClick = () => {
+  window.open("https://r.1143520.xyz/", "_blank");
+};
+
+// 音乐 点击处理
+const handleMusicClick = () => {
+  window.open("https://kugou.1143520.xyz/#/", "_blank");
+};
+
 function handleAvatarError(event) {
   import("@/assets/imgs/avatar.png").then((module) => {
     event.target.src = module.default;
@@ -151,6 +198,16 @@ onMounted(() => {
             <SvgIcon name="imgNote" width="24px" height="24px" />
           </span>
           <span class="sidebar-label">图床</span>
+        </div>
+      </li>
+
+      <!-- 博客 快速入口 -->
+      <li>
+        <div class="sidebar-link" @click="handleBlogClick">
+          <span class="sidebar-icon">
+            <SvgIcon name="note" width="24px" height="24px" />
+          </span>
+          <span class="sidebar-label">博客</span>
         </div>
       </li>
 
