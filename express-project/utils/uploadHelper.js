@@ -146,26 +146,36 @@ async function uploadFileToImageHost(filePath, originalname, mimetype, deleteAft
  * @param {Object} res - 响应对象
  * @param {Function} next - 下一个中间件函数
  */
-function adminAuth(req, res, next) {
-  const { authenticateToken } = require('../middleware/auth');
+async function adminAuth(req, res, next) {
+  try {
+    const { authenticateToken } = require('../middleware/auth');
 
-  authenticateToken(req, res, (err) => {
-    if (err) {
-      return res.status(401).json({
-        code: 401,
-        message: '认证失败'
-      });
-    }
+    // 先进行token验证
+    authenticateToken(req, res, (err) => {
+      if (err) {
+        return res.status(401).json({
+          code: 401,
+          message: '认证失败'
+        });
+      }
 
-    if (!req.user.type || req.user.type !== 'admin') {
-      return res.status(403).json({
-        code: 403,
-        message: '权限不足，需要管理员权限'
-      });
-    }
+      // 检查是否为管理员
+      if (!req.user || !req.user.type || req.user.type !== 'admin') {
+        return res.status(403).json({
+          code: 403,
+          message: '权限不足，需要管理员权限'
+        });
+      }
 
-    next();
-  });
+      next();
+    });
+  } catch (error) {
+    console.error('管理员权限验证失败:', error);
+    return res.status(500).json({
+      code: 500,
+      message: '服务器内部错误'
+    });
+  }
 }
 
 module.exports = {
