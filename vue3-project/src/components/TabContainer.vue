@@ -35,14 +35,27 @@ function tabSelected(item) {
 const updateSlider = () => {
     nextTick(() => {
         const activeIndex = props.tabs.findIndex(tab => tab.id === activeId.value)
-        if (activeIndex === -1 || !tabItems.value[activeIndex]) return
+        if (activeIndex === -1) return
+
+        // 检查tab元素是否存在
+        if (!tabItems.value[activeIndex]) {
+            // 如果元素不存在，延迟重试
+            setTimeout(() => updateSlider(), 50)
+            return
+        }
 
         const tabRect = tabItems.value[activeIndex].getBoundingClientRect()
         const containerRect = containerRef.value.getBoundingClientRect()
 
         // 计算滑块相对于容器的位置
-        sliderLeft.value = tabRect.left - containerRect.left + containerRef.value.scrollLeft
-        sliderWidth.value = tabRect.width
+        const calculatedLeft = tabRect.left - containerRect.left + containerRef.value.scrollLeft
+        const calculatedWidth = tabRect.width
+
+        // 确保计算结果有效
+        if (calculatedWidth > 0) {
+            sliderLeft.value = calculatedLeft
+            sliderWidth.value = calculatedWidth
+        }
     })
 }
 
