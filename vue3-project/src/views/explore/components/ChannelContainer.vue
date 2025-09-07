@@ -161,7 +161,7 @@ onUnmounted(() => {
 
 @media (min-width: 901px) {
     .fixed-channel-container {
-        left: 250px;
+        left: 262px; /* 250px (侧边栏) + 12px (对齐普通状态的margin-left) */
     }
 }
 </style>
