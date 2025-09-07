@@ -733,3 +733,6 @@ export const adminApi = {
     return request.put('/admin/settings', data)
   }
 }
+
+// 默认导出adminApi，用于管理后台组件
+export default adminApi
