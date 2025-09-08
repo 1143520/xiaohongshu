@@ -153,7 +153,72 @@ docker-compose -f docker-compose.prod.yml pull
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
-## 🛠️ 开发环境搭建
+## � 数据备份与恢复
+
+### 备份脚本下载
+
+```bash
+# 从 GitHub 仓库下载最新备份脚本
+wget https://raw.githubusercontent.com/1143520/xiaohongshu/main/backup.sh
+wget https://raw.githubusercontent.com/1143520/xiaohongshu/main/restore.sh
+
+# 或使用 curl
+curl -O https://raw.githubusercontent.com/1143520/xiaohongshu/main/backup.sh
+curl -O https://raw.githubusercontent.com/1143520/xiaohongshu/main/restore.sh
+
+# 添加执行权限
+chmod +x backup.sh restore.sh
+```
+
+### 数据备份
+
+一键备份数据库和重要配置文件：
+
+```bash
+# 执行备份
+./backup.sh
+```
+
+备份内容包括：
+
+- ✅ 完整数据库（表结构+数据）
+- ✅ 环境配置文件（.env）
+- ✅ Docker 配置文件
+- ✅ 自动压缩打包
+- ✅ 自动清理 7 天前的旧备份
+
+### 数据恢复
+
+从备份文件恢复数据：
+
+```bash
+# 查看可用备份
+ls -la backups/
+
+# 恢复指定备份（交互式操作）
+./restore.sh ./backups/xiaoshiliu_backup_20241201_143022.tar.gz
+```
+
+恢复功能：
+
+- ✅ 恢复前自动备份当前数据
+- ✅ 可选择性恢复配置文件
+- ✅ 支持本地和 Docker MySQL
+- ✅ 恢复后可自动重启服务
+
+### 定时备份设置
+
+```bash
+# 设置每天凌晨 2 点自动备份
+crontab -e
+
+# 添加以下行
+0 2 * * * cd /path/to/xiaoshiliu && ./backup.sh
+```
+
+> 📝 **详细说明**: 查看 [BACKUP_README.md](./BACKUP_README.md) 获取完整的备份恢复指南
+
+## �🛠️ 开发环境搭建
 
 ### 前端开发
 
