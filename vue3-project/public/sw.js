@@ -1,4 +1,4 @@
-const CACHE_NAME = 'xiaohongshu-v1.3.1';
+const CACHE_NAME = 'xiaohongshu-v1.3.0';
 const urlsToCache = [
   '/',
   '/explore',
@@ -56,19 +56,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 过滤掉不支持的URL scheme
-  const requestUrl = new URL(event.request.url);
-  if (requestUrl.protocol !== 'http:' && requestUrl.protocol !== 'https:') {
-    return;
-  }
-
-  // 过滤掉第三方域名（如Cloudflare analytics）
-  if (!requestUrl.hostname.includes(location.hostname) && 
-      !requestUrl.hostname.includes('localhost') &&
-      !requestUrl.hostname.includes('127.0.0.1')) {
-    return;
-  }
-
   // 对于API请求，采用网络优先策略
   if (event.request.url.includes('/api/')) {
     event.respondWith(
@@ -111,17 +98,10 @@ self.addEventListener('fetch', event => {
             // 克隆响应并添加到缓存
             const responseToCache = response.clone();
             caches.open(CACHE_NAME).then(cache => {
-              // 添加错误处理，防止缓存失败
-              cache.put(event.request, responseToCache).catch(err => {
-                console.warn('缓存失败:', event.request.url, err);
-              });
+              cache.put(event.request, responseToCache);
             });
 
             return response;
-          })
-          .catch(err => {
-            console.warn('网络请求失败:', event.request.url, err);
-            throw err;
           });
       })
       .catch(() => {

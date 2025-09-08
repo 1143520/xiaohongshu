@@ -11,12 +11,7 @@ const request = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
   config => {
-    const isAdminRequest = config.url && (
-      config.url.includes('/auth/admin/') ||
-      config.url.includes('/admin/') ||
-      config.url.includes('/export') ||
-      config.url.includes('/system')
-    )
+    const isAdminRequest = config.url && config.url.includes('/auth/admin/')
     const isInAdminPage = window.location.pathname.startsWith('/admin')
 
     if (isAdminRequest || isInAdminPage) {
@@ -118,22 +113,6 @@ request.interceptors.response.use(
         case 500:
           errorMessage = '服务器内部错误'
           console.error('服务器内部错误:', error.response.data)
-          break
-        case 503:
-          // 系统维护模式
-          const maintenanceData = error.response.data?.data
-          if (maintenanceData?.maintenance) {
-            // 显示维护模式弹窗
-            window.dispatchEvent(new CustomEvent('system-maintenance', {
-              detail: {
-                message: error.response.data.message || '系统正在维护中，请稍后再试',
-                retryAfter: maintenanceData.retry_after || '稍后'
-              }
-            }))
-            errorMessage = error.response.data.message || '系统正在维护中'
-          } else {
-            errorMessage = '服务暂时不可用'
-          }
           break
         default:
           errorMessage = error.response.data?.message || `请求失败 (${error.response.status})`
