@@ -12,6 +12,7 @@
         "init-db": "node scripts/init-database.js",
         "analyze-db": "node scripts/analyze-database.js",
         "test-ip": "node scripts/test-ip-location.js",
+        "debug-ip": "node scripts/debug-ip-api.js",
         "setup": "npm install && npm run deploy"
     },
     "dependencies": {

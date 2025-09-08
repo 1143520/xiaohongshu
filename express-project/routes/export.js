@@ -1,12 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
+const { authenticateToken } = require('../middleware/auth');
 const fs = require('fs');
 const path = require('path');
 
-// 数据导出API
-router.get('/export', async (req, res) => {
+// 数据导出API - 需要管理员权限
+router.get('/export', authenticateToken, async (req, res) => {
   try {
+    // 验证管理员权限
+    if (!req.user || req.user.type !== 'admin') {
+      return res.status(403).json({
+        code: 403,
+        message: '需要管理员权限'
+      });
+    }
+
     const exportData = {
       exportTime: new Date().toISOString(),
       version: '1.0.0',
@@ -147,9 +156,17 @@ router.get('/export', async (req, res) => {
   }
 });
 
-// 数据统计API（用于显示导出预览）
-router.get('/export/preview', async (req, res) => {
+// 数据统计API（用于显示导出预览）- 需要管理员权限
+router.get('/export/preview', authenticateToken, async (req, res) => {
   try {
+    // 验证管理员权限
+    if (!req.user || req.user.type !== 'admin') {
+      return res.status(403).json({
+        code: 403,
+        message: '需要管理员权限'
+      });
+    }
+
     // 获取各表数据统计
     const [userCount] = await pool.execute('SELECT COUNT(*) as count FROM users');
     const [postCount] = await pool.execute('SELECT COUNT(*) as count FROM posts');

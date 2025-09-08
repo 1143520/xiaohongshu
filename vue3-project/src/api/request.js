@@ -11,7 +11,12 @@ const request = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
   config => {
-    const isAdminRequest = config.url && config.url.includes('/auth/admin/')
+    const isAdminRequest = config.url && (
+      config.url.includes('/auth/admin/') ||
+      config.url.includes('/admin/') ||
+      config.url.includes('/export') ||
+      config.url.includes('/system')
+    )
     const isInAdminPage = window.location.pathname.startsWith('/admin')
 
     if (isAdminRequest || isInAdminPage) {

@@ -731,6 +731,22 @@ export const adminApi = {
   // 更新系统设置
   updateSystemSettings(data) {
     return request.put('/system/settings', data)
+  },
+
+  // ========== 数据导出管理 ==========
+  // 获取导出预览
+  getExportPreview() {
+    return request.get('/export/preview')
+  },
+
+  // 导出数据（返回blob用于下载）
+  exportData() {
+    return request.get('/export', {
+      responseType: 'blob',
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
   }
 }
 

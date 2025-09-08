@@ -429,10 +429,9 @@ const showExportDialog = async () => {
     exportLoading.value = true;
 
     // 获取导出预览数据
-    const response = await fetch("/api/export/preview");
-    const result = await response.json();
+    const result = await api.getExportPreview();
 
-    if (result.code === 200) {
+    if (result.success) {
       exportPreview.value = {
         ...result.data.statistics,
         database_size_mb: result.data.database_size_mb,
@@ -454,41 +453,31 @@ const confirmExport = async () => {
     exportLoading.value = true;
     showMessage("正在导出数据，请稍候...", "info");
 
-    // 创建下载链接
-    const response = await fetch("/api/export", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    // 使用新的API方法下载文件
+    const response = await api.exportData();
 
-    if (response.ok) {
-      // 获取文件名
-      const contentDisposition = response.headers.get("Content-Disposition");
-      const filename = contentDisposition
-        ? contentDisposition.split("filename=")[1].replace(/"/g, "")
-        : `xiaoshiliu_backup_${new Date()
-            .toISOString()
-            .slice(0, 19)
-            .replace(/[:.]/g, "-")}.json`;
+    // 获取文件名
+    const contentDisposition = response.headers["content-disposition"];
+    const filename = contentDisposition
+      ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+      : `xiaoshiliu_backup_${new Date()
+          .toISOString()
+          .slice(0, 19)
+          .replace(/[:.]/g, "-")}.json`;
 
-      // 下载文件
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+    // 下载文件
+    const blob = new Blob([response.data], { type: "application/json" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
 
-      showMessage("数据导出成功！", "success");
-      exportPreview.value = null;
-    } else {
-      const errorData = await response.json();
-      showMessage(`导出失败: ${errorData.message}`, "error");
-    }
+    showMessage("数据导出成功！", "success");
+    exportPreview.value = null;
   } catch (error) {
     console.error("导出失败:", error);
     showMessage("导出失败，请重试", "error");
