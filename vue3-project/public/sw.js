@@ -51,6 +51,13 @@ self.addEventListener('activate', event => {
 
 // 拦截网络请求
 self.addEventListener('fetch', event => {
+  // 过滤掉浏览器扩展请求
+  if (event.request.url.startsWith('chrome-extension://') || 
+      event.request.url.startsWith('moz-extension://') ||
+      event.request.url.startsWith('safari-web-extension://')) {
+    return;
+  }
+
   // 只处理GET请求
   if (event.request.method !== 'GET') {
     return;
