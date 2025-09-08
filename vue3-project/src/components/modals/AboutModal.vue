@@ -8,86 +8,7 @@
     <div class="about-modal" @click.stop :class="{ 'scale-in': isAnimating }">
       <div class="about-header">
         <div class="header-content">
-          <div class="logo-se              <h4>🔧 常见问题</h4>
-              <ul class="usage-list">
-                <li><strong>端口被占用：</strong>修改 .env 文件中的端口配置</li>
-                <li>
-                  <strong>数据库连接失败：</strong>检查数据库密码和容器状态</li>
-                <li><strong>图片上传失败：</strong>检查上传目录权限设置</li>
-                <li><strong>更新后功能异常：</strong>清理Docker缓存重新部署</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="backup-section">
-            <h3>数据备份与恢复</h3>
-            <div class="backup-content">
-              <h4>📦 备份功能</h4>
-              <p>
-                系统提供专业的数据备份脚本，支持一键备份数据库和重要配置文件。
-                备份文件自动压缩打包，并自动清理 7 天前的旧备份。
-              </p>
-
-              <h4>🔽 脚本下载</h4>
-              <div class="code-block">
-                <pre>
-# 从 GitHub 仓库下载备份脚本
-wget https://raw.githubusercontent.com/1143520/xiaohongshu/main/backup.sh
-wget https://raw.githubusercontent.com/1143520/xiaohongshu/main/restore.sh
-
-# 添加执行权限
-chmod +x backup.sh restore.sh</pre
-                >
-              </div>
-
-              <h4>💾 备份使用</h4>
-              <div class="code-block">
-                <pre>
-# 执行备份
-./backup.sh
-
-# 设置定时备份（每天凌晨2点）
-crontab -e
-0 2 * * * cd /path/to/xiaoshiliu && ./backup.sh</pre
-                >
-              </div>
-
-              <h4>🔄 数据恢复</h4>
-              <div class="code-block">
-                <pre>
-# 查看可用备份
-ls -la backups/
-
-# 恢复指定备份（交互式操作）
-./restore.sh ./backups/xiaoshiliu_backup_20241201_143022.tar.gz</pre
-                >
-              </div>
-
-              <ul class="backup-features">
-                <li>✅ 完整数据库备份（表结构+数据）</li>
-                <li>✅ 重要配置文件备份</li>
-                <li>✅ 自动压缩和清理旧备份</li>
-                <li>✅ 支持本地和Docker MySQL</li>
-                <li>✅ 交互式恢复操作</li>
-                <li>✅ 恢复前自动备份当前数据</li>
-              </ul>
-
-              <p class="backup-note">
-                <strong>⚠️ 注意：</strong>
-                备份文件包含敏感信息，请注意安全存储。建议定期测试备份文件的完整性，
-                重要操作前建议手动备份数据。
-              </p>
-            </div>
-          </div>
-
-          <div class="maintenance-section">
-            <h3>系统维护</h3>
-            <div class="maintenance-content">
-              <h4>🔧 常见问题</h4>
-              <ul class="usage-list">
-                <li><strong>端口被占用：</strong>修改 .env 文件中的端口配置</li>
-                <li>
-                  <strong>数据库连接失败：</strong>检查数据库密码和容器状态</li>">
+          <div class="logo-section">
             <img :src="logoUrl" alt="大红薯" class="about-logo" />
             <h2 class="about-title">关于大红薯</h2>
           </div>
@@ -433,6 +354,67 @@ vim .env  # 配置环境变量
                   <strong>更新后功能异常：</strong>清理Docker缓存后重新部署
                 </li>
               </ul>
+            </div>
+          </div>
+
+          <div class="backup-section">
+            <h3>数据备份与恢复</h3>
+            <div class="backup-content">
+              <h4>📦 备份功能</h4>
+              <p>
+                系统提供专业的数据备份脚本，支持一键备份数据库和重要配置文件。
+                备份文件自动压缩打包，并自动清理 7 天前的旧备份。
+              </p>
+
+              <h4>🔽 脚本下载</h4>
+              <div class="code-block">
+                <pre>
+# 从 GitHub 仓库下载备份脚本
+wget https://raw.githubusercontent.com/1143520/xiaohongshu/main/backup.sh
+wget https://raw.githubusercontent.com/1143520/xiaohongshu/main/restore.sh
+
+# 添加执行权限
+chmod +x backup.sh restore.sh</pre
+                >
+              </div>
+
+              <h4>💾 备份使用</h4>
+              <div class="code-block">
+                <pre>
+# 执行备份
+./backup.sh
+
+# 设置定时备份（每天凌晨2点）
+crontab -e
+0 2 * * * cd /path/to/xiaoshiliu && ./backup.sh</pre
+                >
+              </div>
+
+              <h4>🔄 数据恢复</h4>
+              <div class="code-block">
+                <pre>
+# 查看可用备份
+ls -la backups/
+
+# 恢复指定备份（交互式操作）
+./restore.sh ./backups/xiaoshiliu_backup_20241201_143022.tar.gz</pre
+                >
+              </div>
+
+              <ul class="backup-features">
+                <li>✅ 完整数据库备份（表结构+数据）</li>
+                <li>✅ 重要配置文件备份</li>
+                <li>✅ 自动压缩和清理旧备份</li>
+                <li>✅ 支持本地和Docker MySQL</li>
+                <li>✅ 交互式恢复操作</li>
+                <li>✅ 恢复前自动备份当前数据</li>
+              </ul>
+
+              <p class="backup-note">
+                <strong>⚠️ 注意：</strong>
+                备份文件包含敏感信息，请注意安全存储。建议定期测试备份文件的完整性，
+                重要操作前建议手动备份数据。
+              </p>
             </div>
           </div>
 
@@ -902,22 +884,6 @@ onMounted(() => {
 .backup-note strong {
   color: #ff9800;
   font-weight: 600;
-}
-
-/* 系统维护样式 */
-.maintenance-section {
-  margin-top: 24px;
-}
-
-.maintenance-content h4 {
-  color: var(--text-color-primary);
-  font-size: 16px;
-  font-weight: 600;
-  margin: 16px 0 8px 0;
-}
-
-.maintenance-content h4:first-child {
-  margin-top: 0;
 }
 
 /* 移动端适配 */
