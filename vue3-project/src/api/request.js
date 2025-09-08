@@ -110,6 +110,19 @@ request.interceptors.response.use(
         case 404:
           errorMessage = '资源不存在'
           break
+        case 503:
+          // 维护模式
+          const maintenanceData = error.response.data
+          if (maintenanceData && maintenanceData.data && maintenanceData.data.maintenance) {
+            // 跳转到维护模式页面
+            if (!window.location.pathname.includes('/maintenance')) {
+              window.location.href = '/maintenance'
+            }
+            errorMessage = maintenanceData.message || '系统正在维护中'
+          } else {
+            errorMessage = '服务暂时不可用'
+          }
+          break
         case 500:
           errorMessage = '服务器内部错误'
           console.error('服务器内部错误:', error.response.data)

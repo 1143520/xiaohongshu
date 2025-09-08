@@ -11,6 +11,7 @@ import PostDetail from '@/views/PostDetail.vue'
 import SearchResult from '@/views/search/SearchResult.vue'
 import PostManagementPage from '@/views/post-management/index.vue'
 import DraftBoxPage from '@/views/draft-box/index.vue'
+import Maintenance from '@/views/Maintenance.vue'
 import NotFound from '@/views/NotFound.vue'
 import { getValidChannelPaths } from '@/config/channels'
 
@@ -158,6 +159,12 @@ const router = createRouter({
           component: NotFound
         }
       ]
+    },
+    // 维护模式页面
+    {
+      path: '/maintenance',
+      name: 'maintenance',
+      component: Maintenance
     },
     // Admin登录页面
     {
