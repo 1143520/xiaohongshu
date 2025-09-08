@@ -61,6 +61,10 @@ app.options('*', cors(corsOptions));  // 显式处理OPTIONS请求
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// 维护模式中间件
+const { maintenanceCheck } = require('./middleware/maintenance');
+app.use(maintenanceCheck);
+
 const { getChinaCurrentTimeISO } = require('./utils/timeHelper');
 
 // 健康检查路由

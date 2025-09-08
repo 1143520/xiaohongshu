@@ -99,6 +99,16 @@ router.put('/settings', adminAuth, async (req, res) => {
   try {
     const settings = req.body;
 
+    // 验证设置值
+    for (const [key, data] of Object.entries(settings)) {
+      if (!validateSettingValue(key, data.value)) {
+        return res.status(400).json({
+          code: 400,
+          message: `设置项 ${key} 的值无效`
+        });
+      }
+    }
+
     // 开始事务
     await connection.beginTransaction();
 
@@ -176,6 +186,28 @@ async function getSystemSetting(key, defaultValue = null) {
   } catch (error) {
     console.error(`获取系统设置 ${key} 失败:`, error);
     return defaultValue;
+  }
+}
+
+// 验证设置值
+function validateSettingValue(key, value) {
+  switch (key) {
+    case 'user_registration_enabled':
+    case 'maintenance_mode':
+    case 'comment_approval_required':
+      return typeof value === 'boolean';
+    
+    case 'max_posts_per_day':
+      return typeof value === 'number' && value >= 1 && value <= 100;
+    
+    case 'max_upload_size':
+      return typeof value === 'number' && value >= 1 && value <= 200;
+    
+    case 'site_notice':
+      return typeof value === 'string' && value.length <= 1000;
+    
+    default:
+      return true; // 未知设置项默认允许
   }
 }
 

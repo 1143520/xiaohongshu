@@ -210,6 +210,27 @@ CREATE TABLE IF NOT EXISTS `user_sessions` (
   CONSTRAINT `user_sessions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户会话表';
 
+-- 15. 系统设置表
+CREATE TABLE IF NOT EXISTS `system_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '设置ID',
+  `setting_key` varchar(100) NOT NULL COMMENT '设置键名',
+  `setting_value` text NOT NULL COMMENT '设置值',
+  `description` varchar(255) DEFAULT NULL COMMENT '设置描述',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_setting_key` (`setting_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统设置表';
+
+-- 插入默认系统设置
+INSERT INTO `system_settings` (`setting_key`, `setting_value`, `description`) VALUES 
+('user_registration_enabled', 'true', '是否开启用户注册'),
+('maintenance_mode', 'false', '维护模式开关'),
+('max_posts_per_day', '20', '用户每日最大发帖数量'),
+('max_upload_size', '50', '最大上传文件大小(MB)'),
+('site_notice', '', '站点公告'),
+('comment_approval_required', 'false', '评论是否需要审核');
+
 -- 插入默认管理员账号（密码: admin123，使用SHA2哈希加密）
 INSERT INTO `admin` (`username`, `password`) VALUES 
 ('admin', SHA2('admin123', 256));
