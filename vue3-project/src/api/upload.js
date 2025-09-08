@@ -58,14 +58,6 @@ export async function uploadImage(file, options = {}) {
     const formData = new FormData()
     const filename = options.filename || (compressedFile instanceof File ? compressedFile.name : 'image.png')
     formData.append('file', compressedFile, filename)
-    
-    // 添加图床类型和API密钥支持
-    if (options.hostType) {
-      formData.append('hostType', options.hostType)
-    }
-    if (options.apiKey) {
-      formData.append('apiKey', options.apiKey)
-    }
 
     // 创建AbortController用于超时控制
     const controller = new AbortController()
@@ -89,12 +81,7 @@ export async function uploadImage(file, options = {}) {
 
     return {
       success: true,
-      data: { 
-        url: result.data.url, 
-        originalName: filename, 
-        size: file.size,
-        hostType: result.data.hostType
-      },
+      data: { url: result.data.url, originalName: filename, size: file.size },
       message: '上传成功'
     }
   } catch (error) {
@@ -135,11 +122,7 @@ export async function uploadImages(files, options = {}) {
           percent: Math.round(((i + 1) / fileArray.length) * 100)
         })
 
-        // 传递图床选项到单个文件上传
-        const result = await uploadImage(file, {
-          hostType: options.hostType,
-          apiKey: options.apiKey
-        })
+        const result = await uploadImage(file)
 
         if (result.success) {
           results.push(result.data)
@@ -307,31 +290,6 @@ export async function uploadBase64Images(base64Images) {
   }
 }
 
-// 获取可用图床列表
-export async function getImageHosts() {
-  try {
-    const response = await request.get('/api/upload/hosts')
-    
-    if (response.code !== 200) {
-      throw new Error(response.message || '获取图床列表失败')
-    }
-
-    return {
-      success: true,
-      data: response.data,
-      message: response.message
-    }
-  } catch (error) {
-    console.error('❌ 获取图床列表失败:', error.message)
-
-    return {
-      success: false,
-      data: {},
-      message: error.message || '获取图床列表失败'
-    }
-  }
-}
-
 export default {
   uploadImage,
   uploadImages,
@@ -339,6 +297,5 @@ export default {
   validateImageFile,
   formatFileSize,
   createImagePreview,
-  uploadBase64Images,
-  getImageHosts
+  uploadBase64Images
 }
