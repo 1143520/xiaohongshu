@@ -26,7 +26,6 @@ const uploadRoutes = require('./routes/upload');
 const statsRoutes = require('./routes/stats');
 const adminRoutes = require('./routes/admin');
 const { router: systemSettingsRoutes } = require('./routes/systemSettings');
-const exportRoutes = require('./routes/export');
 
 const app = express();
 
@@ -89,8 +88,7 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/system', systemSettingsRoutes);
-app.use('/api/export', exportRoutes); 
+app.use('/api/system', systemSettingsRoutes); 
 
 // 错误处理中间件
 app.use((err, req, res, next) => {
