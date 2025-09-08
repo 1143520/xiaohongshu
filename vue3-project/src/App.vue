@@ -9,6 +9,7 @@ import AuthModal from "@/components/modals/AuthModal.vue";
 import AboutModal from "@/components/modals/AboutModal.vue";
 import ChangePasswordModal from "@/components/modals/ChangePasswordModal.vue";
 import PWAInstallBanner from "@/components/PWAInstallBanner.vue";
+import MaintenanceModal from "@/components/MaintenanceModal.vue";
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -40,6 +41,7 @@ onMounted(() => {
       @close="changePasswordStore.closeChangePasswordModal"
     />
     <PWAInstallBanner />
+    <MaintenanceModal />
   </div>
 </template>
 

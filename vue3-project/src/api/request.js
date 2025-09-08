@@ -119,6 +119,22 @@ request.interceptors.response.use(
           errorMessage = '服务器内部错误'
           console.error('服务器内部错误:', error.response.data)
           break
+        case 503:
+          // 系统维护模式
+          const maintenanceData = error.response.data?.data
+          if (maintenanceData?.maintenance) {
+            // 显示维护模式弹窗
+            window.dispatchEvent(new CustomEvent('system-maintenance', {
+              detail: {
+                message: error.response.data.message || '系统正在维护中，请稍后再试',
+                retryAfter: maintenanceData.retry_after || '稍后'
+              }
+            }))
+            errorMessage = error.response.data.message || '系统正在维护中'
+          } else {
+            errorMessage = '服务暂时不可用'
+          }
+          break
         default:
           errorMessage = error.response.data?.message || `请求失败 (${error.response.status})`
       }
