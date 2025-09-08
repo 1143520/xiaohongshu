@@ -243,7 +243,7 @@ router.post('/convert-link', authenticateToken, async (req, res) => {
     const mimeType = getMimeType(ext);
     
     // 上传到图床
-    const result = await uploadToImageHost(imageBuffer, fileName, mimeType);
+    const result = await uploadToImageHostOld(imageBuffer, fileName, mimeType);
     
     if (result.success) {
       console.log(`图片链接转换成功 - 用户ID: ${req.user.id}, 原URL: ${url}, 新URL: ${result.url}`);

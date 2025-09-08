@@ -761,6 +761,8 @@ const convertImageUrl = async (imageUrl) => {
       },
       body: JSON.stringify({
         url: imageUrl,
+        hostType: props.imageUploadSettings.hostType,
+        apiKey: props.imageUploadSettings.apiKey,
       }),
     });
 
