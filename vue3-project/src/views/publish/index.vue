@@ -18,12 +18,60 @@
 
     <div class="publish-content">
       <form @submit.prevent="handlePublish" class="publish-form">
+        <!-- 图床选择区域 -->
+        <div class="image-host-section">
+          <div class="section-title">
+            <SvgIcon name="publish" width="16" height="16" />
+            图片上传设置
+          </div>
+          <div class="image-host-selector">
+            <div class="host-select-wrapper">
+              <label for="image-host">选择图床：</label>
+              <select
+                id="image-host"
+                v-model="imageUploadSettings.hostType"
+                class="host-select"
+                @change="handleHostTypeChange"
+              >
+                <option
+                  v-for="(host, key) in availableHosts"
+                  :key="key"
+                  :value="key"
+                >
+                  {{ host.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- NodeImage API Key 输入框 -->
+            <div
+              v-if="imageUploadSettings.hostType === 'nodeimage'"
+              class="api-key-wrapper"
+            >
+              <label for="api-key">API 密钥：</label>
+              <input
+                id="api-key"
+                v-model="imageUploadSettings.apiKey"
+                type="text"
+                class="api-key-input"
+                placeholder="请输入 NodeImage API 密钥"
+                maxlength="200"
+              />
+              <div class="api-key-hint">
+                <SvgIcon name="info" width="14" height="14" />
+                NodeImage 需要API密钥才能使用，请在官网获取
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="image-upload-section">
           <MultiImageUpload
             ref="multiImageUploadRef"
             v-model="form.images"
             :max-images="9"
             :allow-delete-last="true"
+            :image-upload-settings="imageUploadSettings"
             @error="handleUploadError"
           />
         </div>
@@ -158,6 +206,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { useNavigationStore } from "@/stores/navigation";
 import { createPost, getPostDetail, updatePost, deletePost } from "@/api/posts";
+import { getImageHosts } from "@/api/upload";
 import { useScrollLock } from "@/composables/useScrollLock";
 import { hasMentions, cleanMentions } from "@/utils/mentionParser";
 
@@ -197,6 +246,15 @@ const form = reactive({
   category: "",
 });
 
+// 图床设置
+const imageUploadSettings = reactive({
+  hostType: "default", // 默认图床
+  apiKey: "",
+});
+
+// 可用图床列表
+const availableHosts = ref({});
+
 // 草稿相关状态
 const currentDraftId = ref(null);
 const isEditMode = ref(false);
@@ -223,6 +281,7 @@ const canSaveDraft = computed(() => {
 onMounted(async () => {
   navigationStore.scrollToTop("instant");
   loadCategories();
+  await loadImageHosts();
 
   // 检查是否是编辑草稿模式
   const draftId = route.query.draftId;
@@ -247,6 +306,36 @@ const loadCategories = () => {
     { id: "upfollow", name: "up关注" },
     { id: "todo", name: "待办项目" },
   ];
+};
+
+// 加载可用图床列表
+const loadImageHosts = async () => {
+  try {
+    const result = await getImageHosts();
+    if (result.success) {
+      availableHosts.value = result.data;
+    } else {
+      console.warn("获取图床列表失败:", result.message);
+      // 使用默认图床
+      availableHosts.value = {
+        default: { name: "新叶图床", requiresApiKey: false },
+      };
+    }
+  } catch (error) {
+    console.error("加载图床列表失败:", error);
+    // 使用默认图床
+    availableHosts.value = {
+      default: { name: "新叶图床", requiresApiKey: false },
+    };
+  }
+};
+
+// 处理图床类型变化
+const handleHostTypeChange = () => {
+  // 如果切换到其他图床，清空API密钥
+  if (imageUploadSettings.hostType !== "nodeimage") {
+    imageUploadSettings.apiKey = "";
+  }
 };
 
 const validateForm = () => {
@@ -832,6 +921,97 @@ const handleSaveDraft = async () => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+/* 图床选择区域样式 */
+.image-host-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-color-secondary);
+  border: 1px solid var(--border-color-primary);
+  border-radius: 12px;
+}
+
+.image-host-section .section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-color-primary);
+  font-size: 0.95rem;
+}
+
+.image-host-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.host-select-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.host-select-wrapper label {
+  font-weight: 500;
+  color: var(--text-color-primary);
+  min-width: 80px;
+}
+
+.host-select {
+  flex: 1;
+  max-width: 200px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color-primary);
+  border-radius: 8px;
+  background: var(--bg-color-primary);
+  color: var(--text-color-primary);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.host-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
+}
+
+.api-key-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.api-key-wrapper label {
+  font-weight: 500;
+  color: var(--text-color-primary);
+}
+
+.api-key-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color-primary);
+  border-radius: 8px;
+  background: var(--bg-color-primary);
+  color: var(--text-color-primary);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.api-key-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
+}
+
+.api-key-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  margin-top: 0.25rem;
 }
 
 .image-upload-section {

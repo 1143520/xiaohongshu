@@ -5,7 +5,8 @@ const https = require('https');
 const http = require('http');
 const { URL } = require('url');
 const { authenticateToken } = require('../middleware/auth');
-const { uploadToImageHost, uploadBase64ToImageHost } = require('../utils/uploadHelper');
+const { uploadToImageHost: uploadToImageHostOld, uploadBase64ToImageHost: uploadBase64ToImageHostOld } = require('../utils/uploadHelper');
+const { uploadToImageHost, uploadBase64ToImageHost, getAvailableImageHosts } = require('../utils/imageHosts');
 
 // 配置 multer 内存存储（用于云端图床）
 const storage = multer.memoryStorage();
@@ -29,6 +30,21 @@ const upload = multer({
   }
 });
 
+// 获取可用图床列表
+router.get('/hosts', authenticateToken, (req, res) => {
+  try {
+    const hosts = getAvailableImageHosts();
+    res.json({
+      code: 200,
+      message: '获取成功',
+      data: hosts
+    });
+  } catch (error) {
+    console.error('获取图床列表失败:', error);
+    res.status(500).json({ code: 500, message: '获取图床列表失败' });
+  }
+});
+
 // 单文件上传到图床
 router.post('/single', authenticateToken, upload.single('file'), async (req, res) => {
   try {
@@ -36,16 +52,24 @@ router.post('/single', authenticateToken, upload.single('file'), async (req, res
       return res.status(400).json({ code: 400, message: '没有上传文件' });
     }
 
-    // 直接使用图床上传函数（传入buffer数据）
+    // 获取图床类型和API密钥（可选）
+    const hostType = req.body.hostType || 'default';
+    const apiKey = req.body.apiKey || null;
+
+    console.log(`上传图片 - 图床类型: ${hostType}, 文件名: ${req.file.originalname}`);
+
+    // 使用新的图床上传函数
     const result = await uploadToImageHost(
+      hostType,
       req.file.buffer,
       req.file.originalname,
-      req.file.mimetype
+      req.file.mimetype,
+      apiKey
     );
 
     if (result.success) {
       // 记录用户上传操作日志
-      console.log(`单文件上传成功 - 用户ID: ${req.user.id}, 文件名: ${req.file.originalname}`);
+      console.log(`单文件上传成功 - 用户ID: ${req.user.id}, 文件名: ${req.file.originalname}, 图床: ${hostType}`);
 
       res.json({
         code: 200,
@@ -53,7 +77,8 @@ router.post('/single', authenticateToken, upload.single('file'), async (req, res
         data: {
           originalname: req.file.originalname,
           size: req.file.size,
-          url: result.url
+          url: result.url,
+          hostType: hostType
         }
       });
     } else {
@@ -72,20 +97,27 @@ router.post('/multiple', authenticateToken, upload.array('files', 9), async (req
       return res.status(400).json({ code: 400, message: '没有上传文件' });
     }
 
+    // 获取图床类型和API密钥（可选）
+    const hostType = req.body.hostType || 'default';
+    const apiKey = req.body.apiKey || null;
+
     const uploadResults = [];
     
     for (const file of req.files) {
       const result = await uploadToImageHost(
+        hostType,
         file.buffer,
         file.originalname,
-        file.mimetype
+        file.mimetype,
+        apiKey
       );
       
       if (result.success) {
         uploadResults.push({
           originalname: file.originalname,
           size: file.size,
-          url: result.url
+          url: result.url,
+          hostType: hostType
         });
       }
     }
@@ -95,7 +127,7 @@ router.post('/multiple', authenticateToken, upload.array('files', 9), async (req
     }
 
     // 记录用户上传操作日志
-    console.log(`多文件上传成功 - 用户ID: ${req.user.id}, 文件数量: ${uploadResults.length}`);
+    console.log(`多文件上传成功 - 用户ID: ${req.user.id}, 文件数量: ${uploadResults.length}, 图床: ${hostType}`);
 
     res.json({
       code: 200,
@@ -111,7 +143,7 @@ router.post('/multiple', authenticateToken, upload.array('files', 9), async (req
 // Base64图片上传到图床
 router.post('/base64', authenticateToken, async (req, res) => {
   try {
-    const { images } = req.body;
+    const { images, hostType = 'default', apiKey = null } = req.body;
 
     if (!images || !Array.isArray(images) || images.length === 0) {
       return res.status(400).json({ code: 400, message: '没有提供图片数据' });
@@ -123,8 +155,8 @@ router.post('/base64', authenticateToken, async (req, res) => {
     for (const base64Data of images) {
       processedCount++;
 
-      // 使用通用上传函数
-      const result = await uploadBase64ToImageHost(base64Data);
+      // 使用新的图床上传函数
+      const result = await uploadBase64ToImageHost(hostType, base64Data, apiKey);
 
       if (result.success) {
         uploadResults.push(result.url);
@@ -136,14 +168,15 @@ router.post('/base64', authenticateToken, async (req, res) => {
     }
 
     // 记录用户上传操作日志
-    console.log(`Base64图片上传成功 - 用户ID: ${req.user.id}, 上传数量: ${uploadResults.length}`);
+    console.log(`Base64图片上传成功 - 用户ID: ${req.user.id}, 上传数量: ${uploadResults.length}, 图床: ${hostType}`);
 
     res.json({
       code: 200,
       message: '上传成功',
       data: {
         urls: uploadResults,
-        count: uploadResults.length
+        count: uploadResults.length,
+        hostType: hostType
       }
     });
   } catch (error) {

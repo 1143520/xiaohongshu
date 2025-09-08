@@ -69,7 +69,7 @@
 
     <!-- 独立的操作按钮区域 -->
     <div v-if="imageList.length < maxImages" class="upload-actions">
-      <button 
+      <button
         type="button"
         class="action-button upload-button"
         @click="!isUploading && triggerFileInput()"
@@ -78,8 +78,8 @@
         <SvgIcon name="publish" width="16" height="16" />
         上传图片
       </button>
-      
-      <button 
+
+      <button
         type="button"
         class="action-button link-button"
         @click="!isUploading && showLinkInput()"
@@ -109,7 +109,11 @@
     />
 
     <!-- 链接输入模态框 -->
-    <div v-if="showLinkModal" class="link-modal-overlay" @click="closeLinkModal">
+    <div
+      v-if="showLinkModal"
+      class="link-modal-overlay"
+      @click="closeLinkModal"
+    >
       <div class="link-modal" @click.stop>
         <div class="modal-header">
           <h3>添加图片链接</h3>
@@ -150,13 +154,18 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="cancel-btn" @click="closeLinkModal" :disabled="isLoadingImage">
+          <button
+            type="button"
+            class="cancel-btn"
+            @click="closeLinkModal"
+            :disabled="isLoadingImage"
+          >
             取消
           </button>
-          <button 
+          <button
             type="button"
-            class="confirm-btn" 
-            @click="addImageLink" 
+            class="confirm-btn"
+            @click="addImageLink"
             :disabled="isLoadingImage || !linkInput.trim()"
           >
             {{ isLoadingImage ? "验证中..." : "添加" }}
@@ -185,6 +194,13 @@ const props = defineProps({
   allowDeleteLast: {
     type: Boolean,
     default: false,
+  },
+  imageUploadSettings: {
+    type: Object,
+    default: () => ({
+      hostType: "default",
+      apiKey: "",
+    }),
   },
 });
 
@@ -248,11 +264,11 @@ watch(
   (newValue) => {
     if (isInternalUpdate) return; // 如果是内部更新触发的，跳过
 
-  if (newValue && newValue.length > 0) {
+    if (newValue && newValue.length > 0) {
       imageList.value = initializeImageList(newValue);
-  } else {
+    } else {
       imageList.value = [];
-  }
+    }
   },
   { immediate: true }
 );
@@ -265,18 +281,18 @@ watch(
 
     isInternalUpdate = true;
 
-  // 将内部格式转换为外部格式
+    // 将内部格式转换为外部格式
     const externalValue = newValue.map((item) => ({
-    id: item.id,
-    file: item.file,
-    preview: item.preview,
-    uploaded: item.uploaded,
+      id: item.id,
+      file: item.file,
+      preview: item.preview,
+      uploaded: item.uploaded,
       url: item.url,
     }));
     emit("update:modelValue", externalValue);
 
-  // 在下一个tick重置标志
-  nextTick(() => {
+    // 在下一个tick重置标志
+    nextTick(() => {
       isInternalUpdate = false;
     });
   },
@@ -555,7 +571,10 @@ const uploadAllImages = async () => {
       files.map((f) => f.name)
     );
 
-    const result = await imageUploadApi.uploadImages(files);
+    const result = await imageUploadApi.uploadImages(files, {
+      hostType: props.imageUploadSettings.hostType,
+      apiKey: props.imageUploadSettings.apiKey,
+    });
     console.log("上传API返回结果:", result);
 
     if (
@@ -723,45 +742,44 @@ const validateImageUrl = (url) => {
 const convertImageUrl = async (imageUrl) => {
   try {
     showMessage("正在转换图片链接...", "info");
-    
+
     // 获取token
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      throw new Error('请先登录后再使用转换功能');
+      throw new Error("请先登录后再使用转换功能");
     }
-    
-    console.log('调用链接转换接口:', '/api/upload/convert-link');
-    console.log('图片URL:', imageUrl);
-    
+
+    console.log("调用链接转换接口:", "/api/upload/convert-link");
+    console.log("图片URL:", imageUrl);
+
     // 调用后端接口转换图片链接
-    const response = await fetch('/api/upload/convert-link', {
-      method: 'POST',
+    const response = await fetch("/api/upload/convert-link", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        url: imageUrl
-      })
+        url: imageUrl,
+      }),
     });
-    
+
     if (response.status === 401) {
-      throw new Error('登录已过期，请重新登录');
+      throw new Error("登录已过期，请重新登录");
     }
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `服务器错误: ${response.status}`);
     }
-    
+
     const data = await response.json();
-    
+
     if (!data.success) {
-      throw new Error(data.message || '图片链接转换失败');
+      throw new Error(data.message || "图片链接转换失败");
     }
-    
+
     return data.url;
-    
   } catch (error) {
     console.error("图片链接转换失败:", error);
     throw error;
@@ -770,48 +788,48 @@ const convertImageUrl = async (imageUrl) => {
 
 // 检查用户登录状态
 const checkUserLogin = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   return !!token;
 };
 
 // 转换链接按钮点击事件
 const convertImageLink = async () => {
-  console.log('点击转换按钮');
-  console.log('isLoadingImage:', isLoadingImage.value);
-  console.log('linkInput:', linkInput.value);
-  console.log('linkInput.trim():', linkInput.value.trim());
-  console.log('checkUserLogin():', checkUserLogin());
-  
+  console.log("点击转换按钮");
+  console.log("isLoadingImage:", isLoadingImage.value);
+  console.log("linkInput:", linkInput.value);
+  console.log("linkInput.trim():", linkInput.value.trim());
+  console.log("checkUserLogin():", checkUserLogin());
+
   const url = linkInput.value.trim();
-  
+
   if (!url) {
     showMessage("请先输入图片链接", "error");
     return;
   }
-  
+
   if (!validateImageUrl(url)) {
     showMessage("请输入有效的图片链接", "error");
     return;
   }
-  
+
   // 检查登录状态
   if (!checkUserLogin()) {
     showMessage("请先登录后再使用转换功能", "error");
     return;
   }
-  
+
   isLoadingImage.value = true;
-  
+
   try {
     const convertedUrl = await convertImageUrl(url);
     linkInput.value = convertedUrl;
     showMessage("图片链接转换成功", "success");
   } catch (error) {
     showMessage(error.message || "图片链接转换失败", "error");
-    
+
     // 如果是401错误，清除本地token
-    if (error.message.includes('登录已过期')) {
-      localStorage.removeItem('token');
+    if (error.message.includes("登录已过期")) {
+      localStorage.removeItem("token");
     }
   } finally {
     isLoadingImage.value = false;
@@ -821,25 +839,25 @@ const convertImageLink = async () => {
 // 添加图片链接
 const addImageLink = async () => {
   const url = linkInput.value.trim();
-  
+
   if (!url) {
     showMessage("请输入图片链接", "error");
     return;
   }
-  
+
   if (!validateImageUrl(url)) {
     showMessage("请输入有效的图片链接（支持jpg、png、gif等格式）", "error");
     return;
   }
-  
+
   // 检查数量限制
   if (imageList.value.length >= props.maxImages) {
     showMessage(`最多只能添加${props.maxImages}张图片`, "error");
     return;
   }
-  
+
   isLoadingImage.value = true;
-  
+
   try {
     // 验证图片是否可以加载
     await new Promise((resolve, reject) => {
@@ -847,11 +865,11 @@ const addImageLink = async () => {
       img.onload = () => resolve();
       img.onerror = () => reject(new Error("图片加载失败"));
       img.src = url;
-      
+
       // 设置超时
       setTimeout(() => reject(new Error("图片加载超时")), 10000);
     });
-    
+
     // 添加到图片列表
     const newImage = {
       id: generateId(),
@@ -859,14 +877,13 @@ const addImageLink = async () => {
       preview: url,
       uploaded: true,
       url: url,
-      isLink: true // 标记为链接添加的图片
+      isLink: true, // 标记为链接添加的图片
     };
-    
+
     imageList.value.push(newImage);
-    
+
     showMessage("图片链接添加成功", "success");
     closeLinkModal();
-    
   } catch (error) {
     console.error("图片链接验证失败:", error);
     showMessage("图片链接无效或无法访问", "error");
@@ -1189,16 +1206,20 @@ defineExpose({
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideIn {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(-20px) scale(0.95);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
@@ -1429,50 +1450,50 @@ defineExpose({
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .action-button {
     min-width: auto;
     width: 100%;
   }
-  
+
   .link-modal {
     width: 95%;
     margin: 20px;
   }
-  
+
   .modal-header {
     padding: 20px 20px 16px;
   }
-  
+
   .modal-content {
     padding: 20px;
   }
-  
+
   .modal-footer {
     padding: 16px 20px 20px;
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .cancel-btn,
   .confirm-btn {
     width: 100%;
   }
-  
+
   .modal-tips:before {
     top: 12px;
     left: 16px;
   }
-  
+
   .modal-tips p {
     margin-left: 24px;
   }
-  
+
   .input-with-button {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .convert-btn {
     min-width: auto;
     width: 100%;
